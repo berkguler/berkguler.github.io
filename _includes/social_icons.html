@@ -1,5 +1,8 @@
 <!-- Social Icons -->
 <ul class="icons">
+  {%- if site.website_url -%}
+  <li><a href="{{- site.website_url -}}" class="icon-b fa-globe"><span class="label">Bilgişim</span></a></li>
+  {%- endif -%}
   {%- if site.twitter_url -%}
   <li><a href="{{- site.twitter_url -}}" class="icon-b fa-twitter"><span class="label">Twitter</span></a></li>
   {%- endif -%}
