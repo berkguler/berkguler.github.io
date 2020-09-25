@@ -1161,6 +1161,7 @@
         position: relative;
         -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+	background-color: #FFFFFF;
 
         &:before {
           position: absolute;
@@ -1255,7 +1256,6 @@
 }
 
 .timeline-body > {
-  background-color: #FFFFFF
   p, ul {
     margin-bottom: 0;
   }
