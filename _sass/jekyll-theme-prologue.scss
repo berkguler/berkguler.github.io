@@ -1153,6 +1153,7 @@
 
     > {
       .timeline-panel {
+	background-color:#FFFFFF;
         width: 46%;
         float: left;
         border: 1px solid #d4d4d4;
@@ -1161,7 +1162,7 @@
         position: relative;
         -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
-	background-color: #FFFFFF;
+	
 
         &:before {
           position: absolute;
@@ -1210,6 +1211,7 @@
 
     &.timeline-inverted > .timeline-panel {
       float: right;
+      background-color:#FFFFFF;
 
       &:before {
         border-left-width: 0;
