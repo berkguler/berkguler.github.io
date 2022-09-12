@@ -2,22 +2,77 @@
 title: Projects
 layout: post
 ---
-	<!-- Table -->
-	<div class="table-wrapper">
-		<table>
-			<tbody>
-				<tr>
-					<td>
-							<span class="image left">
-								<img src="{{ 'assets/images/pic03.jpg' | relative_url }}" alt="" />
-							</span>							
-					</td>
-					<td>Ante turpis integer aliquet porttitor. Deneme 2</td>
-					<td><a href="#" class="button icon fa-glasses">Read More</a></td>
-				</tr>
-
-			</tbody>
-		</table>
-	</div>
+	<h3>The Enhanced App for ATI F/T Sensors</h3>
+	<p>
+		<span class="image left">
+			<img src="{{ 'assets/images/sensorapp.PNG' | relative_url }}" alt="" />
+		</span>
+		For the physical Human-Robot Interaction (pHRI) systems, measuring forces applied by humans or the environment are prerequisites for engaging to interaction controller. ATI's force/torque transducers are preferred for our pHRI studies. F/T sensors are vulnerable to overloading interactions and have safety limits for performing reliable measurements. A sensor might become nonfunctional when interactions exceed the safety limits several times. Moreover, mounting the sensor into the robot's end effector demands attention not to go over the threaded range.
+		Consequently, monitoring voltages and forces/torques are required, especially during assembly. ATI provides the app for visualizing the measurement of one sensor. However, most of our work consists of two F/T sensors. Therefore, I have developed an application to monitor force torque readings simultaneously. The feature list of the application is listed below:	
+		<ul>
+			<li>Gauge Voltage Saturation Alarm and Visual Warning</li>
+			<li>Force / Torque Saturation Alarm and Visual Warning</li>
+			<li>Biasing sensor independently</li>
+			<li>Plotting the measurements</li>
+			<li>User-friendly GUI for selecting calibration files and device pin configurations</li>
+		</ul>
+		Technologies: <strong>C#</strong>, <strong>Windows Presentation Foundation (WPF)</strong> 
+	</p>
+	
+	
+	
+	<h3>Autonomous Manipulation and SLAM with the Hybrid Mobile Manipulator</h3> 
+	<p>
+		<span class="image right">
+			<img src="{{ 'assets/images/bachelorthesis.png' | relative_url }}" alt="" />
+		</span>
+		This study was completed as my Bachelor's Graduation Thesis, and it aimed to demonstrate the soft robotic as a part of the mobile manipulator and execute the autonomous pick&place manipulation. Soft robot parts of the hybrid mobile manipulator consisted of the soft gripper, while ClearPath's Husky UGV was utilized as a mobile platform.
+		Owing to the fact that the Covid-19 pandemic emerged, the actual implementation and experimentations had to move in a simulation environment. Gazebo had been preferred to simulate the ROS-enabled robot's execution of defined tasks. The tasks include:
+		<ul>
+			<li>The visual recognition of the marked boxed with ARtags.</li>
+			<li>Autonomous Navigation.</li>
+			<li>Pick&Place manipulation of the objects located on top of the marked boxes.</li>
+		</ul>
+		<h4>Technologies</h4>
+		A linear programming optimization algorithm has been selected for determining the link lengths. 
+		<strong>Siemens NX CAD</strong> was used to design the rigid parts of the hybrid mobile manipulator when the FEM analysis was executed on the <strong>Abaqus</strong> application. 
+		<strong>Arduino</strong> has controlled the actuators and enabled communication with <strong>ROS</strong>. 
+		Thanks to the attached <strong>RGB Camera</strong> and <strong>2D LIDAR</strong>, <strong>ROS Navigation Stack</strong> consists of <strong>gmapping</strong>, <strong>Adaptive Monte Carlo Localization with Extended Kalman Filter</strong>,  and <strong>OpenCV</strong> have powered the autonomous navigation and tag tracking. 
+		The Datmo Algorithm has assisted the L shape extraction from the point cloud to detect marked boxes. 
+		For the simulation platform, the <strong>Gazebo</strong> application was preferred. 
+		A geometric approach has been chosen to solve the serial manipulator's inverse kinematic instead of the MoveIt! package. 
+		You can watch the related videos and access the full text of the thesis below. 
+		Note that pick&place manipulation could not be captured since the physics engine of the Gazebo did not support actuation with deformable objects.
+		<div class="row">
+			<div class="4u 12u$(mobile)">
+			  <div class="item">
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/I2EtgWXcw2A?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<header>
+				  <h3>Autonomous Visual Fiducial Markers Recognition and Tracking</h3>
+				</header>
+			  </div>
+			</div>
+			<div class="4u 12u$(mobile)">
+			  <div class="item">
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/h6P0B-9w3nc?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<header>
+				  <h3>Approaching the Visual Fiducial Marker </h3>
+				</header>
+			  </div>
+			</div>
+			<div class="4u$ 12u$(mobile)">
+			  <div class="item">
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/z_LNgVIKvjI?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<header>
+				  <h3>Inverse Kinematics</h3>
+				</header>
+			  </div>
+			  <div class="item">
+			</div>
+		  </div>
+		  <hr>
+			<a href="https://berkguler.github.io/2020/09/25/hybridmm.html" class="button icon fa-memo">Full Text</a>
+	</p>
+	
 
 	
