@@ -2,8 +2,8 @@
 title: Projects
 layout: post
 ---
-<hr />
-	<h3>The Enhanced App for ATI F/T Sensors</h3>
+
+	<h3>The Enhanced App for ATI F/T Sensors</h3><hr />
 	<p>
 		For the physical Human-Robot Interaction (pHRI) systems, measuring forces applied by humans or the environment are prerequisites for engaging to interaction controller. ATI's force/torque transducers are preferred for our pHRI studies. F/T sensors are vulnerable to overloading interactions and have safety limits for performing reliable measurements. A sensor might become nonfunctional when interactions exceed the safety limits several times. Moreover, mounting the sensor into the robot's end effector demands attention not to go over the threaded range.
 		Consequently, monitoring voltages and forces/torques are required, especially during assembly. ATI provides the app for visualizing the measurement of one sensor. However, most of our work consists of two F/T sensors. Therefore, I have developed an application to monitor force torque readings simultaneously. The feature list of the application is listed below:	
@@ -14,15 +14,16 @@ layout: post
 			<li>Plotting the measurements</li>
 			<li>User-friendly GUI for selecting calibration files and device pin configurations</li>
 		</ul>
-		Technologies: <code>C#</code>, <code>Windows Presentation Foundation (WPF)</code> 
+		<strong>Technologies:</strong> <code>C#</code>, <code>Windows Presentation Foundation (WPF)</code> 
 		<span class="image left">
-			<img width="200" src="{{ 'assets/images/sensorapp.PNG' | relative_url }}" alt="" />
+			<img width="50" height = "50" src="{{ 'assets/images/sensorapp.PNG' | relative_url }}" alt="" />
 		</span>
 	</p>
 	
-<hr />
+<br />
 	
-	<h3>Autonomous Manipulation and SLAM with the Hybrid Mobile Manipulator</h3> 
+	<h3>Autonomous Manipulation and SLAM with the Hybrid Mobile Manipulator</h3> <hr />
+	
 	<p>
 		<span class="image right">
 			<img width="100" src="{{ 'assets/images/bachelorthesis.png' | relative_url }}" alt="" />
@@ -34,7 +35,8 @@ layout: post
 			<li>Autonomous Navigation.</li>
 			<li>Pick&Place manipulation of the objects located on top of the marked boxes.</li>
 		</ul>
-		<h4>Technologies</h4>
+
+		<strong>Technologies</strong>
 		A linear programming optimization algorithm has been selected for determining the link lengths. 
 		<code>Siemens NX CAD</code> was used to design the rigid parts of the hybrid mobile manipulator when the FEM analysis was executed on the <code>Abaqus</code> application. 
 		<code>Arduino</code> has controlled the actuators and enabled communication with <code>ROS</code>. 
