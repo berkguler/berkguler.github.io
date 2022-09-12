@@ -50,3 +50,10 @@
 		background-position: auto;
 		-ms-behavior: url("assets/js/ie/backgroundsize.min.htc");
 	}
+
+/* Berk Custom */
+	#div.item, iframe{
+		align-items: center;
+		align-content: center;
+		align-items: center;
+	}
