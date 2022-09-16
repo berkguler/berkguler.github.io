@@ -138,14 +138,10 @@ order: 2
 	In industry, complex tasks encourage human operators to work together with robots, and carrying heavy objects is one of them. 
 	Using the human's dexterity and intelligence and the robot's precision, we can drive and park heavy objects where the human operator wants without the programming in advance. 
 	This study's initial aim is to increase efficiency by understanding human motion intention. 
-	However, the human force's response is observed by delay due to the object's weight.
-	Therefore, we are using <code>Deep Learning</code> model to estimate human intention for amplifying or attenuating the human force. 
-	Constantly amplifying or attenuating is not an efficient way for human effort because of the different phases of the co-manipulation task. 
-	For the sake of example, amplification is preferable during driving; however, attenuation becomes more of an issue for parking. 
-	The model provides an adaptive force scaling factor by referring to human motion intention.
-	On the other hand, it is not guaranteed optimality for human operators in terms of comfort and effort. 
-	The model-free optimal control algorithm can resolve this issue. 
-	We prefer to use <code>Deep Reinforcement Learning</code> to adjust the existing adaptive force scaling factor to decrease human effort and increase comfort.
+	However, the human force's response is observed by delay due to the object's weight.Therefore, estimated human intention can help make decisions on amplifying or attenuating the human force. 
+	Constantly scaling in one way is not efficient for human effort because of the different phases of the co-manipulation task. Amplification is preferable during driving when attenuation becomes more of an issue for parking. 
+	The deep learning model provides an adaptive force scaling factor by referring to human motion intention without guaranteeing optimal human effort and comfort. 
+	The model-free optimal control algorithm, <code>deep reinforcement learning</code>, adjusts the existing adaptive force scaling factor to decrease human effort and increase comfort.
 	<br>
 		
 		<ul>
