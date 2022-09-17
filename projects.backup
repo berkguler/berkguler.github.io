@@ -1,0 +1,158 @@
+---
+title: Projects
+layout: page
+icon: fa-pencil-alt
+order: 2
+---
+<hr/>
+<h3>Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance under Adaptive Admittance Control</h3>
+<hr/>
+<p>
+	<span class="image right">
+		<img width="517" height = "392" src="{{ 'assets/images/IROS_experiments.png' | relative_url }}" alt="" />
+	</span>
+	Drilling a hole on a curved surface with a desired angle is prone to failure when done manually, due to
+	the difficulties in drill alignment and also inherent instabilities of the task, potentially causing injury and
+	fatigue to the workers. On the other hand, it can be impractical to fully automate such a task in real
+	manufacturing environments because the parts arriving at an assembly line can have various complex
+	shapes where drill point locations are not easily accessible, making automated path planning difficult.
+	In this work, an adaptive admittance controller with 6 degrees of freedom is developed and deployed
+	on a KUKA LBR iiwa 7 cobot such that the operator is able to manipulate a drill mounted on the robot
+	with one hand comfortably and open holes on a curved surface with haptic guidance of the cobot and
+	visual guidance provided through an AR interface.
+	<br>
+
+	
+	<ul>
+		<strong>My Contributions:</strong> 
+		<li>Developed an admittance controller in <code>C++</code> using <code>Fast Robot Interface (FRI)</code> of <code>KUKA iiwa co-bot</code>.</li>
+		<li>Developed an mixed reality (MR) interface in <code>C#</code>, working with <code>Microsoft HoloLens</code>, using <code>Unity Game Engine</code> and <code>Microsoft's Mixed Reality Toolkit (MRTK)</code>.</li>
+		<li>Implemented a <code>Kalman Filter</code> to track 6-DoF movements of  HoloLens and the workpiece being drilled via visual fiducial markers (AprilTag) attached to them.</li>
+		<li>Constructed a 3D mesh model of the workpiece using a <code>depth camera (Microsoft Kinect)</code>.</li>
+		<li>Established a <code>TCP</code> communication between the robot and HoloLens.</li>
+	</ul>
+
+	<br>
+	<blockquote>
+		A. Madani, P. P. Niaz, <strong>B. Guler</strong>,  Y. Aydin, and C. Basdogan,
+		“Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance under Adaptive Admittance Control”
+		IROS, 2022. Available: <br>
+		<a href="https://arxiv.org/abs/2207.13999" class="button icon fa-solid fa-file-pdf"> Full Text</a>
+
+	</blockquote>
+</p>
+
+
+<hr/>
+<h3>An adaptive admittance controller for collaborative drilling with a robot based on subtask classification via deep learning</h3>
+<hr/>
+<p>
+	<span class="image left">
+		<img width="500" height = "253" src="{{ 'assets/images/mechatronics_cad.jpg' | relative_url }}" alt="" />
+	</span>
+	In this paper, we propose a supervised learning approach based on an Artificial Neural Network (ANN) model for real-time classification of subtasks in a physical human-robot interaction (pHRI) task involving contact with a stiff environment. In this regard, we consider three subtasks for a given pHRI task: Idle, Driving, and Contact. Based on this classification, the parameters of an admittance controller that regulates the interaction between human and robot are adjusted adaptively in real-time to make the robot more transparent to the operator (i.e., less resistant) during the Driving phase and more stable during the Contact phase. The Idle phase is primarily used to detect the initiation of the task. 
+	<br>
+
+	
+	<ul>
+		<strong>My Contributions:</strong> 
+		<li>Developed a control architecture for regulating the physical interactions between human and a robot (pHRI) via an admittance controller implemented on <code>KUKA iiwa co-bot</code>.</li>
+		<li>Performed a linear time-varying stability analysis for the pHRI system.</li>
+		<li>Developed a <code>deep learning (DL)</code> model to classify the subtasks of a task using the <code>Tensorflow</code> framework in <code>Python</code>.</li>
+		<li>Developed methods to adapt the parameters of the admittance controller based on the outcome of the DL model.</li>
+		<li>Developed a graphical user interface (GUI) in <code>C#</code> for reading and recording data from <code>ATI force sensors</code>.</li>
+		<li>Designed pHRI experiments, collected data, and performed statistical analysis on the data.</li>
+
+	</ul>
+
+	<br>
+	<blockquote>
+		<strong>B. Guler</strong>, P. P. Niaz, A. Madani, Y. Aydin, and C. Basdogan,
+		“An adaptive admittance controller for collaborative drilling with
+		a robot based on subtask classification via deep learning”
+		Mechatronics, vol. 86, p. 102851, 2022. Available: <br>
+		<a href="https://arxiv.org/abs/2205.14457" class="button icon fa-solid fa-file-pdf"> Full Text</a>
+
+	</blockquote>
+</p>
+
+	<hr/>
+	<h3>Autonomous Manipulation and SLAM with the Hybrid Mobile Manipulator</h3> 
+	<hr/>
+	
+	<p>
+		<span class="image right">
+			<img width="300" height="450" src="{{ 'assets/images/bachelorthesis.png' | relative_url }}" alt="" />
+		</span>
+		
+		This study demonstrates the soft robotic as a part of the mobile manipulator that executes the defined tasks, which are listed below:
+		<ul>
+			<li>Autonomous Navigation using SLAM.</li>
+			<li>The visual recognition of the marked boxed with ARtags.</li>
+			<li>Pick&Place manipulation of the objects located on top of the marked boxes.</li>
+		</ul>
+		<br>
+		
+		<ul>
+			<strong>My Contributions:</strong> 
+			<li>Designed a serial robotic manipulator using <code>Siemens NX</code> and manufactured it using 3-D printing technology.</li>
+			<li>Designed a soft gripper using <code>PneuNets</code>, and analyzed by utilizing finite element methods using <code>Abaqus</code>.</li>
+			<li>Integrated the robotic manipulator with a mobile platform.</li>
+			<li>Developed the <code>ROS packages</code> for the manipulator in <code>Python</code>.</li>
+			<li>Tracked the positions of the marked boxes using visual fiducial markers (ARTag) attached to the box using <code>OpenCV</code>.</li>
+			<li>Implemented a <code>SLAM</code> algorithm from <code>ROS Navigation Stack</code> to estimate the pose of the mobile platform using <code>LIDAR</code> and <code>IMU</code>.</li>
+		</ul>
+		<div class="row">
+			<div class="4u 12u$(mobile)">
+			  <div class="item">
+				<iframe src="https://www.youtube.com/embed/I2EtgWXcw2A?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<header>
+				  <h3>Autonomous Visual Fiducial Markers Recognition and Tracking</h3>
+				</header>
+			  </div>
+			</div>
+			<div class="4u 12u$(mobile)">
+			  <div class="item">
+				<iframe src="https://www.youtube.com/embed/h6P0B-9w3nc?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<header>
+				  <h3>Approaching the Visual Fiducial Marker </h3>
+				</header>
+			  </div>
+			</div>
+			<div class="4u$ 12u$(mobile)">
+			  <div class="item">
+				<iframe   src="https://www.youtube.com/embed/z_LNgVIKvjI?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<header>
+				  <h3>Inverse Kinematics</h3>
+				</header>
+			  </div>
+			  <div class="item">
+			</div>
+		  </div>
+		</div>
+			<a href="https://berkguler.github.io/2020/09/25/hybridmm.html" class="button icon fa-solid fa-file-pdf"> Full Text</a>
+	</p>
+
+	<hr/>
+	<h3>[Active Project] Reinforcement Learning to Optimize Task Performance in Physical Human-Robot Co-Manipulation</h3>
+	<hr/>
+<p>
+
+	In industry, complex tasks encourage human operators to work together with robots, and carrying heavy objects is one of them. 
+	Using the human's dexterity and intelligence and the robot's precision, we can drive and park heavy objects where the human operator wants without the programming in advance. 
+	This study's initial aim is to increase efficiency by understanding human motion intention. 
+	However, the human force's response is observed by delay due to the object's weight.Therefore, estimated human intention can help make decisions on amplifying or attenuating the human force. 
+	Constantly scaling in one way is not efficient for human effort because of the different phases of the co-manipulation task. Amplification is preferable during driving when attenuation becomes more of an issue for parking. 
+	The deep learning model provides an adaptive force scaling factor by referring to human motion intention without guaranteeing optimal human effort and comfort. 
+	The model-free optimal control algorithm, <code>deep reinforcement learning</code>, adjusts the existing adaptive force scaling factor to decrease human effort and increase comfort.
+	<br>
+		
+		<ul>
+			<strong>My Contributions:</strong> 
+			<li>Developed an experimental set-up for human-robot co-manipulation of a heavy object.</li>
+			<li>Developed a <code>deep learning (DL)</code> model using <code>Tensorflow</code> in <code>Python</code> to estimate human intention to accelerate/decelerate the manipulated object.</li>
+			<li>Developed a <code>deep reinforcement learning (DRL)</code> model, working with the DL model, to optimize task performance based on minimum jerk and human effort.</li>
+			<li>Designed pHRI experiments, collected data, and performed statistical analysis on the data.</li>
+		</ul>
+</p>
+	

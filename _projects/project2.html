@@ -1,0 +1,37 @@
+---
+title: An adaptive admittance controller for collaborative drilling with a robot based on subtask classification via deep learning
+icon: fa-pencil-alt
+order: 2
+---
+<hr/>
+<h3>An adaptive admittance controller for collaborative drilling with a robot based on subtask classification via deep learning</h3>
+<hr/>
+<p>
+	<span class="image left">
+		<img width="500" height = "253" src="{{ 'assets/images/mechatronics_cad.jpg' | relative_url }}" alt="" />
+	</span>
+	In this paper, we propose a supervised learning approach based on an Artificial Neural Network (ANN) model for real-time classification of subtasks in a physical human-robot interaction (pHRI) task involving contact with a stiff environment. In this regard, we consider three subtasks for a given pHRI task: Idle, Driving, and Contact. Based on this classification, the parameters of an admittance controller that regulates the interaction between human and robot are adjusted adaptively in real-time to make the robot more transparent to the operator (i.e., less resistant) during the Driving phase and more stable during the Contact phase. The Idle phase is primarily used to detect the initiation of the task. 
+	<br>
+
+	
+	<ul>
+		<strong>My Contributions:</strong> 
+		<li>Developed a control architecture for regulating the physical interactions between human and a robot (pHRI) via an admittance controller implemented on <code>KUKA iiwa co-bot</code>.</li>
+		<li>Performed a linear time-varying stability analysis for the pHRI system.</li>
+		<li>Developed a <code>deep learning (DL)</code> model to classify the subtasks of a task using the <code>Tensorflow</code> framework in <code>Python</code>.</li>
+		<li>Developed methods to adapt the parameters of the admittance controller based on the outcome of the DL model.</li>
+		<li>Developed a graphical user interface (GUI) in <code>C#</code> for reading and recording data from <code>ATI force sensors</code>.</li>
+		<li>Designed pHRI experiments, collected data, and performed statistical analysis on the data.</li>
+
+	</ul>
+
+	<br>
+	<blockquote>
+		<strong>B. Guler</strong>, P. P. Niaz, A. Madani, Y. Aydin, and C. Basdogan,
+		“An adaptive admittance controller for collaborative drilling with
+		a robot based on subtask classification via deep learning”
+		Mechatronics, vol. 86, p. 102851, 2022. Available: <br>
+		<a href="https://arxiv.org/abs/2205.14457" class="button icon fa-solid fa-file-pdf"> Full Text</a>
+
+	</blockquote>
+</p>
