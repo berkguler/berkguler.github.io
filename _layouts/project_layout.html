@@ -1,16 +1,20 @@
 ---
 layout: default
 ---
-{%- assign _projects = site.projects | sort: 'order' -%}
+{%- assign _projects = site.project_list | sort: 'order' -%}
 {%- include header.html scrolly_nav=_projects -%}
 <!-- Main -->
 <div id="main">
-	<!-- Page -->
-	{%- if page.content != "" -%}
-	{%- include section.html title=page.title photo=page.cover-photo photo-alt=page.cover-photo-alt auto-header=page.auto-header content=page.content -%}
-	{%- endif -%}
-	<!-- Sections -->
-	{%- for _section in _projects-%}
-		{%- include section.html title=_section.title photo=_section.cover-photo photo-alt=_section.cover-photo-alt auto-header=_section.auto-header content=_section.content -%}
-	{%- endfor -%}
+	<article class="shade-two">
+		<div class="container">
+			<!-- Page -->
+			{%- if page.content != "" -%}
+			{%- include section.html title=page.title photo=page.cover-photo photo-alt=page.cover-photo-alt auto-header=page.auto-header content=page.content -%}
+			{%- endif -%}
+			<!-- Sections -->
+			{%- for _section in _projects-%}
+				{%- include section.html title=_section.title photo=_section.cover-photo photo-alt=_section.cover-photo-alt auto-header=_section.auto-header content=_section.content -%}
+			{%- endfor -%}
+		</div>
+	</article>
 </div>
