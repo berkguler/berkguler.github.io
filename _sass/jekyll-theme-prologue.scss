@@ -526,12 +526,7 @@
 			}
 		}
 
-		.intro {
-			h2 {
-				font-weight: 300;
-			}
-			
-		}
+
 	}
 
 	#logo {
@@ -1273,7 +1268,13 @@
     margin-top: 5px;
   }
 }
-
+#header {
+	.intro {
+		h2 {
+			font-weight: 300;
+		}
+	}
+}
 
 
 
