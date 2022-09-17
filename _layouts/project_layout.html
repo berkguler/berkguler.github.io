@@ -13,7 +13,7 @@ layout: default
 			{%- endif -%}
 			<!-- Sections -->
 			{%- for _section in _projects-%}
-				{%- include section.html content=_section.content -%}
+				{%- include section.html title=" " photo=_section.cover-photo photo-alt=_section.cover-photo-alt auto-header=_section.auto-header content=_section.content -%}
 			{%- endfor -%}
 		</div>
 	</article>
