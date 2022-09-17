@@ -35,7 +35,7 @@ subtitle:
 description: >- # this means to ignore newlines until "baseurl:"
   Berk Guler's Personal Website
 author: Berk Güler
-email: bilgisim@gmail.com
+email: berkguler20@ku.edu.tr
 avatar: assets/images/pp.jpg
 
 # You'll want to customize url and baseurl for your own site:
@@ -60,7 +60,7 @@ scholar_url: https://scholar.google.com/citations?user=vQZtFpMAAAAJ&hl=tr
 researchgate_url: https://www.researchgate.net/profile/Berk_Gueler
 
 # Google Analytics Tracking ID goes here:
-google_analytics:
+google_analytics: G-P6K65NVBF7
 
 # The following settings are NECESSARY for the Prologue theme to run:
 remote_theme: chrisbobbe/jekyll-theme-prologue
