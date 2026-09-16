@@ -1,0 +1,41 @@
+---
+title: BarrierIK
+icon: fa-pencil-alt
+order: 1
+---
+<hr/>
+<h3>A Safety-Aware Shared Autonomy Framework with BarrierIK Using Control Barrier Functions</h3>
+<hr/>
+<p>
+	<span class="image right">
+		<img width="480" src="https://berkguler.github.io/barrierik/static/images/hierarchy_video.gif" alt="BarrierIK system overview" />
+	</span>
+	Shared autonomy blends operator intent with autonomous assistance, but in cluttered environments, linearly
+	blending individually collision-free commands can still produce unsafe motion. Most prior approaches only
+	enforce obstacle avoidance as a soft constraint through potentials or cost terms. In this work, we introduce
+	BarrierIK, which embeds control barrier functions (CBFs) directly into the inverse kinematics (IK) layer of
+	shared autonomy, enforcing safety as a hard constraint while remaining compatible with standard IK objectives
+	such as pose tracking, joint limits, and smoothness. We evaluate BarrierIK in simulation on cluttered
+	manipulation scenes and in a VR teleoperation user study comparing pure teleoperation with shared autonomy.
+	Across conditions, filtering blended commands through CBFs at the IK layer reduces safety-violation time and
+	increases minimum clearance while preserving task performance; participants also reported higher perceived
+	safety and trust, lower interference, and an overall preference for shared autonomy with our safety filter.
+	<br>
+
+	<ul>
+		<strong>My Contributions:</strong>
+		<li>Formulated and implemented <code>BarrierIK</code>, a control-barrier-function-constrained inverse kinematics solver that enforces post-blend safety as a hard inequality constraint alongside standard IK objectives.</li>
+		<li>Designed and ran the simulation benchmarks in cluttered environments, evaluating safety-violation time and minimum clearance against baseline shared-autonomy blending.</li>
+		<li>Designed and conducted the <code>VR</code> teleoperation user study comparing pure teleoperation with CBF-filtered shared autonomy.</li>
+		<li>Analyzed the objective (clearance, violation time, task performance) and subjective (trust, perceived safety, interference) study results.</li>
+	</ul>
+
+	<br>
+	<blockquote>
+		<strong>B. Guler</strong>, K. Pompetzki, Y. Sun, S. Manschitz, and J. Peters,
+		“A Safety-Aware Shared Autonomy Framework with BarrierIK Using Control Barrier Functions,”
+		IEEE International Conference on Robotics and Automation (ICRA), 2026. Available: <br>
+		<a href="https://arxiv.org/abs/2603.01705" class="button icon fa-solid fa-file-pdf"> arXiv</a>
+		<a href="https://berkguler.github.io/barrierik/" class="button icon fa-solid fa-globe"> Project Page</a>
+	</blockquote>
+</p>
