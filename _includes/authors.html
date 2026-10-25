@@ -1,0 +1,11 @@
+{%- comment -%}
+  Author list with my own name highlighted.
+  Include vars: authors (array of names; a trailing * marks equal contribution)
+{%- endcomment -%}
+{%- for _a in include.authors -%}
+  {%- assign _clean = _a | remove: '*' -%}
+  {%- if site.data.me.names contains _clean -%}<span class="me">{{ _a }}</span>{%- else -%}{{ _a }}{%- endif -%}
+  {%- unless forloop.last -%}, {% endunless -%}
+{%- endfor -%}
+{%- assign _joined = include.authors | join: '|' -%}
+{%- if _joined contains '*' %} <span class="equal-note">(* equal contribution)</span>{%- endif -%}

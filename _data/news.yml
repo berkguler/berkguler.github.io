@@ -1,0 +1,47 @@
+# Newest first. `text` may contain HTML. The first five are shown by default;
+# the rest sit behind a "Show older news" toggle.
+
+- date: Sep 2026
+  text: >-
+    <a href="https://arxiv.org/abs/2609.18455">ForwardDLO</a>, a fast learned forward model
+    for bimanual shape matching of unconstrained ropes, is out on arXiv.
+
+- date: May 2026
+  text: >-
+    <a href="https://arxiv.org/abs/2605.06323">AssistDLO</a> is out on arXiv: assistive
+    teleoperation for rope manipulation, evaluated in a 22-participant knot-untangling study.
+
+- date: May 2026
+  text: >-
+    <a href="https://arxiv.org/abs/2605.16043">Sim-grounded policies for bimanual rope
+    manipulation</a> at the ICRA 2026 Workshop on Beyond Teleoperation.
+
+- date: Apr 2026
+  text: >-
+    <a href="https://arxiv.org/abs/2604.28161">RopeDreamer</a>, a kinematic recurrent
+    state-space model for rope dynamics, is out on arXiv.
+
+- date: Mar 2026
+  text: >-
+    <a href="https://berkguler.github.io/barrierik/">BarrierIK</a> (ICRA 2026) is online with
+    paper, code, and our Unity VR teleoperation framework.
+
+- date: Apr 2025
+  text: >-
+    <a href="https://arxiv.org/abs/2504.18186">Sampling-Based Grasp and Collision Prediction for
+    Assisted Teleoperation</a> (ICRA 2025) is out on arXiv.
+
+- date: "2025"
+  text: >-
+    <em>Towards Assistive Teleoperation for Knot Untangling</em> published at the German
+    Robotics Conference (GRC 2025).
+
+- date: "2023"
+  text: >-
+    Started my PhD at the <a href="https://www.ias.informatik.tu-darmstadt.de/">IAS Lab, TU
+    Darmstadt</a>, jointly with <a href="https://www.honda-ri.de/">Honda Research Institute Europe</a>.
+
+- date: "2022"
+  text: >-
+    Adaptive admittance control for human–robot collaborative drilling published in
+    <em>Mechatronics</em> and at IROS 2022.

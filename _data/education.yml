@@ -1,0 +1,34 @@
+- degree: Ph.D. in Computer Science
+  period: 2023 – present
+  current: true
+  institution: Technical University of Darmstadt
+  institution_url: https://www.tu-darmstadt.de
+  unit: Intelligent Autonomous Systems Lab (IAS)
+  unit_url: https://www.ias.informatik.tu-darmstadt.de/
+  partner: Honda Research Institute Europe
+  partner_url: https://www.honda-ri.de/
+  advisors: Prof. Jan Peters (TU Darmstadt) and Dr. Simon Manschitz (Honda Research Institute Europe)
+  details: "Research: autonomy-infused teleoperation for dexterous object manipulation."
+
+- degree: M.Sc. in Mechanical Engineering
+  period: 2020 – 2023
+  institution: Koç University, Istanbul
+  institution_url: https://www.ku.edu.tr
+  unit: Robotics and Mechatronics Laboratory (RML) · KUIS AI Center
+  unit_url: https://rml.ku.edu.tr/
+  advisors: Prof. Çağatay Başdoğan
+  details: >-
+    Physical human–robot interaction, optimal control for pHRI, and robot learning.
+    Thesis: <em>Deep Reinforcement Learning to Optimize Task Performance in Human-Robot
+    Co-Manipulation</em>.
+
+- degree: B.Sc. in Control and Automation Engineering
+  period: 2015 – 2020
+  institution: Istanbul Technical University
+  institution_url: https://www.itu.edu.tr
+  unit: Control and Automation Engineering Department
+  unit_url: https://www.kontrol.itu.edu.tr/en
+  advisors: Prof. Hakan Temeltaş
+  details: >-
+    Thesis: a hybrid mobile manipulator combining rigid and soft subsystems
+    (<a href="/projects/hybrid-mobile-manipulator/">project</a>).

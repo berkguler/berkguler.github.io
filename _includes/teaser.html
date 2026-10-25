@@ -1,0 +1,22 @@
+{%- comment -%}
+  Project media. Include vars: teaser (hash from a project's front matter)
+    type: image | rope | svg | icon
+    image: src, alt, fit (cover|contain), position
+    rope:  scene (see assets/js/rope.js), alt
+    svg:   file (in _includes/teasers/), alt
+    icon:  icon (Font Awesome classes), label
+{%- endcomment -%}
+{%- assign _t = include.teaser -%}
+<div class="teaser teaser--{{ _t.type }}{% if _t.fit == 'contain' %} teaser--contain{% endif %}">
+  {%- case _t.type -%}
+  {%- when 'image' -%}
+    {%- if _t.src contains '://' -%}{%- assign _src = _t.src -%}{%- else -%}{%- assign _src = _t.src | relative_url -%}{%- endif -%}
+    <img src="{{ _src }}" alt="{{ _t.alt | escape }}" loading="lazy" decoding="async"{% if _t.position %} style="object-position: {{ _t.position }}"{% endif %} />
+  {%- when 'rope' -%}
+    <svg class="rope-canvas" data-rope="{{ _t.scene }}" viewBox="0 0 400 250" role="img" aria-label="{{ _t.alt | escape }}"></svg>
+  {%- when 'svg' -%}
+    {%- include teasers/{{ _t.file }} alt=_t.alt -%}
+  {%- else -%}
+    <div class="teaser-icon"><i class="{{ _t.icon }}" aria-hidden="true"></i><span>{{ _t.label }}</span></div>
+  {%- endcase -%}
+</div>

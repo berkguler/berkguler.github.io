@@ -1,0 +1,38 @@
+---
+title: "Deep Reinforcement Learning for Human-Robot Co-Manipulation"
+pub: msc-thesis
+theme: phri
+order: 3
+summary: >-
+  My M.Sc. thesis: a deep-learning model estimates the operator's intention to accelerate or
+  decelerate a heavy object and scales the human force accordingly; deep reinforcement learning
+  then tunes this scaling to reduce effort and jerk.
+teaser:
+  type: icon
+  icon: fa-solid fa-people-carry-box
+  label: Human–robot co-manipulation of heavy objects
+---
+<h2>Overview</h2>
+<p>
+  Carrying heavy objects is a natural task for humans and robots to share: the human contributes
+  dexterity and judgment, the robot strength and precision, and together they can drive and park
+  a heavy object where the operator wants without programming the motion in advance. Because of
+  the object's weight, the operator's force response lags, so estimating the operator's motion
+  intention helps decide when to amplify or attenuate the human force. A fixed scaling is not
+  efficient across the phases of the task: amplification helps while driving, attenuation while
+  parking.
+</p>
+<p>
+  A deep-learning model provides an adaptive force-scaling factor from the estimated human
+  intention, but it does not guarantee minimal effort or maximal comfort. A model-free optimal
+  control method, deep reinforcement learning, adjusts this scaling factor to reduce human effort
+  and increase comfort.
+</p>
+
+<h2>My contributions</h2>
+<ul>
+  <li>Built an experimental setup for human-robot co-manipulation of a heavy object.</li>
+  <li>Developed a deep-learning model in <code>Python</code> with <code>TensorFlow</code> to estimate the human's intention to accelerate or decelerate the object.</li>
+  <li>Developed a deep reinforcement learning agent, working with the intention model, that optimizes task performance with respect to minimum jerk and human effort.</li>
+  <li>Designed the pHRI experiments, collected the data, and performed the statistical analysis.</li>
+</ul>

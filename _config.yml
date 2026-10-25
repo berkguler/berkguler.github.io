@@ -1,69 +1,54 @@
-# Developer's Note: This is a sample _config.yml file offered with
-# jekyll-theme-prologue for your convenience. To use it, move it to your
-# project's root directory. Please note that the following lines are
-# NECESSARY for Prologue to work correctly:
-#
-# theme: jekyll-theme-prologue
-# collections: [sections]
-#
-# They activate the theme and tell Jekyll to find your homepage content
-# in /_sections. Note where "sections" starts with an underscore
-# and where it doesn't. The social settings will make links to
-# Twitter, etc., but only if you give the URL.
-#
-# Also, be sure to customize url and baseurl for your site.
-#
-# ---------------------------------------------------------------
-#
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-
 # Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
 title: Berk Güler
-subtitle: 
-description: >- # this means to ignore newlines until "baseurl:"
-  Berk Guler's Personal Website
+description: >-
+  Berk Güler — PhD candidate in robotics at the Intelligent Autonomous Systems
+  Lab, TU Darmstadt, and Honda Research Institute Europe. Assistive
+  teleoperation, shared autonomy, and deformable linear object manipulation.
 author: Berk Güler
 email: berk.gueler@tu-darmstadt.de
-avatar: assets/images/pp.jpg
+avatar: assets/images/profile.jpg
 
-# You'll want to customize url and baseurl for your own site:
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site
+url: "https://berkguler.github.io"
+baseurl: ""
 
-# Social settings
-# Make sure to include the full url including protocol, e.g. https://github.com/chrisbobbe
-website_url: https://www.bilgisim.com
-twitter_url: https://www.twitter.com/legendofskull
-facebook_url:
-googleplus_url:
-instagram_url:
-linkedin_url: https://www.linkedin.com/in/berkguler/
-github_url: https://www.github.com/berkguler
-stackoverflow_url:
-pinterest_url:
-slack_url:
-dribbble_url:
+# Profile links (leave a value empty to hide it)
+scholar_url: https://scholar.google.com/citations?user=vQZtFpMAAAAJ
 orcid_url: https://orcid.org/0000-0002-7273-2441
-scholar_url: https://scholar.google.com/citations?user=vQZtFpMAAAAJ&hl=tr
+github_url: https://github.com/berkguler
+linkedin_url: https://www.linkedin.com/in/berkguler/
 researchgate_url: https://www.researchgate.net/profile/Berk_Gueler
+twitter_url: https://www.twitter.com/legendofskull
+ias_url: https://www.ias.informatik.tu-darmstadt.de/Team/BerkGueler
+website_url: https://www.bilgisim.com
+# Drop a PDF into assets/pdf/ and point this at it to show a CV button.
+cv_url:
 
-# Google Analytics Tracking ID goes here:
+# Google Analytics tracking ID
 google_analytics: G-P6K65NVBF7
 
-# The following settings are NECESSARY for the Prologue theme to run:
-remote_theme: chrisbobbe/jekyll-theme-prologue
 collections:
-  - sections
-  - projects
+  projects:
+    output: true
+    permalink: /projects/:name/
+
+defaults:
+  - scope:
+      type: projects
+    values:
+      layout: project
+  - scope:
+      type: posts
+    values:
+      layout: post
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+exclude:
+  - README.md
+  - LICENSE.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .sass-cache

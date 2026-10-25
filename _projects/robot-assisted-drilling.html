@@ -1,0 +1,61 @@
+---
+title: "Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance"
+pub: drilling-iros
+theme: phri
+order: 1
+summary: >-
+  A 6-DoF adaptive admittance controller on a KUKA LBR iiwa, combined with haptic guidance and a
+  HoloLens AR interface, lets an operator drill holes into curved workpieces at a chosen angle
+  with one hand.
+teaser:
+  type: image
+  src: /assets/images/projects/drilling-teaser.jpg
+  alt: An operator wearing a HoloLens guides a KUKA iiwa with a mounted drill toward a curved wooden workpiece
+  caption: The operator guides the cobot-mounted drill while the AR headset shows the drill targets.
+---
+<h2>Overview</h2>
+<p>
+  Drilling a hole into a curved surface at a desired angle is error-prone when done by hand: the
+  drill is hard to align, the task is inherently unstable, and it can cause injury and fatigue.
+  Fully automating it is often impractical too, because parts arriving at an assembly line come in
+  many shapes and drill locations are not always accessible to a pre-planned path. We developed a
+  6-DoF adaptive admittance controller on a KUKA LBR iiwa 7 cobot so that an operator can move a
+  robot-mounted drill with one hand. The admittance damping adapts to the task phase, haptic
+  guidance aligns the drill and then constrains motion to the drilling axis, and an AR interface on
+  a Microsoft HoloLens provides visual guidance.
+</p>
+
+<figure>
+  <img src="{{ '/assets/images/projects/drilling-ar.jpg' | relative_url }}" alt="Augmented-reality view with a target hemisphere at the drill point, and the robot-mounted drill with AR alignment bars" loading="lazy" />
+  <figcaption>The AR interface: (a) target hemisphere and alignment arrow with haptic guidance, (b) alignment error bars without it.</figcaption>
+</figure>
+
+<h2>Key results</h2>
+<ul class="stats">
+  <li><b>26%</b><span>shorter task completion time with haptic guidance</span></li>
+  <li><b>16%</b><span>less human effort</span></li>
+  <li><b>27%</b><span>lower forearm muscle activation (sEMG)</span></li>
+</ul>
+<p>
+  These numbers come from a first experiment with three naive participants. In a second
+  experiment, three experienced industrial workers rated the system as easy to use, safe, and
+  helpful for the drilling task.
+</p>
+
+<h2>My contributions</h2>
+<ul>
+  <li>Developed an admittance controller in <code>C++</code> using the Fast Robot Interface (FRI) of the KUKA iiwa cobot.</li>
+  <li>Developed the mixed-reality interface in <code>C#</code> for Microsoft HoloLens with Unity and the Mixed Reality Toolkit (MRTK).</li>
+  <li>Implemented a Kalman filter to track the 6-DoF motion of the HoloLens and the workpiece from AprilTag fiducial markers.</li>
+  <li>Built a 3D mesh model of the workpiece with a depth camera (Microsoft Kinect).</li>
+  <li>Set up TCP communication between the robot and the HoloLens.</li>
+</ul>
+
+<h2>Experiment</h2>
+<figure>
+  <img src="{{ '/assets/images/projects/drilling-experiment.jpg' | relative_url }}" alt="Six snapshots of the drilling protocol with haptic guidance" loading="lazy" />
+  <figcaption>The drilling protocol under haptic guidance, step by step.</figcaption>
+</figure>
+
+<h2>Video</h2>
+{% include youtube.html id="8SZp-AtENpE" title="Robot-assisted drilling on curved surfaces" %}

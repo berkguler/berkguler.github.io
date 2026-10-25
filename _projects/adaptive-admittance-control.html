@@ -1,0 +1,46 @@
+---
+title: "Adaptive Admittance Control via Deep-Learning Subtask Classification"
+pub: mechatronics
+theme: phri
+order: 2
+summary: >-
+  A neural network classifies a collaborative drilling task into Idle, Driving and Contact
+  phases in real time, and the admittance controller adapts to each phase: transparent while
+  the operator drives the robot, stable in contact with a stiff workpiece.
+teaser:
+  type: image
+  src: /assets/images/projects/admittance-setup.jpg
+  alt: Rendering of the setup with a KUKA cobot, a drill with handle and two force sensors, a human operator, and a workpiece
+  position: 30% 50%
+  caption: Setup with the cobot, drill, handle, human and interaction force sensors, and workpiece.
+---
+<h2>Overview</h2>
+<p>
+  We propose a supervised learning approach based on an artificial neural network (ANN) for
+  real-time classification of subtasks in a physical human-robot interaction (pHRI) task that
+  involves contact with a stiff environment. The task is split into three subtasks: Idle,
+  Driving, and Contact. Based on this classification, the parameters of an admittance controller
+  that regulates the interaction between human and robot are adjusted in real time, making the
+  robot more transparent to the operator (less resistant) during Driving and more stable during
+  Contact. The Idle phase is used to detect the start of the task.
+</p>
+
+<figure>
+  <img src="{{ '/assets/images/projects/admittance-control.jpg' | relative_url }}" alt="Block diagram of the closed-loop system: admittance controller, robot, human operator, environment, neural network, subtask processor and adaptation mechanism" loading="lazy" />
+  <figcaption>Closed-loop control: the ANN's subtask label drives the adaptation of the admittance parameters.</figcaption>
+</figure>
+
+<h2>My contributions</h2>
+<ul>
+  <li>Developed the control architecture that regulates human-robot physical interaction through an admittance controller on the KUKA iiwa cobot.</li>
+  <li>Performed a linear time-varying stability analysis of the pHRI system.</li>
+  <li>Developed the deep-learning subtask classifier in <code>Python</code> with <code>TensorFlow</code>.</li>
+  <li>Developed the methods that adapt the admittance parameters from the classifier's output.</li>
+  <li>Built a <code>C#</code> GUI to read and record data from ATI force/torque sensors.</li>
+  <li>Designed the pHRI experiments, collected the data, and performed the statistical analysis.</li>
+</ul>
+
+<figure>
+  <img src="{{ '/assets/images/projects/sensor-gui.jpg' | relative_url }}" alt="Force/torque sensor application showing live readings from two ATI sensors" loading="lazy" />
+  <figcaption>The sensor application I wrote for live reading and recording of two ATI force/torque sensors.</figcaption>
+</figure>

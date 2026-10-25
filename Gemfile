@@ -1,2 +1,5 @@
 source "https://rubygems.org"
-gemspec
+
+# Same Jekyll version and plugins as GitHub Pages.
+gem "github-pages", group: :jekyll_plugins
+gem "webrick"

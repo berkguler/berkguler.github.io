@@ -1,0 +1,7 @@
+{%- comment -%}
+  Copyable BibTeX block. Include vars: pub, open (true to show it expanded)
+{%- endcomment -%}
+<div class="bibtex" id="bib-{{ include.pub.id }}"{% unless include.open %} hidden{% endunless %}>
+  <button class="bibtex-copy" type="button" data-copy="bib-{{ include.pub.id }}-code"><i class="fa-regular fa-copy" aria-hidden="true"></i><span>Copy</span></button>
+  <pre><code id="bib-{{ include.pub.id }}-code">{{ include.pub.bibtex | strip | escape }}</code></pre>
+</div>

@@ -1,0 +1,46 @@
+---
+title: "BarrierIK: Safety-Aware Shared Autonomy with Control Barrier Functions"
+pub: barrierik
+theme: shared-autonomy
+order: 1
+summary: >-
+  Linearly blending operator and autonomous commands can be unsafe in clutter even when each
+  command is collision-free on its own. BarrierIK puts control barrier functions inside the
+  inverse-kinematics layer, so safety holds as a hard constraint after blending.
+teaser:
+  type: image
+  src: https://berkguler.github.io/barrierik/static/images/hierarchy_video.gif
+  alt: BarrierIK enforces safety at the inverse-kinematics layer using control barrier functions
+  fit: contain
+  caption: BarrierIK enforces safety at the IK layer via control barrier functions.
+---
+<h2>Overview</h2>
+<p>
+  Shared autonomy blends operator intent with autonomous assistance. In cluttered environments,
+  linearly blending two individually collision-free commands can still produce unsafe motion,
+  and most prior approaches only encourage obstacle avoidance through potentials or cost terms,
+  i.e. as a soft constraint. BarrierIK embeds control barrier functions (CBFs) directly into the
+  inverse kinematics (IK) layer of shared autonomy. Safety becomes a hard constraint on the
+  post-blend command, while the solver keeps the usual IK objectives such as pose tracking,
+  joint limits, and smoothness.
+</p>
+<p>
+  We evaluate BarrierIK in simulation on cluttered manipulation scenes and in a VR teleoperation
+  user study comparing pure teleoperation with shared autonomy. Filtering blended commands
+  through CBFs at the IK layer reduces safety-violation time and increases minimum clearance
+  while preserving task performance. Participants reported higher perceived safety and trust,
+  lower interference, and an overall preference for shared autonomy with our safety filter.
+</p>
+
+<h2>My contributions</h2>
+<ul>
+  <li>Formulated and implemented <code>BarrierIK</code>, a CBF-constrained IK solver that enforces post-blend safety as a hard inequality constraint alongside standard IK objectives.</li>
+  <li>Designed and ran the simulation benchmarks in cluttered environments, measuring safety-violation time and minimum clearance against baseline shared-autonomy blending.</li>
+  <li>Designed and conducted the VR teleoperation user study comparing pure teleoperation with CBF-filtered shared autonomy.</li>
+  <li>Analyzed the objective (clearance, violation time, task performance) and subjective (trust, perceived safety, interference) results.</li>
+  <li>Released the <a href="https://github.com/berkguler/barrierik_ros">ROS implementation</a> and the <a href="https://github.com/berkguler/barrierik_unity">Unity simulation and VR teleoperation framework</a>.</li>
+</ul>
+
+<h2>Video</h2>
+{% include youtube.html id="AtFMYE62igY" title="BarrierIK video" %}
+<p>More on the <a href="https://berkguler.github.io/barrierik/">project page</a>.</p>

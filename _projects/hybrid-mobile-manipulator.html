@@ -1,0 +1,59 @@
+---
+title: "Autonomous Manipulation and SLAM with a Hybrid Mobile Manipulator"
+theme: early
+order: 1
+kind: thesis
+venue_short: B.Sc. Thesis
+venue: B.Sc. Thesis, Istanbul Technical University
+year: 2020
+authors: [Berk Guler]
+links:
+  - { name: Report, url: "/assets/pdf/SeniorDesign%20Project_BerkGULER.pdf", icon: fa-solid fa-file-pdf }
+  - { name: Videos, url: "https://www.youtube.com/playlist?list=PLA_4ioz0Bblx6yeRVWEDQQqB9y4JQo2K5", icon: fa-brands fa-youtube }
+summary: >-
+  A mobile manipulator with a 3D-printed arm and a soft pneumatic gripper that navigates with
+  SLAM, finds boxes marked with AR tags, and picks and places the objects on top of them.
+teaser:
+  type: image
+  src: /assets/images/projects/hybrid-mm.png
+  alt: Rendering of the mobile robot with a 3D-printed serial arm and a soft gripper holding a ball
+  fit: contain
+  caption: The hybrid mobile manipulator with rigid arm and soft gripper.
+---
+<h2>Overview</h2>
+<p>
+  In my B.Sc. thesis, supervised by Prof. Hakan Temeltaş, I built a mobile manipulator that
+  combines a rigid arm with a soft gripper and demonstrated it on three tasks:
+</p>
+<ul>
+  <li>autonomous navigation with SLAM,</li>
+  <li>visual recognition of boxes marked with AR tags,</li>
+  <li>pick-and-place of the objects on top of the marked boxes.</li>
+</ul>
+
+<h2>My contributions</h2>
+<ul>
+  <li>Designed a serial robotic manipulator in Siemens NX and manufactured it with 3D printing.</li>
+  <li>Designed a soft PneuNets gripper and analyzed it with finite element methods in Abaqus.</li>
+  <li>Integrated the manipulator with the mobile platform.</li>
+  <li>Developed the ROS packages for the manipulator in <code>Python</code>.</li>
+  <li>Tracked the marked boxes from ARTag fiducial markers with <code>OpenCV</code>.</li>
+  <li>Used SLAM from the ROS Navigation Stack to estimate the platform pose from LIDAR and IMU.</li>
+</ul>
+
+<h2>Videos</h2>
+<div class="video-grid">
+  <figure>
+    {% include youtube.html id="I2EtgWXcw2A" title="Autonomous fiducial marker recognition and tracking" %}
+    <figcaption>Autonomous fiducial marker recognition and tracking</figcaption>
+  </figure>
+  <figure>
+    {% include youtube.html id="h6P0B-9w3nc" title="Approaching the fiducial marker" %}
+    <figcaption>Approaching the fiducial marker</figcaption>
+  </figure>
+  <figure>
+    {% include youtube.html id="z_LNgVIKvjI" title="Inverse kinematics" %}
+    <figcaption>Inverse kinematics</figcaption>
+  </figure>
+</div>
+<p>The full report is also available as a <a href="{{ '/2020/09/25/hybridmm.html' | relative_url }}">web page</a>.</p>
