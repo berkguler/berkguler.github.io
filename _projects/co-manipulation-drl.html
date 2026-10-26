@@ -2,36 +2,53 @@
 title: "Deep Reinforcement Learning for Human-Robot Co-Manipulation"
 pub: msc-thesis
 theme: phri
+topic: pHRI · Deep RL
 order: 3
+abstract_label: Description
+abstract: >-
+  In industry, complex tasks encourage human operators to work together with robots, and carrying
+  heavy objects is one of them. Using the human's dexterity and intelligence and the robot's
+  precision, we can drive and park heavy objects where the human operator wants without the
+  programming in advance. This study's initial aim is to increase efficiency by understanding human
+  motion intention. However, the human force's response is observed by delay due to the object's
+  weight. Therefore, estimated human intention can help make decisions on amplifying or attenuating
+  the human force. Constantly scaling in one way is not efficient for human effort because of the
+  different phases of the co-manipulation task. Amplification is preferable during driving when
+  attenuation becomes more of an issue for parking. The deep learning model provides an adaptive
+  force scaling factor by referring to human motion intention without guaranteeing optimal human
+  effort and comfort. The model-free optimal control algorithm, deep reinforcement learning, adjusts
+  the existing adaptive force scaling factor to decrease human effort and increase comfort.
 summary: >-
-  My M.Sc. thesis: a deep-learning model estimates the operator's intention to accelerate or
-  decelerate a heavy object and scales the human force accordingly; deep reinforcement learning
-  then tunes this scaling to reduce effort and jerk.
+  My M.Sc. thesis: a neural network infers whether the operator wants to speed up or slow down a
+  heavy object and scales their force accordingly; a deep RL agent tunes how aggressively that
+  scaling adapts. Try the push-and-park demo on the project page.
+ai_summary: >-
+  <p>When a human and a robot carry a heavy object together, a fixed force amplification is a
+  compromise: amplifying the operator's force helps while driving the object, but makes precise
+  parking hard. In this thesis, a neural network reads the operator's recent force and velocity
+  to infer whether they are trying to speed up or slow down, and continuously retunes how strongly
+  the robot amplifies their force. A deep reinforcement learning agent sits on top and adjusts how
+  aggressively that retuning happens, several times a second, trading motion smoothness against
+  physical effort.</p>
+  <p>Note that the agent does not pick the gain itself; it sets how fast the gain moves toward the
+  value implied by the operator's intent.</p>
 teaser:
   type: icon
   icon: fa-solid fa-people-carry-box
   label: Human–robot co-manipulation of heavy objects
 ---
-<h2>Overview</h2>
+<h2>Try it: push and park</h2>
 <p>
-  Carrying heavy objects is a natural task for humans and robots to share: the human contributes
-  dexterity and judgment, the robot strength and precision, and together they can drive and park
-  a heavy object where the operator wants without programming the motion in advance. Because of
-  the object's weight, the operator's force response lags, so estimating the operator's motion
-  intention helps decide when to amplify or attenuate the human force. A fixed scaling is not
-  efficient across the phases of the task: amplification helps while driving, attenuation while
-  parking.
+  Push the object into the target zone and hold it there. The robot renders a 40&nbsp;kg mass with
+  100&nbsp;N·s/m damping, so the object keeps moving after you let go. Compare a low, nominal and
+  high force gain, then switch to <em>Adaptive</em> and change the adaptation rate the RL agent
+  would choose.
 </p>
-<p>
-  A deep-learning model provides an adaptive force-scaling factor from the estimated human
-  intention, but it does not guarantee minimal effort or maximal comfort. A model-free optimal
-  control method, deep reinforcement learning, adjusts this scaling factor to reduce human effort
-  and increase comfort.
-</p>
+{% include comanip_demo.html %}
 
 <h2>My contributions</h2>
 <ul>
-  <li>Built an experimental setup for human-robot co-manipulation of a heavy object.</li>
+  <li>Built an experimental setup for human-robot co-manipulation of a heavy object with a UR5 robot.</li>
   <li>Developed a deep-learning model in <code>Python</code> with <code>TensorFlow</code> to estimate the human's intention to accelerate or decelerate the object.</li>
   <li>Developed a deep reinforcement learning agent, working with the intention model, that optimizes task performance with respect to minimum jerk and human effort.</li>
   <li>Designed the pHRI experiments, collected the data, and performed the statistical analysis.</li>

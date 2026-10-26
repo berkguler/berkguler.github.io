@@ -2,29 +2,28 @@
 title: "Learning Sim-Grounded Policies for Bimanual Rope Manipulation"
 pub: wigginghaus-ws
 theme: dlo
+topic: DLO · State representation for learning
 order: 4
 summary: >-
-  Rather than conditioning a bimanual ACT policy on camera streams that the grippers occlude, one
-  multi-view snapshot is lifted into a particle rope simulated with XPBD. The particle-state policy
-  predicts better untangling actions, about 7× faster.
+  Which DLO state representation should a learned policy see? One multi-view snapshot is lifted
+  into a particle rope simulated with XPBD; a policy on this particle state predicts better
+  untangling actions than one on camera images, about 7× faster.
+ai_summary: >-
+  <p>Visual imitation-learning policies for rope manipulation suffer when the robot's own grippers
+  hide the rope. This work asks whether the bottleneck is the state representation rather than the
+  policy architecture or the amount of data. From 96 human teleoperation demonstrations of bimanual
+  overhand-knot untangling, two ACT policies are trained on identical data: one on wrist-camera
+  images, and one on a 100-particle rope state that is extracted once from a multi-view RGB-D
+  snapshot and then evolved in an XPBD simulation, so it stays complete even when the rope is
+  occluded.</p>
+  <p>On a held-out, stiffer rope, the particle-state policy predicts the first grasp-and-pull action
+  with 30.8% lower error, runs 7.2× faster, and uses 46% less GPU memory.</p>
 teaser:
   type: rope
   scene: particles
   alt: Animated illustration of a knotted rope converted into particles, then pulled by a gripper
   caption: "Illustration: a snapshot becomes a particle state, and the policy's grasp-and-pull action loosens the knot."
 ---
-<h2>Overview</h2>
-<p>
-  Visual imitation-learning policies for rope manipulation suffer when the robot's own grippers
-  hide the rope. This work asks whether the bottleneck is the observation space rather than the
-  policy architecture or the amount of data. From 96 human teleoperation demonstrations of
-  bimanual overhand-knot untangling, two Action Chunking with Transformers (ACT) policies are
-  trained on identical data: one on wrist-camera images, and one on a 100-particle rope state.
-  The particle state is extracted once from a multi-view RGB-D snapshot and then evolved in an
-  XPBD simulation as the recorded actions are replayed, so it stays complete even when the rope
-  is occluded.
-</p>
-
 <h2>Key results</h2>
 <ul class="stats">
   <li><b>30.8%</b><span>lower action error on a held-out, stiffer rope</span></li>

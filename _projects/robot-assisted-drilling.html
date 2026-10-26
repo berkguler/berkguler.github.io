@@ -2,29 +2,28 @@
 title: "Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance"
 pub: drilling-iros
 theme: phri
+topic: pHRI · Haptic guidance & AR
 order: 1
 summary: >-
   A 6-DoF adaptive admittance controller on a KUKA LBR iiwa, combined with haptic guidance and a
   HoloLens AR interface, lets an operator drill holes into curved workpieces at a chosen angle
   with one hand.
+ai_summary: >-
+  <p>Drilling into a curved surface at a precise angle is hard by hand, and full automation is
+  often impractical because parts vary and drill points are not always reachable by a
+  pre-planned path. Here the operator moves a cobot-mounted drill with one hand. The admittance
+  damping adapts to the task phase (light while moving freely, stiffer near the target and during
+  drilling), haptic guidance aligns the drill and then constrains motion to the drilling axis, and
+  a HoloLens AR interface shows targets and alignment cues.</p>
+  <p>With haptic guidance, three naive participants finished faster, with less effort and lower
+  forearm muscle activation; three experienced industrial workers rated the system easy to use,
+  safe, and helpful.</p>
 teaser:
   type: image
   src: /assets/images/projects/drilling-teaser.jpg
   alt: An operator wearing a HoloLens guides a KUKA iiwa with a mounted drill toward a curved wooden workpiece
   caption: The operator guides the cobot-mounted drill while the AR headset shows the drill targets.
 ---
-<h2>Overview</h2>
-<p>
-  Drilling a hole into a curved surface at a desired angle is error-prone when done by hand: the
-  drill is hard to align, the task is inherently unstable, and it can cause injury and fatigue.
-  Fully automating it is often impractical too, because parts arriving at an assembly line come in
-  many shapes and drill locations are not always accessible to a pre-planned path. We developed a
-  6-DoF adaptive admittance controller on a KUKA LBR iiwa 7 cobot so that an operator can move a
-  robot-mounted drill with one hand. The admittance damping adapts to the task phase, haptic
-  guidance aligns the drill and then constrains motion to the drilling axis, and an AR interface on
-  a Microsoft HoloLens provides visual guidance.
-</p>
-
 <figure>
   <img src="{{ '/assets/images/projects/drilling-ar.jpg' | relative_url }}" alt="Augmented-reality view with a target hemisphere at the drill point, and the robot-mounted drill with AR alignment bars" loading="lazy" />
   <figcaption>The AR interface: (a) target hemisphere and alignment arrow with haptic guidance, (b) alignment error bars without it.</figcaption>
@@ -36,11 +35,6 @@ teaser:
   <li><b>16%</b><span>less human effort</span></li>
   <li><b>27%</b><span>lower forearm muscle activation (sEMG)</span></li>
 </ul>
-<p>
-  These numbers come from a first experiment with three naive participants. In a second
-  experiment, three experienced industrial workers rated the system as easy to use, safe, and
-  helpful for the drilling task.
-</p>
 
 <h2>My contributions</h2>
 <ul>

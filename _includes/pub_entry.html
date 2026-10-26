@@ -1,7 +1,9 @@
 {%- comment -%} One publication in the list. Include vars: pub {%- endcomment -%}
 {%- assign _pub = include.pub -%}
 {%- assign _proj = site.projects | where: "pub", _pub.id | first -%}
-<li class="pub" id="pub-{{ _pub.id }}">
+{%- assign _first = _pub.authors | first | remove: '*' -%}
+{%- capture _search -%}{{ _pub.title }} {{ _pub.authors | join: ' ' }} {{ _pub.venue }} {{ _pub.venue_short }} {{ _pub.year }}{%- endcapture -%}
+<li class="pub" id="pub-{{ _pub.id }}" data-kind="{{ _pub.kind }}" data-first="{% if site.data.me.names contains _first %}true{% else %}false{% endif %}" data-search="{{ _search | remove: '*' | downcase | escape }}">
   <div class="pub-badge"><span class="venue venue--{{ _pub.kind }}">{{ _pub.venue_short }} {{ _pub.year }}</span></div>
   <div class="pub-body">
     <p class="pub-title">

@@ -1,5 +1,7 @@
+# Logos: local paths or URLs. A logo that fails to load is replaced by its name.
+
 - degree: Ph.D. in Computer Science
-  period: 2023 – present
+  period: Jul 2023 – present
   current: true
   institution: Technical University of Darmstadt
   institution_url: https://www.tu-darmstadt.de
@@ -9,9 +11,13 @@
   partner_url: https://www.honda-ri.de/
   advisors: Prof. Jan Peters (TU Darmstadt) and Dr. Simon Manschitz (Honda Research Institute Europe)
   details: "Research: autonomy-infused teleoperation for dexterous object manipulation."
+  logos:
+    - { name: TU Darmstadt, src: "https://www.tu-darmstadt.de/media/resources/images_1/tu_logo_web.svg", url: "https://www.tu-darmstadt.de" }
+    - { name: IAS, src: "https://www.ias.informatik.tu-darmstadt.de/uploads/Internal/TUDCorporateDesign/iasLogo.jpg", url: "https://www.ias.informatik.tu-darmstadt.de/" }
+    - { name: Honda Research Institute, src: "https://www.honda-ri.de/wp-content/themes/honda/assets/images/logo.png", url: "https://www.honda-ri.de/" }
 
 - degree: M.Sc. in Mechanical Engineering
-  period: 2020 – 2023
+  period: Sep 2020 – Jun 2023
   institution: Koç University, Istanbul
   institution_url: https://www.ku.edu.tr
   unit: Robotics and Mechatronics Laboratory (RML) · KUIS AI Center
@@ -21,9 +27,13 @@
     Physical human–robot interaction, optimal control for pHRI, and robot learning.
     Thesis: <em>Deep Reinforcement Learning to Optimize Task Performance in Human-Robot
     Co-Manipulation</em>.
+  logos:
+    - { name: Koç University, src: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ko%C3%A7_University_logo.svg/1920px-Ko%C3%A7_University_logo.svg.png", url: "https://www.ku.edu.tr" }
+    - { name: RML, src: "/assets/images/rmllogo.png", url: "https://rml.ku.edu.tr/" }
+    - { name: KUIS AI Center, src: "/assets/images/kuislogo.png", url: "https://ai.ku.edu.tr/" }
 
 - degree: B.Sc. in Control and Automation Engineering
-  period: 2015 – 2020
+  period: Sep 2015 – Jul 2020
   institution: Istanbul Technical University
   institution_url: https://www.itu.edu.tr
   unit: Control and Automation Engineering Department
@@ -32,3 +42,5 @@
   details: >-
     Thesis: a hybrid mobile manipulator combining rigid and soft subsystems
     (<a href="/projects/hybrid-mobile-manipulator/">project</a>).
+  logos:
+    - { name: Istanbul Technical University, src: "/assets/images/itulogo.png", url: "https://www.itu.edu.tr" }

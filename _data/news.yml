@@ -31,17 +31,28 @@
     <a href="https://arxiv.org/abs/2504.18186">Sampling-Based Grasp and Collision Prediction for
     Assisted Teleoperation</a> (ICRA 2025) is out on arXiv.
 
-- date: "2025"
+- date: Mar 2025
   text: >-
     <em>Towards Assistive Teleoperation for Knot Untangling</em> published at the German
     Robotics Conference (GRC 2025).
 
-- date: "2023"
+- date: Jul 2023
   text: >-
     Started my PhD at the <a href="https://www.ias.informatik.tu-darmstadt.de/">IAS Lab, TU
     Darmstadt</a>, jointly with <a href="https://www.honda-ri.de/">Honda Research Institute Europe</a>.
 
-- date: "2022"
+- date: Jun 2023
   text: >-
-    Adaptive admittance control for human–robot collaborative drilling published in
-    <em>Mechatronics</em> and at IROS 2022.
+    Completed my M.Sc. at Koç University with a thesis on
+    <a href="/projects/co-manipulation-drl/">deep reinforcement learning for human–robot
+    co-manipulation</a>.
+
+- date: Jul 2022
+  text: >-
+    <a href="/projects/robot-assisted-drilling/">Robot-assisted drilling on curved surfaces</a>
+    with haptic guidance and an AR interface, at IROS 2022.
+
+- date: May 2022
+  text: >-
+    <a href="/projects/adaptive-admittance-control/">Adaptive admittance control based on
+    deep-learning subtask classification</a> for collaborative drilling, in <em>Mechatronics</em>.

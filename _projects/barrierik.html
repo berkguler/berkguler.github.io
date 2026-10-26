@@ -1,12 +1,24 @@
 ---
-title: "BarrierIK: Safety-Aware Shared Autonomy with Control Barrier Functions"
+title: "BarrierIK: Safety-Aware Assistive Teleoperation with Control Barrier Functions"
 pub: barrierik
 theme: shared-autonomy
+topic: Safety-aware teleoperation
 order: 1
 summary: >-
-  Linearly blending operator and autonomous commands can be unsafe in clutter even when each
-  command is collision-free on its own. BarrierIK puts control barrier functions inside the
+  Blending the operator's command with autonomous assistance can be unsafe in clutter even when
+  each command is collision-free on its own. BarrierIK puts control barrier functions inside the
   inverse-kinematics layer, so safety holds as a hard constraint after blending.
+ai_summary: >-
+  <p>When a teleoperation system blends the operator's command with autonomous assistance, the
+  blended command can collide with obstacles even if both inputs were individually safe. Most
+  prior approaches only discourage collisions through potentials or cost terms, i.e. as a soft
+  constraint. BarrierIK embeds control barrier functions (CBFs) directly into the inverse
+  kinematics (IK) solver, so the post-blend command is safe by construction while the solver
+  still tracks the target pose, respects joint limits, and stays smooth.</p>
+  <p>In cluttered simulation scenes, filtering blended commands through CBFs at the IK layer
+  reduces safety-violation time and increases minimum clearance without hurting task
+  performance. In a VR teleoperation user study, participants reported higher perceived safety
+  and trust, less interference, and preferred assistance with the safety filter.</p>
 teaser:
   type: image
   src: https://berkguler.github.io/barrierik/static/images/hierarchy_video.gif
@@ -14,29 +26,11 @@ teaser:
   fit: contain
   caption: BarrierIK enforces safety at the IK layer via control barrier functions.
 ---
-<h2>Overview</h2>
-<p>
-  Shared autonomy blends operator intent with autonomous assistance. In cluttered environments,
-  linearly blending two individually collision-free commands can still produce unsafe motion,
-  and most prior approaches only encourage obstacle avoidance through potentials or cost terms,
-  i.e. as a soft constraint. BarrierIK embeds control barrier functions (CBFs) directly into the
-  inverse kinematics (IK) layer of shared autonomy. Safety becomes a hard constraint on the
-  post-blend command, while the solver keeps the usual IK objectives such as pose tracking,
-  joint limits, and smoothness.
-</p>
-<p>
-  We evaluate BarrierIK in simulation on cluttered manipulation scenes and in a VR teleoperation
-  user study comparing pure teleoperation with shared autonomy. Filtering blended commands
-  through CBFs at the IK layer reduces safety-violation time and increases minimum clearance
-  while preserving task performance. Participants reported higher perceived safety and trust,
-  lower interference, and an overall preference for shared autonomy with our safety filter.
-</p>
-
 <h2>My contributions</h2>
 <ul>
   <li>Formulated and implemented <code>BarrierIK</code>, a CBF-constrained IK solver that enforces post-blend safety as a hard inequality constraint alongside standard IK objectives.</li>
-  <li>Designed and ran the simulation benchmarks in cluttered environments, measuring safety-violation time and minimum clearance against baseline shared-autonomy blending.</li>
-  <li>Designed and conducted the VR teleoperation user study comparing pure teleoperation with CBF-filtered shared autonomy.</li>
+  <li>Designed and ran the simulation benchmarks in cluttered environments, measuring safety-violation time and minimum clearance against baseline blending.</li>
+  <li>Designed and conducted the VR teleoperation user study comparing pure teleoperation with CBF-filtered assistance.</li>
   <li>Analyzed the objective (clearance, violation time, task performance) and subjective (trust, perceived safety, interference) results.</li>
   <li>Released the <a href="https://github.com/berkguler/barrierik_ros">ROS implementation</a> and the <a href="https://github.com/berkguler/barrierik_unity">Unity simulation and VR teleoperation framework</a>.</li>
 </ul>

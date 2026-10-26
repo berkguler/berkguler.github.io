@@ -2,24 +2,26 @@
 # theme by `id` and is listed under it, sorted by the project's `order`.
 
 - id: shared-autonomy
-  title: Safe Shared Autonomy for Teleoperation
+  title: Safety-Aware Assistive Teleoperation
+  short: Assistive Teleoperation
   icon: fa-solid fa-shield-halved
   blurb: >-
     How can a robot help a remote operator without taking control away from them? I design
-    shared-autonomy controllers that treat safety as a hard constraint, for example control
-    barrier functions inside inverse kinematics, and evaluate them in VR teleoperation
-    user studies.
+    assistive teleoperation algorithms that keep the robot safe as a hard constraint and evaluate
+    them in VR teleoperation user studies.
 
 - id: dlo
-  title: Deformable Linear Object Manipulation
+  title: Deformable Linear Objects
+  short: Deformable Linear Objects
   icon: fa-solid fa-bezier-curve
   blurb: >-
-    Ropes and cables have a high-dimensional state, occlude themselves, and tangle. I build
-    assistive teleoperation for knot untangling, and with colleagues I develop learned rope
-    dynamics and policies for bimanual rope manipulation.
+    Ropes and cables have a high-dimensional state, occlude themselves, and tangle. My work spans
+    assistive teleoperation for DLOs, DLO dynamics prediction, and state representations for
+    learning DLO manipulation.
 
 - id: phri
   title: Physical Human–Robot Interaction
+  short: Physical HRI
   icon: fa-solid fa-handshake
   blurb: >-
     During my M.Sc. at Koç University I developed adaptive admittance controllers, haptic
@@ -28,6 +30,7 @@
 
 - id: early
   title: Earlier Work
+  short: Earlier Work
   icon: fa-solid fa-robot
   blurb: >-
     My B.Sc. thesis: an autonomous mobile manipulator with a soft gripper.

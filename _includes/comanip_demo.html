@@ -1,0 +1,104 @@
+{%- comment -%} Push-and-park demo; behaviour in assets/js/comanip.js. {%- endcomment -%}
+<div class="comanip" data-comanip>
+  <div class="comanip-controls">
+    <div class="ctl" data-group="human">
+      <span class="ctl-label">Who pushes</span>
+      <div class="seg">
+        <button type="button" data-value="you" aria-pressed="true"><i class="fa-solid fa-hand" aria-hidden="true"></i> You</button>
+        <button type="button" data-value="sim" aria-pressed="false"><i class="fa-solid fa-robot" aria-hidden="true"></i> Simulated human</button>
+      </div>
+    </div>
+    <div class="ctl" data-group="gain">
+      <span class="ctl-label">Force gain G<sub>H</sub></span>
+      <div class="seg">
+        <button type="button" data-value="0.33" aria-pressed="false">0.33</button>
+        <button type="button" data-value="1" aria-pressed="true">1.0</button>
+        <button type="button" data-value="2.68" aria-pressed="false">2.68</button>
+        <button type="button" data-value="adaptive" aria-pressed="false">Adaptive</button>
+      </div>
+    </div>
+    <div class="ctl ctl--adaptive" data-group="rate">
+      <span class="ctl-label">Adaptation rate (RL action)</span>
+      <div class="seg">
+        <button type="button" data-value="0.2" aria-pressed="false">×0.2</button>
+        <button type="button" data-value="0.5" aria-pressed="false">×0.5</button>
+        <button type="button" data-value="1" aria-pressed="true">×1</button>
+        <button type="button" data-value="2" aria-pressed="false">×2</button>
+        <button type="button" data-value="5" aria-pressed="false">×5</button>
+      </div>
+    </div>
+    <div class="ctl" data-group="width">
+      <span class="ctl-label">Target</span>
+      <div class="seg">
+        <button type="button" data-value="wide" aria-pressed="true">Wide</button>
+        <button type="button" data-value="narrow" aria-pressed="false">Narrow</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="comanip-stage" tabindex="0" aria-label="Push-and-park simulation. Drag horizontally or hold the left and right arrow keys to push the object.">
+    <svg class="comanip-svg" viewBox="0 0 600 170" role="img" aria-hidden="true">
+      <line x1="40" y1="122" x2="580" y2="122" stroke="#D7D7D7" stroke-width="4" stroke-linecap="round" />
+      <g font-family="Roboto, sans-serif" font-size="11" fill="#5d6f7b">
+        <text x="70" y="146" text-anchor="middle">start</text>
+        <text x="270" y="146" text-anchor="middle">0.2 m</text>
+      </g>
+      <rect class="cm-zone" y="20" height="106" fill="#447D9B" fill-opacity=".18" stroke="#447D9B" stroke-dasharray="3 3" />
+      <text class="cm-zone-label" x="470" y="160" text-anchor="middle" font-family="Roboto, sans-serif" font-size="11" font-weight="500" fill="#447D9B"></text>
+      <path class="cm-spring" d="" stroke="#FE7743" stroke-width="2" stroke-dasharray="4 4" opacity="0" />
+      <g class="cm-object">
+        <rect x="-46" y="80" width="10" height="24" rx="3" fill="#5d6f7b" />
+        <rect x="-36" y="88" width="8" height="8" fill="#5d6f7b" />
+        <rect x="-28" y="58" width="56" height="58" rx="6" fill="#273F4F" />
+        <text x="0" y="92" text-anchor="middle" font-family="Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff">40 kg</text>
+        <path d="M-6 130 L0 122 L6 130 Z" fill="#FE7743" />
+      </g>
+      <path class="cm-force" d="" stroke="#FE7743" stroke-width="5" stroke-linecap="round" marker-end="url(#cm-arrow)" opacity="0" />
+      <defs>
+        <marker id="cm-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#FE7743" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="comanip-readout">
+    <div class="ro ro--gain">
+      <span class="ro-label">Gain G<sub>H</sub></span>
+      <b data-out="gain">1.00</b>
+      <span class="gain-bar"><span class="cm-gain-fill"></span></span>
+    </div>
+    <div class="ro"><span class="ro-label">Your force</span><b data-out="force">0.0 N</b></div>
+    <div class="ro"><span class="ro-label">Velocity</span><b data-out="vel">0.0 cm/s</b></div>
+    <div class="ro"><span class="ro-label">Error</span><b data-out="err">0 mm</b></div>
+    <div class="ro"><span class="ro-label">Effort ∫|F·v|</span><b data-out="effort">0.00 J</b></div>
+    <div class="ro"><span class="ro-label">Time</span><b data-out="time">0.00 s</b></div>
+  </div>
+
+  <svg class="comanip-plot" viewBox="0 0 600 64" preserveAspectRatio="none" role="img" aria-label="Position and gain over time">
+    <rect class="cm-plot-band" x="0" width="600" fill="#447D9B" fill-opacity=".15" />
+    <polyline class="cm-plot-x" fill="none" stroke="#273F4F" stroke-width="2" vector-effect="non-scaling-stroke" />
+    <polyline class="cm-plot-g" fill="none" stroke="#FE7743" stroke-width="2" stroke-dasharray="4 3" vector-effect="non-scaling-stroke" />
+  </svg>
+  <p class="comanip-legend"><span class="lg lg--x"></span> position <span class="lg lg--g"></span> force gain <span class="lg lg--band"></span> target</p>
+
+  <div class="comanip-footer">
+    <p class="comanip-status" aria-live="polite"></p>
+    <div class="links">
+      <button type="button" class="btn btn--solid" data-run hidden><i class="fa-solid fa-play" aria-hidden="true"></i>Run</button>
+      <button type="button" class="btn" data-reset><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Reset</button>
+    </div>
+  </div>
+
+  <p class="comanip-note">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    An illustrative re-implementation of the thesis simulation's admittance model (40&nbsp;kg virtual
+    mass, 100&nbsp;N·s/m damping, 125&nbsp;Hz, the identified velocity loop of the real robot, and
+    G<sub>H</sub> between 0.33 and 2.68). Two parts are simplified: in <em>Adaptive</em> mode the operator's
+    intent is read from the commanded acceleration (G<sub>H</sub>·F<sub>h</sub> − b·v: pushing harder than
+    needed to hold the current speed means speeding up) instead of the thesis's neural network, and
+    the simulated human follows a minimum-jerk plan instead of the study's learned human model.
+    The numbers shown come from this toy, not from the study.
+  </p>
+</div>
+<script src="{{- '/assets/js/comanip.js' | relative_url -}}" defer></script>

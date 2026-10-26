@@ -22,23 +22,21 @@ title: Home
         I am a PhD candidate at the <a href="https://www.ias.informatik.tu-darmstadt.de/">Intelligent
         Autonomous Systems Lab</a> at TU Darmstadt, advised by Prof. Jan Peters, and I work jointly
         with Dr. Simon Manschitz at <a href="https://www.honda-ri.de/">Honda Research Institute
-        Europe</a>. I build <strong>assistive teleoperation</strong> and <strong>shared
-        autonomy</strong> systems for dexterous manipulation: the robot takes care of safety and
-        precision, and the human stays in charge of the task.
+        Europe</a>. I build <strong>assistive teleoperation</strong> systems for dexterous
+        manipulation: the robot takes care of safety and precision, and the human stays in charge of
+        the task.
       </p>
       <p>
-        My recent work enforces safety in shared autonomy as a hard constraint with control barrier
-        functions (<a href="{{ '/projects/barrierik/' | relative_url }}">BarrierIK</a>, ICRA 2026)
-        and brings assistance to the manipulation of ropes and cables
-        (<a href="{{ '/projects/assistdlo/' | relative_url }}">AssistDLO</a>). Before my PhD, I worked
-        on physical human–robot interaction at Koç University and studied control and automation
-        engineering at Istanbul Technical University.
+        My research spans safety-aware teleoperation algorithms, intention estimation and assistance
+        for manipulating deformable linear objects such as ropes and cables, and the perception and
+        dynamics models these systems build on. Before my PhD, I worked on physical human–robot
+        interaction at Koç University and studied control and automation engineering at Istanbul
+        Technical University.
       </p>
       <ul class="interests" aria-label="Research interests">
         <li>Assistive Teleoperation</li>
-        <li>Shared Autonomy</li>
-        <li>Control Barrier Functions</li>
         <li>Deformable Linear Objects</li>
+        <li>DLO Perception</li>
         <li>Physical Human–Robot Interaction</li>
         <li>Robot Learning</li>
       </ul>
@@ -50,6 +48,12 @@ title: Home
         {%- endif -%}
         <a class="btn btn--lg" href="{{- site.scholar_url -}}"><i class="fa-brands fa-google-scholar" aria-hidden="true"></i>Google Scholar</a>
       </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="rope-band">
+      <svg data-rope="playground" role="img" aria-label="A rope you can grab and drag"></svg>
+      <span class="rope-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> grab the rope</span>
     </div>
   </div>
 </section>
@@ -79,13 +83,26 @@ title: Home
   <div class="container">
     <h2 class="section-title">Research</h2>
     <p class="section-lead">
-      Projects grouped by theme. Each card links to a page with details, media, and BibTeX.
+      Pick a theme. Every card shows the paper's abstract, with an AI summary one click away, and
+      links to a page with media and BibTeX.
     </p>
     {%- assign _projects = site.projects | sort: 'order' -%}
+    <div class="tabs" role="tablist" aria-label="Research themes">
+      {%- for _theme in site.data.themes -%}
+        {%- assign _items = _projects | where: 'theme', _theme.id -%}
+        {%- if _items.size > 0 -%}
+        <button class="tab" type="button" role="tab" id="tab-{{ _theme.id }}" aria-controls="theme-{{ _theme.id }}" data-theme="{{ _theme.id }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+          <i class="{{ _theme.icon }}" aria-hidden="true"></i>
+          <span>{{ _theme.short | default: _theme.title }}</span>
+          <span class="tab-count">{{ _items.size }}</span>
+        </button>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
     {%- for _theme in site.data.themes -%}
       {%- assign _items = _projects | where: 'theme', _theme.id -%}
       {%- if _items.size > 0 -%}
-      <div class="theme" id="theme-{{ _theme.id }}">
+      <div class="theme" id="theme-{{ _theme.id }}" role="tabpanel" aria-labelledby="tab-{{ _theme.id }}">
         <div class="theme-head">
           <span class="theme-icon"><i class="{{ _theme.icon }}" aria-hidden="true"></i></span>
           <div>
@@ -111,12 +128,30 @@ title: Home
       Publications
       <span class="count"><a href="{{- site.scholar_url -}}"><i class="fa-brands fa-google-scholar" aria-hidden="true"></i> Google Scholar</a></span>
     </h2>
-    {%- assign _groups = "conference:Conference Papers|journal:Journal Articles|workshop:Workshop Papers|preprint:Preprints|thesis:Theses" | split: "|" -%}
+    {%- assign _groups = "preprint:Preprints|conference:Conference Papers|journal:Journal Articles|workshop:Workshop Papers|thesis:Theses" | split: "|" -%}
+    <div class="pub-tools">
+      <div class="chips" role="group" aria-label="Filter publications by type">
+        <button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>{{ site.data.publications.size }}</span></button>
+        {%- for _g in _groups -%}
+          {%- assign _parts = _g | split: ":" -%}
+          {%- assign _pubs = site.data.publications | where: "kind", _parts[0] -%}
+          {%- if _pubs.size > 0 -%}
+          <button type="button" class="chip" data-filter="{{ _parts[0] }}" aria-pressed="false">{{ _parts[1] }} <span>{{ _pubs.size }}</span></button>
+          {%- endif -%}
+        {%- endfor -%}
+        <button type="button" class="chip chip--toggle" data-first-author aria-pressed="false"><i class="fa-solid fa-user-check" aria-hidden="true"></i> First author</button>
+      </div>
+      <label class="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" placeholder="Search title, author, venue" aria-label="Search publications" data-pub-search />
+      </label>
+    </div>
+    <p class="pub-empty" hidden>No publications match your filters.</p>
     {%- for _g in _groups -%}
       {%- assign _parts = _g | split: ":" -%}
       {%- assign _pubs = site.data.publications | where: "kind", _parts[0] -%}
       {%- if _pubs.size > 0 -%}
-      <div class="pub-group">
+      <div class="pub-group" data-group="{{ _parts[0] }}">
         <h3 class="pub-group-title">{{ _parts[1] }}</h3>
         <ol class="pubs">
           {%- for _pub in _pubs -%}
@@ -135,9 +170,9 @@ title: Home
     <h2 class="section-title">Education</h2>
     <ol class="timeline">
       {%- for _e in site.data.education -%}
-      <li class="tl-item{% if _e.current %} is-current{% endif %}">
+      <li class="tl-item reveal{% if _e.current %} is-current{% endif %}">
         <span class="tl-dot"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
-        <div>
+        <div class="tl-card">
           <div class="tl-head">
             <h3 class="tl-degree">{{ _e.degree }}</h3>
             <span class="tl-period">{{ _e.period }}</span>
@@ -149,9 +184,50 @@ title: Home
           </p>
           <p class="tl-advisor">Advisor{% if _e.advisors contains ' and ' %}s{% endif %}: {{ _e.advisors }}</p>
           <p class="tl-details">{{ _e.details }}</p>
+          {%- if _e.logos -%}
+          <div class="tl-logos">
+            {%- for _l in _e.logos -%}
+            {%- if _l.src contains '://' -%}{%- assign _src = _l.src -%}{%- else -%}{%- assign _src = _l.src | relative_url -%}{%- endif -%}
+            <a class="tl-logo" href="{{- _l.url -}}" title="{{ _l.name }}">
+              <img src="{{ _src }}" alt="{{ _l.name }}" loading="lazy" onerror="this.parentNode.classList.add('is-broken')" />
+              <span class="tl-logo-name">{{ _l.name }}</span>
+            </a>
+            {%- endfor -%}
+          </div>
+          {%- endif -%}
         </div>
       </li>
       {%- endfor -%}
     </ol>
+  </div>
+</section>
+
+<!-- Teaching & Service -->
+<section class="section" id="teaching">
+  <div class="container">
+    <h2 class="section-title">Teaching &amp; Service</h2>
+    <div class="ts-grid">
+      <div class="ts-card reveal">
+        <h3 class="ts-title"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i> Teaching</h3>
+        <ul class="teach-list">
+          {%- for _t in site.data.teaching -%}
+          <li>
+            <span class="teach-course">{{ _t.course }}</span>
+            <span class="teach-meta">{{ _t.institution }}{% if _t.role %} · {{ _t.role }}{% endif %}</span>
+            <span class="teach-terms">{{ _t.terms }}</span>
+          </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+      <div class="ts-card reveal">
+        <h3 class="ts-title"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Reviewing</h3>
+        <p class="ts-lead">Reviewer for:</p>
+        <ul class="review-list">
+          {%- for _r in site.data.service.reviewer -%}
+          <li><span class="venue venue--conference">{{ _r.short }}</span> {{ _r.name }}</li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
   </div>
 </section>

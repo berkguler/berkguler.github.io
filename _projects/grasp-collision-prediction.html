@@ -2,42 +2,32 @@
 title: "Sampling-Based Grasp and Collision Prediction for Assisted Teleoperation"
 pub: grasp-collision
 theme: shared-autonomy
+topic: Assisted teleoperation
 order: 2
 summary: >-
   Neural networks predict constraint costs (collisions, valid pre-grasps) for about a thousand
   sampled robot configurations in parallel; the system executes the feasible one closest to the
   operator's VR target, in real time on a bimanual robot.
+ai_summary: >-
+  <p>In real-time teleoperation, the operator should decide the rough motion while the robot
+  handles fine adjustments, for example when the operator's view is occluded. The paper frames
+  assisted teleoperation as tracking the operator's target pose as closely as possible subject to
+  constraints (static, self, dynamic and mutual collisions, and valid pre-grasp poses) that a
+  simple state machine switches on and off for task-specific assistance.</p>
+  <p>Solving this constrained optimization at every step is too slow, so the system samples robot
+  configurations around the current state, predicts every active constraint cost with small
+  neural networks for all samples in parallel, and executes the feasible configuration closest to
+  the operator's target. On two Franka arms controlled from VR, all 12 assisted table-clearing
+  trials succeeded, against 10 of 12 without assistance.</p>
 teaser:
   type: svg
   file: sampling.svg
   alt: Illustration of sampled robot configurations around the end-effector, with colliding samples rejected and the feasible sample closest to the operator target selected
   caption: "Illustration: samples near the current configuration are scored by learned constraint predictors; the feasible one closest to the operator's target is executed."
 ---
-<h2>Overview</h2>
-<p>
-  In real-time teleoperation, the operator should decide the rough motion while the robot handles
-  fine adjustments, for example when the operator's view is occluded. We frame assisted
-  teleoperation as tracking the operator's target pose as closely as possible subject to a set of
-  constraints (static, self, dynamic and mutual collisions, and valid pre-grasp poses) that a
-  simple state machine can switch on and off for task-specific assistance.
-</p>
-<p>
-  Solving this constrained optimization at every step is too slow for real-time control. Instead,
-  the system samples robot configurations around the current state, predicts every active
-  constraint cost with small neural networks for all samples in parallel, and selects the
-  feasible configuration with the smallest distance to the operator's target. Once a pre-grasp
-  becomes feasible near an object, the robot aligns itself to a valid grasp while the operator can
-  still adjust it.
-</p>
-
 <h2>Key results</h2>
 <ul class="stats">
   <li><b>1,024</b><span>sampled configurations scored per step</span></li>
   <li><b>~25 Hz</b><span>command rate with two Franka arms and VR control</span></li>
   <li><b>12 / 12</b><span>successful table-clearing trials, vs. 10 / 12 without assistance</span></li>
 </ul>
-<p>
-  Less experienced operators appreciated that they only had to indicate roughly how to grasp an
-  object and that collisions were handled for them, while experienced operators were bothered by
-  the brief pauses before grasps while the system searched for a feasible pose.
-</p>

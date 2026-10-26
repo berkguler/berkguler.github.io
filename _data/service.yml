@@ -1,0 +1,6 @@
+# Reviewing and other service.
+
+reviewer:
+  - { name: IEEE Robotics and Automation Letters, short: RA-L }
+  - { name: IEEE International Conference on Robotics and Automation, short: ICRA }
+  - { name: IEEE/ASME Transactions on Mechatronics, short: T-MECH }

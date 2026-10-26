@@ -449,6 +449,101 @@
     };
   };
 
+  // Hero rope: a Verlet-integrated rope between two pegs that visitors can
+  // grab and drag. The SVG's viewBox follows its pixel size.
+  SCENES.playground = function (svg) {
+    var N = 36, PAD = 22, ITER = 24, G = 1400;
+    var w = 0, h = 0, pts = [], prev = [], seg = 0;
+    var grab = -1, target = null, last = null;
+    var pegs = el('g', {}, svg);
+    var rope = new Rope(svg, { width: 10 });
+    var pegL = el('circle', { r: 6, fill: C.navy }, pegs);
+    var pegR = el('circle', { r: 6, fill: C.navy }, pegs);
+
+    function layout() {
+      var r = svg.getBoundingClientRect();
+      w = Math.max(240, r.width || 1000);
+      h = Math.max(70, r.height || 100);
+      svg.setAttribute('viewBox', '0 0 ' + f1(w) + ' ' + f1(h));
+      var x0 = PAD, x1 = w - PAD, y = 24;
+      // Rope length for a sag of about half the band height (parabola approximation).
+      var span = x1 - x0, sag = (h - 34) * 0.75;
+      seg = span * (1 + 8 / 3 * Math.pow(sag / span, 2)) / (N - 1);
+      pts = [];
+      for (var i = 0; i < N; i++) {
+        var u = i / (N - 1);
+        pts.push([lerp(x0, x1, u), y + 4 * sag * u * (1 - u)]);
+      }
+      prev = pts.map(function (p) { return p.slice(); });
+      pegL.setAttribute('cx', f1(x0)); pegL.setAttribute('cy', y);
+      pegR.setAttribute('cx', f1(x1)); pegR.setAttribute('cy', y);
+    }
+
+    function toLocal(ev) {
+      var pt = svg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+      return [p.x, p.y];
+    }
+
+    svg.addEventListener('pointerdown', function (ev) {
+      var p = toLocal(ev), best = -1, bestD = 30;
+      for (var i = 1; i < N - 1; i++) {
+        var d = dist(p, pts[i]);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      if (best < 0) return;
+      grab = best; target = p;
+      svg.setPointerCapture(ev.pointerId);
+      svg.classList.add('is-grabbing');
+      svg.dispatchEvent(new CustomEvent('ropegrab', { bubbles: true }));
+      ev.preventDefault();
+    });
+    svg.addEventListener('pointermove', function (ev) { if (grab >= 0) target = toLocal(ev); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) {
+      svg.addEventListener(t, function () { grab = -1; svg.classList.remove('is-grabbing'); });
+    });
+    window.addEventListener('resize', function () { layout(); rope.draw(pts); });
+    layout();
+
+    function physics(dt) {
+      var x0 = PAD, x1 = w - PAD, y = 24, damp = 0.985;
+      for (var i = 1; i < N - 1; i++) {
+        var p = pts[i], q = prev[i];
+        var vx = (p[0] - q[0]) * damp, vy = (p[1] - q[1]) * damp;
+        q[0] = p[0]; q[1] = p[1];
+        p[0] += vx; p[1] += vy + G * dt * dt;
+      }
+      if (grab >= 0) { pts[grab][0] = target[0]; pts[grab][1] = target[1]; }
+      for (var k = 0; k < ITER; k++) {
+        pts[0] = [x0, y]; pts[N - 1] = [x1, y];
+        for (var j = 0; j < N - 1; j++) {
+          var a = pts[j], b = pts[j + 1];
+          var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1e-6;
+          var diff = (L - seg) / L * 0.5;
+          var fa = j === 0 ? 0 : 1, fb = j + 1 === N - 1 ? 0 : 1;
+          if (j === grab) fa = 0;
+          if (j + 1 === grab) fb = 0;
+          var tot = fa + fb || 1;
+          a[0] += dx * diff * 2 * fa / tot; a[1] += dy * diff * 2 * fa / tot;
+          b[0] -= dx * diff * 2 * fb / tot; b[1] -= dy * diff * 2 * fb / tot;
+        }
+        for (var m = 1; m < N - 1; m++) {
+          pts[m][1] = clamp(pts[m][1], 8, h - 8);
+          pts[m][0] = clamp(pts[m][0], 8, w - 8);
+        }
+      }
+    }
+
+    return function (time) {
+      var dt = last === null ? 0 : Math.min(time - last, 1 / 30);
+      last = time;
+      var steps = Math.max(1, Math.round(dt / (1 / 120)));
+      for (var s = 0; s < steps && dt > 0; s++) physics(dt / steps);
+      rope.draw(pts);
+    };
+  };
+
   // ---------- run ----------
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
