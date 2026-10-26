@@ -285,6 +285,7 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 .pub-title { font-weight: 500; font-size: 1.02rem; margin: 0 0 4px; color: var(--navy); }
 .pub-title a { color: var(--navy); }
 .pub-venue { font-size: .92rem; margin: 0; }
+.submitted { color: var(--blue); font-weight: 500; font-style: normal; }
 .pub .links { margin-top: 10px; }
 
 .bibtex { position: relative; margin-top: 12px; }

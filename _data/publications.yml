@@ -6,6 +6,21 @@
 # short:    name used for cross-links between projects
 # abstract: the paper's own abstract (shown by default; projects add an AI summary)
 # A project page in _projects/ links to its paper with `pub: <id>`.
+# Optional:
+#   badge:     replaces the "<venue_short> <year>" badge text
+#   submitted: venue a preprint is under review at (shown after the venue)
+#   project:   project page to link when no project names this paper in `pub`
+
+- id: intent-aware
+  kind: preprint
+  title: "Intent-Aware Adaptive Admittance Control for Human–Robot Collaborative Transport of Objects"
+  short: "Intent-aware admittance control"
+  authors: [Berk Guler, E. U. Dincer, O. S. Oguz, Yusuf Aydin, Cagatay Basdogan]
+  venue: Submitted to the IEEE International Conference on Robotics and Automation (ICRA)
+  venue_short: ICRA
+  badge: ICRA 2027 · under review
+  year: 2027
+  project: co-manipulation-drl
 
 - id: forwarddlo
   kind: preprint
@@ -31,6 +46,7 @@
     million simulated and 14,107 real rope transitions in the project's repository.
   authors: [Tim Missal, Berk Guler, Lucas Domingues, Simon Manschitz, Jan Peters, Paula Dornhofer Paro Costa]
   venue: arXiv preprint arXiv:2609.18455
+  submitted: IEEE ICRA 2027
   venue_short: arXiv
   year: 2026
   links:
@@ -68,6 +84,7 @@
     user-aware, and material-aware shared autonomy.
   authors: [Berk Guler, Simon Manschitz, Kay Pompetzki, Jan Peters]
   venue: arXiv preprint arXiv:2605.06323
+  submitted: Advanced Intelligent Systems
   venue_short: arXiv
   year: 2026
   links:

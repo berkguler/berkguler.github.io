@@ -30,9 +30,15 @@
     <p class="related-links"><i class="fa-solid fa-link" aria-hidden="true"></i> Related:
       {%- for _rel in _p.related -%}
         {%- assign _r = site.data.publications | where: "id", _rel | first -%}
-        {%- assign _rp = site.projects | where: "pub", _rel | first -%}
+        {%- if _r.project -%}
+          {%- assign _rp = site.projects | where: "slug", _r.project | first -%}
+        {%- else -%}
+          {%- assign _rp = site.projects | where: "pub", _rel | first -%}
+        {%- endif -%}
         {%- if _rp -%}{%- assign _href = _rp.url | relative_url -%}{%- else -%}{%- assign _href = _r.links[0].url -%}{%- endif -%}
-        {% unless forloop.first %}·{% endunless %} <a href="{{- _href -}}">{{ _r.short }}</a> <span class="related-venue">({{ _r.venue_short }} {{ _r.year }})</span>
+        {%- capture _rbadge -%}{{ _r.venue_short }} {{ _r.year }}{%- endcapture -%}
+        {%- if _r.badge -%}{%- assign _rbadge = _r.badge -%}{%- endif -%}
+        {% unless forloop.first %}·{% endunless %} {% if _href %}<a href="{{- _href -}}">{{ _r.short }}</a>{% else %}{{ _r.short }}{% endif %} <span class="related-venue">({{ _rbadge }})</span>
       {%- endfor -%}
     </p>
     {%- endif -%}

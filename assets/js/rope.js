@@ -479,38 +479,98 @@
       pegR.setAttribute('cx', f1(x1)); pegR.setAttribute('cy', y);
     }
 
-    function toLocal(ev) {
+    function toLocal(clientX, clientY) {
       var pt = svg.createSVGPoint();
-      pt.x = ev.clientX; pt.y = ev.clientY;
+      pt.x = clientX; pt.y = clientY;
       var p = pt.matrixTransform(svg.getScreenCTM().inverse());
       return [p.x, p.y];
     }
 
-    svg.addEventListener('pointerdown', function (ev) {
-      var p = toLocal(ev), best = -1, bestD = 30;
+    // Grab the rope point nearest to the given client position, if the
+    // position is on (or close to) the rope.
+    function tryGrab(clientX, clientY) {
+      var p = toLocal(clientX, clientY), best = -1, bestD = 36;
       for (var i = 1; i < N - 1; i++) {
         var d = dist(p, pts[i]);
         if (d < bestD) { bestD = d; best = i; }
       }
-      if (best < 0) return;
+      if (best < 0) return false;
       grab = best; target = p;
-      svg.setPointerCapture(ev.pointerId);
       svg.classList.add('is-grabbing');
       svg.dispatchEvent(new CustomEvent('ropegrab', { bubbles: true }));
+      kick();
+      return true;
+    }
+
+    function release() {
+      grab = -1; touchId = null;
+      svg.classList.remove('is-grabbing');
+    }
+
+    // Mouse and pen.
+    svg.addEventListener('pointerdown', function (ev) {
+      if (ev.pointerType === 'touch' || !tryGrab(ev.clientX, ev.clientY)) return;
+      svg.setPointerCapture(ev.pointerId);
       ev.preventDefault();
     });
-    svg.addEventListener('pointermove', function (ev) { if (grab >= 0) target = toLocal(ev); });
-    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) {
-      svg.addEventListener(t, function () { grab = -1; svg.classList.remove('is-grabbing'); });
+    svg.addEventListener('pointermove', function (ev) {
+      if (ev.pointerType !== 'touch' && grab >= 0) target = toLocal(ev.clientX, ev.clientY);
     });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) {
+      svg.addEventListener(t, function (ev) { if (ev.pointerType !== 'touch') release(); });
+    });
+
+    // Touch: block page scrolling only when the finger starts on the rope.
+    var touchId = null;
+    function findTouch(list) {
+      for (var i = 0; i < list.length; i++) if (list[i].identifier === touchId) return list[i];
+      return null;
+    }
+    svg.addEventListener('touchstart', function (ev) {
+      var t = ev.changedTouches[0];
+      if (touchId === null && tryGrab(t.clientX, t.clientY)) {
+        touchId = t.identifier;
+        ev.preventDefault();
+      }
+    }, { passive: false });
+    svg.addEventListener('touchmove', function (ev) {
+      var t = touchId === null ? null : findTouch(ev.changedTouches);
+      if (!t) return;
+      target = toLocal(t.clientX, t.clientY);
+      ev.preventDefault();
+    }, { passive: false });
+    ['touchend', 'touchcancel'].forEach(function (type) {
+      svg.addEventListener(type, function (ev) { if (touchId !== null && findTouch(ev.changedTouches)) release(); });
+    });
+
     window.addEventListener('resize', function () { layout(); rope.draw(pts); });
     layout();
 
+    // The rope runs its own loop while it is held or still moving, also with
+    // reduced motion, since the motion is started by the visitor.
+    var raf = null, still = 0;
+    function kick() {
+      still = 0;
+      if (!raf) { last = null; raf = requestAnimationFrame(loop); }
+    }
+    function loop(now) {
+      var t = now / 1000;
+      var dt = last === null ? 1 / 60 : Math.min(t - last, 1 / 30);
+      last = t;
+      var steps = Math.max(1, Math.round(dt * 120)), moved = 0;
+      for (var s = 0; s < steps; s++) moved = Math.max(moved, physics(dt / steps));
+      rope.draw(pts);
+      still = grab < 0 && moved < 0.02 ? still + 1 : 0;
+      raf = still > 30 ? null : requestAnimationFrame(loop);
+    }
+
+    // One physics step; returns the largest point displacement.
     function physics(dt) {
-      var x0 = PAD, x1 = w - PAD, y = 24, damp = 0.985;
+      var x0 = PAD, x1 = w - PAD, y = 24, damp = 0.985, moved = 0;
       for (var i = 1; i < N - 1; i++) {
         var p = pts[i], q = prev[i];
         var vx = (p[0] - q[0]) * damp, vy = (p[1] - q[1]) * damp;
+        moved = Math.max(moved, Math.abs(vx) + Math.abs(vy));
         q[0] = p[0]; q[1] = p[1];
         p[0] += vx; p[1] += vy + G * dt * dt;
       }
@@ -533,15 +593,13 @@
           pts[m][0] = clamp(pts[m][0], 8, w - 8);
         }
       }
+      return moved;
     }
 
-    return function (time) {
-      var dt = last === null ? 0 : Math.min(time - last, 1 / 30);
-      last = time;
-      var steps = Math.max(1, Math.round(dt / (1 / 120)));
-      for (var s = 0; s < steps && dt > 0; s++) physics(dt / steps);
-      rope.draw(pts);
-    };
+    // Drawn once here; afterwards the rope drives itself (see loop above).
+    var draw = function () { rope.draw(pts); };
+    draw.selfDriven = true;
+    return draw;
   };
 
   // ---------- run ----------
@@ -551,30 +609,34 @@
 
   function start() {
     var nodes = document.querySelectorAll('svg[data-rope]');
-    if (!nodes.length) return;
-    var instances = [];
     Array.prototype.forEach.call(nodes, function (svg) {
       var make = SCENES[svg.getAttribute('data-rope')];
       if (!make) return;
       var inst = { update: make(svg), visible: false, offset: Math.random() * 3 };
       inst.update(1.2 + inst.offset);
-      instances.push(inst);
+      if (inst.update.selfDriven) return;
       if (!reduceMotion && 'IntersectionObserver' in window) {
         new IntersectionObserver(function (entries) {
           inst.visible = entries[0].isIntersecting;
           var i = active.indexOf(inst);
           if (inst.visible && i < 0) active.push(inst);
           if (!inst.visible && i >= 0) active.splice(i, 1);
+          wake();
         }).observe(svg);
       }
     });
-    if (reduceMotion) return;
-    var t0 = performance.now();
-    (function frame(now) {
-      var t = (now - t0) / 1000;
-      for (var i = 0; i < active.length; i++) active[i].update(t + 1.2 + active[i].offset);
-      requestAnimationFrame(frame);
-    })(t0);
+  }
+
+  // Shared loop for the animated scenes; it sleeps while none is on screen.
+  var running = false, t0 = performance.now();
+  function frame(now) {
+    if (!active.length) { running = false; return; }
+    var t = (now - t0) / 1000;
+    for (var i = 0; i < active.length; i++) active[i].update(t + 1.2 + active[i].offset);
+    requestAnimationFrame(frame);
+  }
+  function wake() {
+    if (!running && active.length) { running = true; requestAnimationFrame(frame); }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
