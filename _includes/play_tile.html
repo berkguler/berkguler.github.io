@@ -14,7 +14,6 @@
   <span class="play-body">
     <span class="play-title">{{ _p.play_title }}</span>
     <span class="play-blurb">{{ _p.play_blurb }}</span>
-    <span class="play-from">From {{ _pub.short | default: _p.title }}</span>
-    <span class="btn btn--solid play-cta"><i class="fa-solid fa-gamepad" aria-hidden="true"></i>Play</span>
+    <span class="play-meta">From {{ _pub.short | default: _p.title }} <span class="play-cta"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Play</span></span>
   </span>
 </a>
