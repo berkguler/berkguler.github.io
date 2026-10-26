@@ -1,0 +1,20 @@
+{%- comment -%} One tile in the home page's Interactives section. Include vars: project {%- endcomment -%}
+{%- assign _p = include.project -%}
+{%- assign _pub = nil -%}
+{%- if _p.pub -%}{%- assign _pub = site.data.publications | where: "id", _p.pub | first -%}{%- endif -%}
+<a class="play-card reveal" href="{{- _p.url | relative_url | append: '#' | append: _p.interactive -}}">
+  <span class="play-media" aria-hidden="true">
+    {%- if _p.play_visual == 'knot' -%}
+    <svg data-rope="untie" viewBox="0 0 400 250"></svg>
+    {%- else -%}
+    {%- capture _svg -%}plays/{{ _p.play_visual }}.svg{%- endcapture -%}
+    {%- include {{ _svg }} -%}
+    {%- endif -%}
+  </span>
+  <span class="play-body">
+    <span class="play-title">{{ _p.play_title }}</span>
+    <span class="play-blurb">{{ _p.play_blurb }}</span>
+    <span class="play-from">From {{ _pub.short | default: _p.title }}</span>
+    <span class="btn btn--solid play-cta"><i class="fa-solid fa-gamepad" aria-hidden="true"></i>Play</span>
+  </span>
+</a>

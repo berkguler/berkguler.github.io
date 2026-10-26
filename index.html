@@ -57,6 +57,20 @@ title: Home
   </div>
 </section>
 
+<!-- Interactives -->
+<section class="section section--alt" id="interactives">
+  <div class="container">
+    <h2 class="section-title">Interactives</h2>
+    <p class="section-lead">Small simulations from my research that run right here in your browser.</p>
+    {%- assign _plays = site.projects | where_exp: "p", "p.play_title" | sort: "play_order" -%}
+    <div class="play-grid">
+      {%- for _p in _plays -%}
+        {%- include play_tile.html project=_p -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
 <!-- News -->
 <section class="section" id="news">
   <div class="container">

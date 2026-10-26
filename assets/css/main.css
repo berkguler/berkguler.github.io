@@ -390,6 +390,27 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
   color: var(--blue); box-shadow: inset 0 0 0 1px rgba(68, 125, 155, .45); white-space: nowrap;
 }
 
+.play-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+.play-card {
+  display: flex; flex-direction: column; overflow: hidden; color: inherit; background: #fff;
+  border: 1px solid var(--gray); border-radius: var(--radius); box-shadow: var(--shadow);
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.play-card:hover { transform: translateY(-3px); border-color: var(--blue); box-shadow: 0 12px 26px rgba(39, 63, 79, .14); text-decoration: none; }
+.play-card:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.play-media {
+  display: block; aspect-ratio: 16 / 10; border-bottom: 1px solid var(--gray);
+  background: radial-gradient(circle at 1px 1px, rgba(39, 63, 79, .10) 1px, transparent 0) 0 0 / 16px 16px, #f7f7f5;
+}
+.play-media svg { display: block; width: 100%; height: 100%; }
+.play-body { display: flex; flex: 1; flex-direction: column; gap: 6px; padding: 14px 16px 16px; }
+.play-title { font-size: 1.08rem; font-weight: 700; color: var(--navy); }
+.play-blurb { flex: 1; font-size: .92rem; color: var(--muted); }
+.play-from { font-size: .8rem; color: var(--muted); }
+.play-cta { align-self: flex-start; margin-top: 6px; }
+.play-card:hover .play-cta { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+.play-card:hover .play-cta i { color: var(--navy); }
+
 .badge-play {
   display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px; border-radius: 4px;
   font-size: .78rem; font-weight: 700; color: var(--navy); background: var(--orange); white-space: nowrap;
@@ -578,7 +599,6 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 .game-hud b { color: var(--navy); font-weight: 700; font-variant-numeric: tabular-nums; }
 .game-hud b.is-ok { color: #2f7d4f; }
 .game-svg { display: block; width: 100%; height: auto; }
-.game-mode-help { margin: -4px 0 12px; font-size: .9rem; color: var(--muted); min-height: 2.6em; }
 .table-wrap { overflow-x: auto; }
 .game-results { width: 100%; margin-top: 12px; border-collapse: collapse; font-size: .88rem; font-variant-numeric: tabular-nums; }
 .game-results th, .game-results td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--gray); white-space: nowrap; }
