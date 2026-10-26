@@ -44,11 +44,16 @@ layout: default
 
     {%- if page.related -%}
     <section class="prose">
-      <h2>Related work</h2>
+      <h2>{{ page.related_title | default: 'Related work' }}</h2>
       <ul class="related">
         {%- for _rel in page.related -%}
         {%- assign _r = site.data.publications | where: "id", _rel | first -%}
-        {%- assign _rp = site.projects | where: "pub", _rel | first -%}
+        {%- if _r.project -%}
+          {%- assign _rp = site.projects | where: "slug", _r.project | first -%}
+        {%- else -%}
+          {%- assign _rp = site.projects | where: "pub", _rel | first -%}
+        {%- endif -%}
+        {%- if _rp.url == page.url -%}{%- assign _rp = nil -%}{%- endif -%}
         <li>
           <strong>{% if _rp %}<a href="{{- _rp.url | relative_url -}}">{{ _r.title }}</a>{% else %}{{ _r.title }}{% endif %}</strong><br />
           <span class="authors">{%- include authors.html authors=_r.authors -%}</span><br />

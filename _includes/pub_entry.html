@@ -1,17 +1,27 @@
 {%- comment -%} One publication in the list. Include vars: pub {%- endcomment -%}
 {%- assign _pub = include.pub -%}
-{%- assign _proj = site.projects | where: "pub", _pub.id | first -%}
+{%- if _pub.project -%}
+  {%- assign _proj = site.projects | where: "slug", _pub.project | first -%}
+{%- else -%}
+  {%- assign _proj = site.projects | where: "pub", _pub.id | first -%}
+{%- endif -%}
+{%- capture _badge -%}{{ _pub.venue_short }} {{ _pub.year }}{%- endcapture -%}
+{%- if _pub.badge -%}{%- assign _badge = _pub.badge -%}{%- endif -%}
+{%- if _pub.bibtex -%}{%- assign _bib = _pub.id -%}{%- else -%}{%- assign _bib = nil -%}{%- endif -%}
 {%- assign _first = _pub.authors | first | remove: '*' -%}
-{%- capture _search -%}{{ _pub.title }} {{ _pub.authors | join: ' ' }} {{ _pub.venue }} {{ _pub.venue_short }} {{ _pub.year }}{%- endcapture -%}
+{%- capture _search -%}{{ _pub.title }} {{ _pub.authors | join: ' ' }} {{ _pub.venue }} {{ _badge }} {{ _pub.submitted }} {{ _pub.year }}{%- endcapture -%}
 <li class="pub" id="pub-{{ _pub.id }}" data-kind="{{ _pub.kind }}" data-first="{% if site.data.me.names contains _first %}true{% else %}false{% endif %}" data-search="{{ _search | remove: '*' | downcase | escape }}">
-  <div class="pub-badge"><span class="venue venue--{{ _pub.kind }}">{{ _pub.venue_short }} {{ _pub.year }}</span></div>
+  <div class="pub-badge"><span class="venue venue--{{ _pub.kind }}">{{ _badge }}</span></div>
   <div class="pub-body">
     <p class="pub-title">
       {%- if _proj -%}<a href="{{- _proj.url | relative_url -}}">{{ _pub.title }}</a>{%- else -%}{{ _pub.title }}{%- endif -%}
     </p>
     <p class="authors">{%- include authors.html authors=_pub.authors -%}</p>
-    <p class="pub-venue"><em>{{ _pub.venue }}</em>, {{ _pub.year }}</p>
-    {%- include pub_links.html links=_pub.links details=_proj.url bib=_pub.id -%}
-    {%- include bibtex.html pub=_pub -%}
+    <p class="pub-venue">
+      <em>{{ _pub.venue }}</em>, {{ _pub.year }}
+      {%- if _pub.submitted %} · <span class="submitted">submitted to {{ _pub.submitted }}</span>{% endif %}
+    </p>
+    {%- include pub_links.html links=_pub.links details=_proj.url bib=_bib -%}
+    {%- if _pub.bibtex -%}{%- include bibtex.html pub=_pub -%}{%- endif -%}
   </div>
 </li>

@@ -1,6 +1,12 @@
 # Newest first. `text` may contain HTML. The first five are shown by default;
 # the rest sit behind a "Show older news" toggle.
 
+- date: Oct 2026
+  text: >-
+    The conference version of my M.Sc. thesis, <em>Intent-Aware Adaptive Admittance Control for
+    Human–Robot Collaborative Transport of Objects</em>, is under review at ICRA 2027
+    (<a href="/projects/co-manipulation-drl/">thesis project</a>).
+
 - date: Sep 2026
   text: >-
     <a href="https://arxiv.org/abs/2609.18455">ForwardDLO</a>, a fast learned forward model
