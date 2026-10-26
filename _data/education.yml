@@ -12,7 +12,6 @@
   advisors: Prof. Jan Peters (TU Darmstadt) and Dr. Simon Manschitz (Honda Research Institute Europe)
   details: "Research: autonomy-infused teleoperation for dexterous object manipulation."
   logos:
-    - { name: TU Darmstadt, src: "https://www.tu-darmstadt.de/media/resources/images_1/tu_logo_web.svg", url: "https://www.tu-darmstadt.de" }
     - { name: IAS, src: "https://www.ias.informatik.tu-darmstadt.de/uploads/Internal/TUDCorporateDesign/iasLogo.jpg", url: "https://www.ias.informatik.tu-darmstadt.de/" }
     - { name: Honda Research Institute, src: "https://www.honda-ri.de/wp-content/themes/honda/assets/images/logo.png", url: "https://www.honda-ri.de/" }
 

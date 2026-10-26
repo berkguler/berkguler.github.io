@@ -17,6 +17,7 @@
     <p class="card-meta">
       <span class="venue venue--{{ _info.kind | default: 'thesis' }}">{{ _info.venue_short }} {{ _info.year }}</span>
       {%- if _p.topic -%}<span class="topic">{{ _p.topic }}</span>{%- endif -%}
+      {%- if _p.interactive -%}<a class="badge-play" href="{{- _p.url | relative_url | append: '#' | append: _p.interactive -}}"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Interactive</a>{%- endif -%}
     </p>
     <h4 class="card-title"><a href="{{- _p.url | relative_url -}}">{{ _info.title }}</a></h4>
     <p class="authors">{%- include authors.html authors=_info.authors -%}</p>

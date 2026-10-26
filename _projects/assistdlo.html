@@ -4,6 +4,7 @@ pub: assistdlo
 theme: dlo
 topic: DLO · Assistive teleoperation
 order: 1
+interactive: try-it
 related: [knot-untangling]
 summary: >-
   Real-time multi-view rope state estimation, a VR visual overlay, and a geometry-aware
@@ -32,6 +33,16 @@ teaser:
   alt: Animated illustration of a gripper being guided into a grasp funnel on a knotted rope
   caption: "Illustration: the operator's command (dashed ring) is guided into a funnel around the selected rope point while the gripper aligns with the rope."
 ---
+<h2 id="try-it">Try it: untangle the knot</h2>
+<p>
+  Untie a loose overhand knot by grasping and moving strands, as the participants did with a
+  bimanual robot. Click a strand to grasp it, drag to move it and release to put it down. Then
+  switch the assistance and compare: does the gripper land where you meant, and does it disturb
+  the rest of the rope on the way? Hint: moving an end over other strands only rearranges the
+  rope; the knot comes undone when an end gets back out from under the strand that holds it.
+</p>
+{% include assistdlo_game.html %}
+
 <h2>Key results</h2>
 <ul class="stats">
   <li><b>22</b><span>participants, 352 knot-untangling trials across 4 ropes</span></li>
