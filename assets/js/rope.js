@@ -8,7 +8,7 @@
  * alternating over/under assignment so that knots look like knots.
  *
  * Usage: <svg data-rope="scene-name" viewBox="0 0 400 250"></svg>
- * Scenes: shape-matching, assist, loop, particles.
+ * Scenes: shape-matching, assist, loop, particles, untie.
  */
 (function () {
   'use strict';
@@ -407,6 +407,17 @@
   };
 
   // RopeDreamer: observed rope (orange) and a learned model's rollout (blue).
+  // Interactives tile: a loose overhand knot whose free end is being worked loose.
+  SCENES.untie = function (svg) {
+    var rope = new Rope(svg, { width: 12 });
+    var grip = new Gripper(svg);
+    return function (time) {
+      rope.draw(overhand(200, 158, 26, time * 0.6, 0.5 + 0.5 * Math.sin(time * 0.8)));
+      var end = rope.at(1);
+      grip.set(end.p[0] - end.t[0] * 6, end.p[1] - end.t[1] * 6, Math.atan2(end.t[1], end.t[0]) * 180 / Math.PI, 0, 1);
+    };
+  };
+
   SCENES.loop = function (svg) {
     var ghost = new Rope(svg, { width: 11, fill: C.blue, endFill: C.blue, opacity: 0.45, shadow: false });
     var rope = new Rope(svg, { width: 11 });

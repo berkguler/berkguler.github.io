@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 250" role="img" aria-label="A 40 kilogram box being pushed along a rail toward a target zone">
+  <rect x="276" y="70" width="44" height="112" fill="#447D9B" fill-opacity=".18" stroke="#447D9B" stroke-dasharray="3 3" />
+  <text x="298" y="200" text-anchor="middle" font-family="Roboto, sans-serif" font-size="11" font-weight="500" fill="#447D9B">target</text>
+  <line x1="40" y1="178" x2="360" y2="178" stroke="#D7D7D7" stroke-width="4" stroke-linecap="round" />
+  <rect x="126" y="104" width="12" height="28" rx="3" fill="#5d6f7b" />
+  <rect x="138" y="114" width="10" height="9" fill="#5d6f7b" />
+  <rect x="148" y="98" width="66" height="70" rx="7" fill="#273F4F" />
+  <text x="181" y="138" text-anchor="middle" font-family="Roboto, sans-serif" font-size="14" font-weight="700" fill="#fff">40 kg</text>
+  <path d="M175 186 L181 178 L187 186 Z" fill="#FE7743" />
+  <defs>
+    <marker id="play-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#FE7743" />
+    </marker>
+  </defs>
+  <path d="M62 118 H114" stroke="#FE7743" stroke-width="6" stroke-linecap="round" marker-end="url(#play-arrow)" />
+</svg>
