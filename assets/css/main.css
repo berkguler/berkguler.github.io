@@ -587,6 +587,15 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 .comanip-status.is-ok { color: #2f7d4f; }
 .comanip-status.is-bad { color: #b4451f; }
 .game-stage { cursor: crosshair; }
+.ctl-label b { margin-left: 4px; color: var(--navy); text-transform: none; letter-spacing: 0; }
+.ctl-select {
+  padding: 6px 30px 6px 10px; border: 0; border-radius: 8px; background: var(--navy-soft); color: var(--navy);
+  font: 500 .85rem var(--font); cursor: pointer; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--navy) 50%), linear-gradient(135deg, var(--navy) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.ctl-select:focus-visible, .ctl--range input:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.ctl--range input { width: 150px; accent-color: var(--orange); margin: 6px 0 0; }
 .bik-stage { cursor: crosshair; }
 .bik-svg { display: block; width: 100%; height: auto; }
 .bik-obstacle { cursor: grab; }
