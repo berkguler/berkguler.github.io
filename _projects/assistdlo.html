@@ -2,49 +2,47 @@
 title: "AssistDLO: Assistive Teleoperation for Deformable Linear Objects"
 pub: assistdlo
 theme: dlo
+topic: DLO · Assistive teleoperation
 order: 1
 related: [knot-untangling]
 summary: >-
   Real-time multi-view rope state estimation, a VR visual overlay, and a geometry-aware
-  shared-autonomy controller (SA-CBF) that funnels the gripper toward a grasp without
-  disturbing the rest of the rope. Evaluated on bimanual knot untangling with 22 users.
+  assistance controller (SA-CBF) that funnels the gripper toward a grasp without disturbing the
+  rest of the rope. Evaluated on bimanual knot untangling with 22 users.
+ai_summary: >-
+  <p>Ropes and cables are hard to teleoperate: their shape is high-dimensional, and the operator
+  has to judge depth from a 2D video stream. AssistDLO keeps the human in charge of task-level
+  decisions and helps with perception and precise grasping:</p>
+  <ul>
+  <li><strong>Rope state estimation.</strong> Two wrist-mounted RGB-D cameras trace the rope (SAM&nbsp;2
+  segmentation and a Voronoi-based centre line), fused into a 3D point sequence in real time.</li>
+  <li><strong>Visual assistance (VA).</strong> The estimated rope is shown as a registered 3D overlay
+  in the operator's VR headset, adding stereo depth cues.</li>
+  <li><strong>Action assistance (SA-CBF).</strong> A control barrier function defines a height-field
+  barrier above the table with approach funnels around rope points, so the gripper can descend
+  only through these funnels and grasp precisely without sweeping through other parts of the
+  rope.</li>
+  </ul>
+  <p>In a 22-participant knot-untangling study, SA-CBF helped novices most (71% → 88% success)
+  and worked best on stiffer ropes, while experts and long, compliant ropes benefited more from
+  visual assistance, so the right assistance depends on the user and the material.</p>
 teaser:
   type: rope
   scene: assist
   alt: Animated illustration of a gripper being guided into a grasp funnel on a knotted rope
   caption: "Illustration: the operator's command (dashed ring) is guided into a funnel around the selected rope point while the gripper aligns with the rope."
 ---
-<h2>Overview</h2>
-<p>
-  Ropes and cables are hard to manipulate: their configuration space is effectively
-  infinite-dimensional, their dynamics are nonlinear, and in teleoperation the operator also has
-  to judge depth from a 2D video stream. AssistDLO is an assistive teleoperation framework for
-  deformable linear objects (DLOs) that keeps the human in charge of task-level decisions and
-  helps with perception and precise grasping.
-</p>
-<ul>
-  <li><strong>Rope state estimation.</strong> Two wrist-mounted RGB-D cameras trace the rope (SAM&nbsp;2 segmentation and a Voronoi-based centre line), and the traces are fused into a 3D point sequence in real time.</li>
-  <li><strong>Visual assistance (VA).</strong> The estimated rope is rendered as a registered 3D overlay in the operator's VR headset, adding stereo depth cues and motion parallax.</li>
-  <li><strong>Action assistance (SA-CBF).</strong> A control barrier function defines a height-field barrier above the table with Gaussian approach funnels around rope points. A quadratic program keeps the robot close to the operator's command while it descends only through these funnels, so it can grasp precisely without sweeping through other parts of the rope.</li>
-</ul>
-
 <h2>Key results</h2>
 <ul class="stats">
   <li><b>22</b><span>participants, 352 knot-untangling trials across 4 ropes</span></li>
   <li><b>71% → 88%</b><span>task success for novice operators with SA-CBF</span></li>
   <li><b>17–21%</b><span>shorter completion time on successful trials with any assistance mode</span></li>
 </ul>
-<p>
-  SA-CBF acts as a skill equalizer: it gives the largest gains for novice users and is most
-  effective on stiffer ropes, while experts and long, highly compliant ropes benefit more from
-  visual assistance. Effective DLO teleoperation therefore needs assistance that adapts to the
-  user and the material rather than a single fixed strategy.
-</p>
 
 <h2>My contributions</h2>
 <ul>
-  <li>Designed the <code>AssistDLO</code> framework, combining real-time multi-view DLO state estimation with a geometry-aware shared-autonomy controller.</li>
+  <li>Designed the <code>AssistDLO</code> framework, combining real-time multi-view DLO state estimation with a geometry-aware assistance controller.</li>
   <li>Formulated the <code>SA-CBF</code> controller as a geometry-aware safety funnel around the estimated rope for precise, collision-aware grasping.</li>
-  <li>Designed and ran the bimanual knot-untangling user study (N = 22) across ropes of varying length and rigidity, comparing visual assistance and shared autonomy against unassisted teleoperation.</li>
+  <li>Designed and ran the bimanual knot-untangling user study (N = 22) across ropes of varying length and rigidity, comparing visual and action assistance against unassisted teleoperation.</li>
   <li>Analyzed how the effectiveness of assistance depends on operator expertise and rope properties.</li>
 </ul>

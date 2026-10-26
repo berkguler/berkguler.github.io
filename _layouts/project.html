@@ -4,16 +4,18 @@ layout: default
 {%- assign _pub = nil -%}
 {%- if page.pub -%}{%- assign _pub = site.data.publications | where: "id", page.pub | first -%}{%- endif -%}
 {%- assign _info = _pub | default: page -%}
+{%- assign _abstract = _pub.abstract | default: page.abstract -%}
 {%- assign _theme = site.data.themes | where: "id", page.theme | first -%}
 <article class="project">
   <header class="project-header">
     <div class="container container--narrow">
       <p class="project-crumbs">
         <a href="{{- '/#research' | relative_url -}}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Research</a>
-        {%- if _theme %} <span aria-hidden="true">/</span> <span>{{ _theme.title }}</span>{% endif %}
+        {%- if _theme %} <span aria-hidden="true">/</span> <a href="{{- '/?theme=' | append: page.theme | append: '#research' | relative_url -}}">{{ _theme.title }}</a>{% endif %}
       </p>
       <p class="card-meta">
         <span class="venue venue--{{ _info.kind | default: 'thesis' }}">{{ _info.venue_short }} {{ _info.year }}</span>
+        {%- if page.topic -%}<span class="topic">{{ page.topic }}</span>{%- endif -%}
       </p>
       <h1 class="project-title">{{ _info.title }}</h1>
       <p class="authors">{%- include authors.html authors=_info.authors -%}</p>
@@ -30,21 +32,28 @@ layout: default
       {%- if page.teaser.caption -%}<figcaption>{{ page.teaser.caption }}</figcaption>{%- endif -%}
     </figure>
 
+    {%- if _abstract -%}
+    <section class="project-summary">
+      {%- include summary_toggle.html abstract=_abstract ai=page.ai_summary label=page.abstract_label -%}
+    </section>
+    {%- endif -%}
+
     <div class="prose">
       {{- content -}}
     </div>
 
     {%- if page.related -%}
     <section class="prose">
-      <h2>Related publications</h2>
+      <h2>Related work</h2>
       <ul class="related">
         {%- for _rel in page.related -%}
         {%- assign _r = site.data.publications | where: "id", _rel | first -%}
+        {%- assign _rp = site.projects | where: "pub", _rel | first -%}
         <li>
-          <strong>{{ _r.title }}</strong><br />
+          <strong>{% if _rp %}<a href="{{- _rp.url | relative_url -}}">{{ _r.title }}</a>{% else %}{{ _r.title }}{% endif %}</strong><br />
           <span class="authors">{%- include authors.html authors=_r.authors -%}</span><br />
           <em>{{ _r.venue }}</em>, {{ _r.year }}
-          {%- include pub_links.html links=_r.links -%}
+          {%- include pub_links.html links=_r.links details=_rp.url -%}
         </li>
         {%- endfor -%}
       </ul>

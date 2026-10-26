@@ -8,21 +8,34 @@
 {%- assign _pub = nil -%}
 {%- if _p.pub -%}{%- assign _pub = site.data.publications | where: "id", _p.pub | first -%}{%- endif -%}
 {%- assign _info = _pub | default: _p -%}
-<article class="card" id="project-{{ _p.slug }}">
+{%- assign _abstract = _pub.abstract | default: _p.abstract -%}
+<article class="card reveal" id="project-{{ _p.slug }}">
   <a class="card-media" href="{{- _p.url | relative_url -}}" tabindex="-1" aria-hidden="true">
     {%- include teaser.html teaser=_p.teaser -%}
   </a>
   <div class="card-body">
     <p class="card-meta">
       <span class="venue venue--{{ _info.kind | default: 'thesis' }}">{{ _info.venue_short }} {{ _info.year }}</span>
-      {%- for _rel in _p.related -%}
-        {%- assign _r = site.data.publications | where: "id", _rel | first -%}
-        <a class="venue venue--{{ _r.kind }}" href="{{- _r.links[0].url -}}" title="{{ _r.title | escape }}">+ {{ _r.venue_short }} {{ _r.year }}</a>
-      {%- endfor -%}
+      {%- if _p.topic -%}<span class="topic">{{ _p.topic }}</span>{%- endif -%}
     </p>
     <h4 class="card-title"><a href="{{- _p.url | relative_url -}}">{{ _info.title }}</a></h4>
     <p class="authors">{%- include authors.html authors=_info.authors -%}</p>
-    <p class="card-summary">{{ _p.summary }}</p>
+    {%- capture _ai -%}<p>{{ _p.summary }}</p>{%- endcapture -%}
+    {%- if _abstract -%}
+      {%- include summary_toggle.html abstract=_abstract ai=_ai label=_p.abstract_label compact=true -%}
+    {%- else -%}
+      <p class="card-summary">{{ _p.summary }}</p>
+    {%- endif -%}
+    {%- if _p.related -%}
+    <p class="related-links"><i class="fa-solid fa-link" aria-hidden="true"></i> Related:
+      {%- for _rel in _p.related -%}
+        {%- assign _r = site.data.publications | where: "id", _rel | first -%}
+        {%- assign _rp = site.projects | where: "pub", _rel | first -%}
+        {%- if _rp -%}{%- assign _href = _rp.url | relative_url -%}{%- else -%}{%- assign _href = _r.links[0].url -%}{%- endif -%}
+        {% unless forloop.first %}·{% endunless %} <a href="{{- _href -}}">{{ _r.short }}</a> <span class="related-venue">({{ _r.venue_short }} {{ _r.year }})</span>
+      {%- endfor -%}
+    </p>
+    {%- endif -%}
     {%- include pub_links.html links=_info.links details=_p.url -%}
   </div>
 </article>

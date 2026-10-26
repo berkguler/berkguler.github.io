@@ -11,6 +11,8 @@ Most content lives in data files, so updates rarely touch HTML:
 | Publications (with links and BibTeX) | `_data/publications.yml` |
 | News items | `_data/news.yml` |
 | Education timeline | `_data/education.yml` |
+| Teaching | `_data/teaching.yml` |
+| Reviewing | `_data/service.yml` |
 | Research themes | `_data/themes.yml` |
 | Name spellings highlighted in author lists | `_data/me.yml` |
 | Bio and research interests | `index.html` |
@@ -25,9 +27,13 @@ Create `_projects/<slug>.html`. The front matter links it to a paper and a theme
 title: "Short project title"
 pub: <id from _data/publications.yml>
 theme: <id from _data/themes.yml>
+topic: DLO · Dynamics prediction   # small tag on the card
 order: 1            # position within its theme
 summary: >-
-  One or two sentences for the research card.
+  One or two sentences: the card's AI summary.
+ai_summary: >-
+  <p>Longer AI-written summary (HTML) for the project page.</p>
+related: [<publication id>]        # optional cross-links
 teaser:
   type: image       # image | rope | svg | icon
   src: /assets/images/projects/example.jpg
@@ -39,10 +45,14 @@ teaser:
 
 The page is published at `/projects/<slug>/` and appears as a card under its theme on the home page.
 
+Cards and project pages show the paper's own `abstract` (from `_data/publications.yml`) by default,
+with an **AI summary** toggle for `summary` / `ai_summary`. Projects without an abstract can set
+`abstract:` and `abstract_label:` in their front matter.
+
 Teaser types:
 
 - `image`: `src`, `alt`, optional `fit: contain` and `position` (CSS object-position)
-- `rope`: animated rope from `assets/js/rope.js`; `scene` is one of `shape-matching`, `assist`, `loop`, `particles`
+- `rope`: animated rope from `assets/js/rope.js`; `scene` is one of `shape-matching`, `assist`, `loop`, `particles` (the hero's draggable rope is `playground`)
 - `svg`: inline SVG from `_includes/teasers/<file>`
 - `icon`: Font Awesome `icon` with a `label`
 
@@ -51,6 +61,13 @@ Teaser types:
 - Font: Roboto (Google Fonts); icons: Font Awesome 6
 - Palette: `#FE7743` orange, `#273F4F` navy, `#447D9B` blue, `#D7D7D7` gray (CSS variables in `assets/css/main.css`)
 - The rope illustrations follow Stanko Tadić's [Draw SVG rope using JavaScript](https://muffinman.io/blog/draw-svg-rope-using-javascript/) ([CodePen](https://codepen.io/stanko/pen/vYaEMKX)).
+
+## Push-and-park demo
+
+`assets/js/comanip.js` (used on the M.Sc. thesis page) re-implements the thesis simulation's
+admittance model. It was checked step by step against `simulation_new.py` in
+KocUniversity/pHRI-simulation. The intent signal and the simulated human are labelled
+simplifications.
 
 ## Local preview
 

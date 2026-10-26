@@ -2,11 +2,20 @@
 title: "Adaptive Admittance Control via Deep-Learning Subtask Classification"
 pub: mechatronics
 theme: phri
+topic: pHRI · Subtask recognition
 order: 2
 summary: >-
   A neural network classifies a collaborative drilling task into Idle, Driving and Contact
   phases in real time, and the admittance controller adapts to each phase: transparent while
   the operator drives the robot, stable in contact with a stiff workpiece.
+ai_summary: >-
+  <p>In collaborative drilling, the same admittance parameters cannot be both light enough for
+  moving the robot freely and stiff enough for stable contact with the workpiece. A neural
+  network recognizes the current subtask (Idle, Driving, or Contact) from interaction data in real
+  time, and the admittance controller switches its parameters accordingly.</p>
+  <p>The classifier detects the subtasks with 98% accuracy across 12 participants, and the
+  adaptation lowers human effort while driving by 20% and oscillation amplitude while drilling by
+  25% compared to fixed parameters.</p>
 teaser:
   type: image
   src: /assets/images/projects/admittance-setup.jpg
@@ -14,20 +23,9 @@ teaser:
   position: 30% 50%
   caption: Setup with the cobot, drill, handle, human and interaction force sensors, and workpiece.
 ---
-<h2>Overview</h2>
-<p>
-  We propose a supervised learning approach based on an artificial neural network (ANN) for
-  real-time classification of subtasks in a physical human-robot interaction (pHRI) task that
-  involves contact with a stiff environment. The task is split into three subtasks: Idle,
-  Driving, and Contact. Based on this classification, the parameters of an admittance controller
-  that regulates the interaction between human and robot are adjusted in real time, making the
-  robot more transparent to the operator (less resistant) during Driving and more stable during
-  Contact. The Idle phase is used to detect the start of the task.
-</p>
-
 <figure>
   <img src="{{ '/assets/images/projects/admittance-control.jpg' | relative_url }}" alt="Block diagram of the closed-loop system: admittance controller, robot, human operator, environment, neural network, subtask processor and adaptation mechanism" loading="lazy" />
-  <figcaption>Closed-loop control: the ANN's subtask label drives the adaptation of the admittance parameters.</figcaption>
+  <figcaption>Closed-loop control: the network's subtask label drives the adaptation of the admittance parameters.</figcaption>
 </figure>
 
 <h2>My contributions</h2>

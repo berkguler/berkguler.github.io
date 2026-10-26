@@ -1,0 +1,23 @@
+{%- comment -%}
+  The paper's abstract with a toggle to an AI-written summary.
+  Include vars: abstract, ai (HTML), label (default "Abstract"), compact (true on cards:
+  the abstract is clamped to a few lines with a "Read more" button)
+{%- endcomment -%}
+<div class="summary{% if include.compact %} summary--compact{% endif %}" data-summary>
+  <div class="summary-bar" role="group" aria-label="Summary type">
+    <button type="button" class="summary-tab" data-view="abstract" aria-pressed="true">{{ include.label | default: 'Abstract' }}</button>
+    {%- if include.ai -%}
+    <button type="button" class="summary-tab summary-tab--ai" data-view="ai" aria-pressed="false"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>AI summary</button>
+    {%- endif -%}
+  </div>
+  <div class="summary-panel" data-panel="abstract">
+    <div class="summary-text{% if include.compact %} is-clamped{% endif %}"><p>{{ include.abstract }}</p></div>
+    {%- if include.compact -%}<button type="button" class="summary-more" data-more aria-expanded="false">Read more</button>{%- endif -%}
+  </div>
+  {%- if include.ai -%}
+  <div class="summary-panel" data-panel="ai" hidden>
+    <p class="ai-note"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> AI-generated summary · may contain mistakes, see the paper</p>
+    <div class="summary-ai">{{ include.ai }}</div>
+  </div>
+  {%- endif -%}
+</div>

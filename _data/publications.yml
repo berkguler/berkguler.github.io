@@ -3,11 +3,32 @@
 #
 # kind:     journal | conference | workshop | preprint | thesis
 # authors:  full names; a trailing * marks equal contribution
+# short:    name used for cross-links between projects
+# abstract: the paper's own abstract (shown by default; projects add an AI summary)
 # A project page in _projects/ links to its paper with `pub: <id>`.
 
 - id: forwarddlo
   kind: preprint
   title: "ForwardDLO: Model-Based Bimanual Shape Matching of Unconstrained Deformable Linear Objects"
+  short: "ForwardDLO"
+  abstract: >-
+    Ropes, cables, and other deformable linear objects appear in tasks from untangling to cable
+    routing and suturing, yet controlling their shape remains a challenge in robot manipulation.
+    We study model-based shape control in a general setting: the object lies unfixated on a
+    support surface and two arms may grasp and move it anywhere along its length. Because each
+    arm chooses a grasp point, direction, and magnitude, the joint action space is
+    combinatorially large, and the dynamics model's per-prediction cost bounds how much of it a
+    planner can search. We present ForwardDLO, a recurrent latent dynamics model for this
+    unfixated bimanual setting that predicts per-segment displacements grounded in the observed
+    rope state at every step. Our model reaches accuracy comparable to more expensive baselines
+    while containing no explicit segment-to-segment operations, which makes batched evaluation
+    of candidate actions cheap. On open-loop prediction of real rope motion it reaches the
+    lowest error of the learned models we evaluate, 13% below the strongest baseline. Within a
+    fixed time budget it scores 8 to 22 times more candidate actions than models of comparable
+    accuracy while matching them in real-world shape matching; and on a simulated routing task
+    at a 30 Hz control rate, this throughput converts into 98% task success versus at most 30%
+    for the baselines at their own budgets. We release the model, code, and a dataset of 2.42
+    million simulated and 14,107 real rope transitions in the project's repository.
   authors: [Tim Missal, Berk Guler, Lucas Domingues, Simon Manschitz, Jan Peters, Paula Dornhofer Paro Costa]
   venue: arXiv preprint arXiv:2609.18455
   venue_short: arXiv
@@ -26,6 +47,25 @@
 - id: assistdlo
   kind: preprint
   title: "AssistDLO: Assistive Teleoperation for Deformable Linear Object Manipulation"
+  short: "AssistDLO"
+  abstract: >-
+    Manipulating Deformable Linear Objects (DLOs) is challenging in robotics due to their
+    infinite-dimensional configuration space and complex nonlinear dynamics. In teleoperation,
+    depth uncertainty hinders state perception and reaction. AssistDLO addresses this challenge
+    as an assistive teleoperation framework for DLO manipulation that combines real-time
+    multi-view state estimation, visual assistance (VA), and a geometry-aware shared-autonomy
+    controller based on Control Barrier Functions (SA-CBF). While traditional shared autonomy
+    methods often rely on simple geometric attractors and may fail to preserve DLO geometry,
+    SA-CBF acts as a geometry-aware funnel, facilitating precise grasping while preserving the
+    operator's high-level authority. The framework is evaluated in a bimanual knot-untangling
+    user study (N = 22) using ropes with varying length and rigidity. Results show that the
+    effectiveness of the assistance depends strongly on operator expertise and DLO properties.
+    SA-CBF provides the strongest gains for naive users, acting as a skill equalizer that
+    increases task success from 71% to 88%, and is effective for stiffer ropes. Conversely,
+    expert users prefer VA, and highly compliant, long ropes benefit more from visual support
+    than localized action assistance. Ultimately, these findings demonstrate that effective DLO
+    teleoperation cannot rely on a fixed strategy, highlighting the critical need for adaptive,
+    user-aware, and material-aware shared autonomy.
   authors: [Berk Guler, Simon Manschitz, Kay Pompetzki, Jan Peters]
   venue: arXiv preprint arXiv:2605.06323
   venue_short: arXiv
@@ -44,6 +84,27 @@
 - id: ropedreamer
   kind: preprint
   title: "RopeDreamer: A Kinematic Recurrent State Space Model for Dynamics of Flexible Deformable Linear Objects"
+  short: "RopeDreamer"
+  abstract: >-
+    The robotic manipulation of Deformable Linear Objects (DLOs) is a fundamental challenge due
+    to the high-dimensional, non-linear dynamics of flexible structures and the complexity of
+    maintaining topological integrity during contact-rich tasks. While recent data-driven
+    methods have utilized Recurrent and Graph Neural Networks for dynamics modeling, they often
+    struggle with self-intersections and non-physical deformations, such as tangling and link
+    stretching. In this paper, we propose a latent dynamics framework that combines a Recurrent
+    State Space Model with a Quaternionic Kinematic Chain representation to enable robust,
+    long-term forecasting of DLO states. By encoding the DLO as a sequence of relative rotations
+    (quaternions) rather than independent Cartesian positions, we inherently constrain the model
+    to a physically valid manifold that preserves link-length constancy. Furthermore, we
+    introduce a dual-decoder architecture that decouples state reconstruction from future-state
+    prediction, forcing the latent space to capture the underlying physics of deformation. We
+    evaluate our approach on a large-scale simulated dataset of complex pick-and-place
+    trajectories involving self-intersections. Our results demonstrate that the proposed model
+    achieves a 40.52% reduction in open-loop prediction error over 50-step horizons compared to
+    the state-of-the-art baseline, while reducing inference time by 31.17%. Our model further
+    maintains superior topological consistency in scenarios with multiple crossings, proving its
+    efficacy as a compositional primitive for long-horizon manipulation planning. Code, models
+    and dataset will be released in a future revision.
   authors: [Tim Missal, Lucas Domingues, Berk Guler, Simon Manschitz, Jan Peters, Paula Dornhofer Paro Costa]
   venue: arXiv preprint arXiv:2604.28161
   venue_short: arXiv
@@ -62,6 +123,20 @@
 - id: barrierik
   kind: conference
   title: "A Safety-Aware Shared Autonomy Framework with BarrierIK Using Control Barrier Functions"
+  short: "BarrierIK"
+  abstract: >-
+    Shared autonomy blends operator intent with autonomous assistance. In cluttered
+    environments, linear blending can produce unsafe commands even when each source is
+    individually collision-free. Many existing approaches model obstacle avoidance through
+    potentials or cost terms, which only enforce safety as a soft constraint. In contrast,
+    safety-critical control requires hard guarantees. We investigate the use of control barrier
+    functions (CBFs) at the inverse kinematics (IK) layer of shared autonomy, targeting
+    post-blend safety while preserving task performance. Our approach is evaluated in simulation
+    on representative cluttered environments and in a VR teleoperation study comparing pure
+    teleoperation with shared autonomy. Across conditions, employing CBFs at the IK layer
+    reduces violation time and increases minimum clearance while maintaining task performance.
+    In the user study, participants reported higher perceived safety and trust, lower
+    interference, and an overall preference for shared autonomy with our safety filter.
   authors: [Berk Guler*, Kay Pompetzki*, Yuanzheng Sun, Simon Manschitz, Jan Peters]
   venue: IEEE International Conference on Robotics and Automation (ICRA)
   venue_short: ICRA
@@ -83,6 +158,25 @@
 - id: grasp-collision
   kind: conference
   title: "Sampling-Based Grasp and Collision Prediction for Assisted Teleoperation"
+  short: "Grasp & collision prediction"
+  abstract: >-
+    Shared autonomy allows for combining the global planning capabilities of a human operator
+    with the strengths of a robot such as repeatability and accurate control. In a real-time
+    teleoperation setting, one possibility for shared autonomy is to let the human operator
+    decide for the rough movement and to let the robot do fine adjustments, e.g., when the view
+    of the operator is occluded. We present a learning-based concept for shared autonomy that
+    aims at supporting the human operator in a real-time teleoperation setting. At every step,
+    our system tracks the target pose set by the human operator as accurately as possible while
+    at the same time satisfying a set of constraints which influence the robot's behavior. An
+    important characteristic is that the constraints can be dynamically activated and
+    deactivated which allows the system to provide task-specific assistance. Since the system
+    must generate robot commands in real-time, solving an optimization problem in every
+    iteration is not feasible. Instead, we sample potential target configurations and use Neural
+    Networks for predicting the constraint costs for each configuration. By evaluating each
+    configuration in parallel, our system is able to select the target configuration which
+    satisfies the constraints and has the minimum distance to the operator's target pose with
+    minimal delay. We evaluate the framework with a pick and place task on a bi-manual setup
+    with two Franka Emika Panda robot arms with Robotiq grippers.
   authors: [Simon Manschitz, Berk Gueler, Wei Ma, Dirk Ruiken]
   venue: IEEE International Conference on Robotics and Automation (ICRA)
   venue_short: ICRA
@@ -100,6 +194,7 @@
 - id: knot-untangling
   kind: conference
   title: "Towards Assistive Teleoperation for Knot Untangling"
+  short: "Knot-untangling teleoperation"
   authors: [Berk Guler, Kay Pompetzki, Simon Manschitz, Jan Peters]
   venue: German Robotics Conference (GRC)
   venue_short: GRC
@@ -117,6 +212,32 @@
 - id: drilling-iros
   kind: conference
   title: "Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance under Adaptive Admittance Control"
+  short: "Robot-assisted drilling"
+  abstract: >-
+    Drilling a hole on a curved surface with a desired angle is prone to failure when done
+    manually, due to the difficulties in drill alignment and also inherent instabilities of the
+    task, potentially causing injury and fatigue to the workers. On the other hand, it can be
+    impractical to fully automate such a task in real manufacturing environments because the
+    parts arriving at an assembly line can have various complex shapes where drill point
+    locations are not easily accessible, making automated path planning difficult. In this work,
+    an adaptive admittance controller with 6 degrees of freedom is developed and deployed on a
+    KUKA LBR iiwa 7 cobot such that the operator is able to manipulate a drill mounted on the
+    robot with one hand comfortably and open holes on a curved surface with haptic guidance of
+    the cobot and visual guidance provided through an AR interface. Real-time adaptation of the
+    admittance damping provides more transparency when driving the robot in free space while
+    ensuring stability during drilling. After the user brings the drill sufficiently close to
+    the drill target and roughly aligns to the desired drilling angle, the haptic guidance
+    module fine tunes the alignment first and then constrains the user movement to the drilling
+    axis only, after which the operator simply pushes the drill into the workpiece with minimal
+    effort. Two sets of experiments were conducted to investigate the potential benefits of the
+    haptic guidance module quantitatively (Experiment I) and also the practical value of the
+    proposed pHRI system for real manufacturing settings based on the subjective opinion of the
+    participants (Experiment II). The results of Experiment I, conducted with 3 naive
+    participants, show that the haptic guidance improves task completion time by 26% while
+    decreasing human effort by 16% and muscle activation levels by 27% compared to no haptic
+    guidance condition. The results of Experiment II, conducted with 3 experienced industrial
+    workers, show that the proposed system is perceived to be easy to use, safe, and helpful in
+    carrying out the drilling task.
   authors: [Alireza Madani, Pouya P. Niaz, Berk Guler, Yusuf Aydin, Cagatay Basdogan]
   venue: IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)
   venue_short: IROS
@@ -135,6 +256,25 @@
 - id: wigginghaus-ws
   kind: workshop
   title: "Learning Sim-Grounded Policies for Bimanual Rope Manipulation from Human Teleoperation Data"
+  short: "Sim-grounded rope policies"
+  abstract: >-
+    Deformable Linear Objects (DLOs) such as ropes and cables are widely encountered in both
+    household and industrial applications, yet remain challenging to manipulate due to their
+    infinite-dimensional configuration space and frequent self-occlusion. Imitation learning
+    from teleoperation offers a practical path to bimanual DLO manipulation, but its scalability
+    is limited by human effort, making the choice of observation space critical for
+    generalization from small datasets. In this study, we investigate whether the lack of
+    generalization in egocentric visual policies for the knot-untangling task stems from the
+    observation space itself, rather than from the policy architecture or data scale. We compare
+    two Action Chunking with Transformers policies trained on the same bimanual teleoperation
+    data: a vision-based policy conditioned on two egocentric RGB streams from wrist-mounted
+    cameras, and a state-based policy conditioned on the DLO's 3D particle state, extracted from
+    an initial observation via multi-view fusion and evolved in a particle-based eXtended
+    Position-Based Dynamics simulation. Evaluated open-loop on an unseen rope configuration, the
+    state-based policy outperforms its visual counterpart with a 30.8% reduction in L1 error
+    when predicting the initial grasp-and-pull action, quantifying the observability gap between
+    pixels and physics-consistent state, and pointing toward more data-efficient robot learning
+    for the DLO manipulation task from limited human demonstrations.
   authors: [Gina Wigginghaus*, Tim Missal*, Berk Guler, Simon Manschitz, Jan Peters]
   venue: ICRA Workshop on Beyond Teleoperation
   venue_short: ICRA Workshop
@@ -152,6 +292,22 @@
 - id: mechatronics
   kind: journal
   title: "An adaptive admittance controller for collaborative drilling with a robot based on subtask classification via deep learning"
+  short: "Adaptive admittance via subtask classification"
+  abstract: >-
+    In this paper, we propose a supervised learning approach based on an Artificial Neural
+    Network (ANN) model for real-time classification of subtasks in a physical human-robot
+    interaction (pHRI) task involving contact with a stiff environment. In this regard, we
+    consider three subtasks for a given pHRI task: Idle, Driving, and Contact. Based on this
+    classification, the parameters of an admittance controller that regulates the interaction
+    between human and robot are adjusted adaptively in real time to make the robot more
+    transparent to the operator (i.e. less resistant) during the Driving phase and more stable
+    during the Contact phase. The Idle phase is primarily used to detect the initiation of task.
+    Experimental results have shown that the ANN model can learn to detect the subtasks under
+    different admittance controller conditions with an accuracy of 98% for 12 participants.
+    Finally, we show that the admittance adaptation based on the proposed subtask classifier
+    leads to 20% lower human effort (i.e. higher transparency) in the Driving phase and 25%
+    lower oscillation amplitude (i.e. higher stability) during drilling in the Contact phase
+    compared to an admittance controller with fixed parameters.
   authors: [Berk Guler, Pouya P. Niaz, Alireza Madani, Yusuf Aydin, Cagatay Basdogan]
   venue: Mechatronics, vol. 86, p. 102851
   venue_short: Mechatronics
@@ -172,6 +328,7 @@
 - id: msc-thesis
   kind: thesis
   title: "Deep Reinforcement Learning to Optimize Task Performance in Human-Robot Co-Manipulation"
+  short: "M.Sc. thesis"
   authors: [Berk Guler]
   venue: M.Sc. Thesis, Koç University
   venue_short: M.Sc. Thesis
