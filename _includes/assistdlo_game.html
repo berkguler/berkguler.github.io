@@ -1,9 +1,19 @@
 {%- comment -%} Knot-untangling game; behaviour in assets/js/assistdlo-game.js. {%- endcomment -%}
 <div class="comanip dlo-game" data-dlo-game>
+  <div class="comanip-controls">
+    <div class="ctl">
+      <span class="ctl-label">Assistance</span>
+      <div class="seg" role="group" aria-label="Assistance">
+        <button type="button" data-assist="off" aria-pressed="true"><i class="fa-solid fa-hand" aria-hidden="true"></i> Off</button>
+        <button type="button" data-assist="cbf" aria-pressed="false"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> SA-CBF</button>
+      </div>
+    </div>
+  </div>
   <div class="game-hud" aria-live="off">
     <span>Knot <b data-out="knot">tied</b></span>
     <span>Crossings <b data-out="cross">3</b></span>
     <span>Grasps <b data-out="grasps">0</b></span>
+    <span>Misses <b data-out="misses">0</b></span>
     <span>Time <b data-out="time">0.0 s</b></span>
   </div>
   <div class="comanip-stage game-stage" tabindex="0" aria-label="Knot-untangling game. Click or tap a strand to grasp it, drag to move it, release to put it down. With the keyboard, move the hand with the arrow keys and hold Space to grasp.">
@@ -20,10 +30,12 @@
 
   <p class="comanip-note">
     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-    A browser game inspired by the study task, without the assistance modes. The rope is a small
-    simulation with gravity, table friction and self-collision, so strands cannot pass through each
-    other. The knot counts as untied once lifting both ends and pulling them apart would leave a
-    straight rope (the study asked for no crossings at all; the game shows the crossing count too).
+    A browser game inspired by the study task. The rope is a small simulation with gravity, table
+    friction and self-collision, so strands cannot pass through each other. As in the study, the
+    knot counts as untied when the rope no longer crosses itself. SA-CBF is shown in simplified
+    form: a barrier keeps the gripper above the rope except in funnels (blue) around rope points,
+    so a click near the rope is guided onto the nearest point, the upper strand at a crossing, and
+    a click away from the rope does not make the gripper descend.
   </p>
 </div>
 <script src="{{- '/assets/js/assistdlo-game.js' | relative_url -}}" defer></script>

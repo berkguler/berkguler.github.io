@@ -2,12 +2,16 @@
  *
  * A loose overhand knot lies on a table, seen from above. Click a strand to
  * grasp it, drag to carry it, and release to put it down. The knot counts as
- * untied once lifting both ends and pulling them apart would leave a straight
- * rope (see knotDeterminant); the paper's study asked for no crossings at
- * all, which the game reports alongside. The rope is a small 3D simulation
- * (gravity, table friction and self-collision), so strands cannot pass
- * through each other. The gripper is teleoperated directly (no assistance);
- * a hint marks where a free end passes under another strand.
+ * untied when the rope no longer crosses itself, as in the paper's study.
+ * The rope is a small 3D simulation (gravity, table friction and
+ * self-collision), so strands cannot pass through each other. The gripper is
+ * teleoperated directly, or with SA-CBF assistance in simplified form: a
+ * barrier keeps the gripper above the rope except in funnels around rope
+ * points, so a click near the rope is guided onto the nearest point (the
+ * upper strand at a crossing) and a click away from it does not descend.
+ * The hint first marks where a free end is trapped under another strand
+ * (freeing it undoes the knot, see knotDeterminant), then the loose loops
+ * that are left.
  * Rendering uses rope.js (window.RopeDraw).
  */
 (function () {
@@ -24,6 +28,7 @@
   var Z_HOVER = 80, Z_CARRY = 34;        // gripper heights (px above the table)
   var V_XY = 330, V_Z = 240;             // gripper speed limits (px/s)
   var TIME_LIMIT = 180;                  // s, as in the study
+  var FUNNEL = 26;                       // SA-CBF: clicks this close to the rope are guided onto it
 
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
   function f1(x) { return Math.round(x * 10) / 10; }
@@ -264,8 +269,9 @@
   Sim.prototype.knotted = function () { return knotDeterminant(this.x, this.y, this.z, this.n) !== 1; };
 
   // Where a free end first passes under another strand, walking in from
-  // either end: {end, x, y}, preferring the end closer to its crossing.
-  // Getting that end back out from under the strand undoes an overhand knot.
+  // either end: {mark: end node, x, y}, preferring the end closer to its
+  // crossing. Getting that end back out from under the strand undoes an
+  // overhand knot.
   Sim.prototype.hint = function () {
     var x = this.x, y = this.y, z = this.z, n = this.n, cr = [];
     for (var i = 0; i < n - 1; i++) {
@@ -278,10 +284,24 @@
     var first = cr.reduce(function (m, c) { return c.a < m.a ? c : m; });
     var last = cr.reduce(function (m, c) { return c.b > m.b ? c : m; });
     var opts = [];
-    if (first.za < first.zb) opts.push({ end: 0, x: first.x, y: first.y, dist: first.a });
-    if (last.zb < last.za) opts.push({ end: n - 1, x: last.x, y: last.y, dist: n - 1 - last.b });
+    if (first.za < first.zb) opts.push({ mark: 0, x: first.x, y: first.y, dist: first.a });
+    if (last.zb < last.za) opts.push({ mark: n - 1, x: last.x, y: last.y, dist: n - 1 - last.b });
     if (!opts.length) return null;
     return opts.reduce(function (m, o) { return o.dist < m.dist ? o : m; });
+  };
+
+  // The smallest loose loop: {mark: its apex node, x, y of its crossing}.
+  // Pulling the apex away from the crossing draws a free end through it.
+  Sim.prototype.loopHint = function () {
+    var cr = crossings(this.x, this.y, this.n);
+    if (!cr.length) return null;
+    var c = cr.reduce(function (m, q) { return q[1] - q[0] < m[1] - m[0] ? q : m; });
+    var h = hit(this.x[c[0]], this.y[c[0]], this.x[c[0] + 1], this.y[c[0] + 1], this.x[c[1]], this.y[c[1]], this.x[c[1] + 1], this.y[c[1] + 1]) || [0, 0];
+    return {
+      mark: Math.round((c[0] + c[1] + 1) / 2),
+      x: this.x[c[0]] + (this.x[c[0] + 1] - this.x[c[0]]) * h[0],
+      y: this.y[c[0]] + (this.y[c[0] + 1] - this.y[c[0]]) * h[0]
+    };
   };
 
   // The rope point nearest to (px, py) within r, preferring the upper strand.
@@ -327,6 +347,7 @@
     this.svg = root.querySelector('.game-svg');
     this.stage = root.querySelector('.game-stage');
     this.runs = [];
+    this.assist = false;
     this.visible = false;
     this.build();
     this.bind();
@@ -337,7 +358,9 @@
 
   Game.prototype.build = function () {
     var svg = this.svg, R = window.RopeDraw;
+    this.funnels = el('path', { fill: 'none', stroke: C.blue, 'stroke-opacity': 0.13, 'stroke-width': 2 * FUNNEL, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
     this.rope = new R.Rope(svg, { width: 2 * RAD });
+    this.intentRing = el('circle', { r: 12, fill: 'none', stroke: C.orange, 'stroke-width': 2.5 }, svg);
     this.hintG = el('g', { 'pointer-events': 'none' }, svg);
     this.hintRing = el('circle', { r: 16, fill: 'none', stroke: C.orange, 'stroke-width': 3 }, this.hintG);
     this.hintEnd = el('circle', { r: 11, fill: 'none', stroke: C.orange, 'stroke-width': 2.5, 'stroke-dasharray': '4 3' }, this.hintG);
@@ -350,7 +373,7 @@
     this.flash = el('text', { x: 320, y: 384, 'text-anchor': 'middle', 'font-family': 'Roboto, sans-serif', 'font-size': 15, 'font-weight': 700, fill: C.navy }, svg);
     var root = this.root;
     this.out = {};
-    ['time', 'knot', 'cross', 'grasps'].forEach(function (k) { this.out[k] = root.querySelector('[data-out="' + k + '"]'); }, this);
+    ['time', 'knot', 'cross', 'grasps', 'misses'].forEach(function (k) { this.out[k] = root.querySelector('[data-out="' + k + '"]'); }, this);
   };
 
   Game.prototype.bind = function () {
@@ -400,6 +423,11 @@
       if (!b) return;
       if (b.hasAttribute('data-new')) self.newKnot();
       if (b.hasAttribute('data-hint')) self.showHint();
+      if (b.hasAttribute('data-assist')) {
+        self.assist = b.getAttribute('data-assist') === 'cbf';
+        self.root.querySelectorAll('[data-assist]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+        self.newKnot();
+      }
     });
 
     if ('IntersectionObserver' in window) {
@@ -423,6 +451,7 @@
     this.finished = false;
     this.t = 0;
     this.grasps = 0;
+    this.misses = 0;
     this.flashT = 0;
     this.solvedFor = 0;
     this.hinted = null;
@@ -447,25 +476,43 @@
   };
 
   Game.prototype.showHint = function () {
-    this.hinted = this.sim.hint();
-    this.status(this.hinted
-      ? 'Hint: the marked end passes under another strand at the orange ring. Get it back out from under that strand: pull the rope just inside the ring away from it, or lift the strand on top past the end.'
-      : 'No hint needed here: no end is caught under another strand. Spread the loops so the ends can slide out.');
+    var s = this.sim, trapped = s.knotted() ? s.hint() : null;
+    this.hinted = trapped || s.loopHint();
+    this.status(trapped
+      ? 'Hint: the marked end is trapped under another strand at the orange ring. Get it back out: grab the rope just inside the ring and pull it away from the ring, or lift the strand on top past the end.'
+      : this.hinted
+        ? 'Hint: the knot is gone, only a loose loop is left. Grab the loop at the marked point and pull it away from its crossing (orange ring) until a free end slides through.'
+        : 'No crossings left.');
     this.wake();
   };
 
-  // Hand pressed: send the gripper to that point on the rope.
+  // Hand pressed: send the gripper to that point (with SA-CBF, to the rope
+  // point nearest to it).
   Game.prototype.press = function () {
     this.held = true;
     this.wake();
     if (this.finished || (this.phase !== 'idle' && this.phase !== 'lift')) return;
+    var node = -1;
+    if (this.assist) {
+      node = this.sim.pick(this.ptr[0], this.ptr[1], FUNNEL);
+      if (node < 0) {
+        this.flashText('Barrier: no rope here, the gripper stays up', C.navy);
+        return;
+      }
+    }
     if (!this.running) this.running = true;
     this.hinted = null;
-    this.target = { x: this.ptr[0], y: this.ptr[1] };
+    this.target = { node: node, x: this.ptr[0], y: this.ptr[1] };
     // Like an operator would, turn the jaws across the strand below.
-    var below = this.sim.pick(this.target.x, this.target.y, 30);
+    var below = node >= 0 ? node : this.sim.pick(this.target.x, this.target.y, 30);
     if (below >= 0) this.g.yaw = this.tangentAngle(below);
     this.phase = 'travel';
+  };
+
+  // Where the gripper is heading: the guided rope point, or the clicked point.
+  Game.prototype.targetPos = function () {
+    var T = this.target, s = this.sim;
+    return T.node >= 0 ? [s.x[T.node], s.y[T.node], s.z[T.node]] : [T.x, T.y, 0];
   };
 
   // Move the gripper horizontally toward (x, y) at the speed limit; returns the remaining distance.
@@ -497,10 +544,18 @@
     if (this.flashT) this.flashT = Math.max(0, this.flashT - dt);
 
     if (this.phase === 'travel') {
+      var T = this.targetPos();
       this.moveZ(Z_HOVER, dt);
-      if (this.moveXY(this.target.x, this.target.y, dt) === 0 && g.z === Z_HOVER) this.phase = 'descend';
+      if (this.moveXY(T[0], T[1], dt) === 0 && g.z === Z_HOVER) this.phase = 'descend';
     } else if (this.phase === 'descend') {
-      if (this.moveZ(this.floorUnder(), dt) < 0.5) this.phase = 'close';
+      var floor = this.floorUnder();
+      if (this.target.node >= 0) {
+        // Down the funnel: follow the rope point, jaws across the rope.
+        var P = this.targetPos();
+        g.x = P[0]; g.y = P[1]; floor = P[2];
+        g.yaw = this.tangentAngle(this.target.node);
+      }
+      if (this.moveZ(floor, dt) < 0.5) this.phase = 'close';
     } else if (this.phase === 'close') {
       this.close();
     } else if (this.phase === 'carry') {
@@ -519,7 +574,7 @@
     s.step(dt, g);
 
     this.nCross = s.crossingCount();
-    this.tied = s.knotted();
+    this.tied = this.nCross > 0;
     if (this.running) {
       if (!this.tied && s.grab < 0) this.solvedFor += dt; else this.solvedFor = 0;
       if (this.solvedFor > 0.5) this.finish(true);
@@ -542,9 +597,11 @@
     for (var i = 0; i < s.n; i++) {
       var d = Math.hypot(s.x[i] - g.x, s.y[i] - g.y);
       if (d >= GAP_OPEN - FINGER || Math.abs(s.z[i] - g.z) > RAD + 3) continue;
+      if (i === this.target.node) { best = i; break; }
       if (d < bd) { bd = d; best = i; }
     }
     if (best < 0) {
+      this.misses++;
       this.flashText('Missed: click right on the rope', '#b4451f');
       this.phase = 'lift';
       return;
@@ -569,10 +626,14 @@
     this.hinted = null;
     if (this.sim.grab >= 0) this.release();
     if (ok) {
-      this.runs.push({ t: this.t, grasps: this.grasps });
-      var best = Math.min.apply(null, this.runs.map(function (r) { return r.t; }));
-      this.status('Untied in ' + this.t.toFixed(1) + ' s with ' + this.grasps + (this.grasps === 1 ? ' grasp' : ' grasps') +
-        (this.runs.length > 1 ? ' (your best: ' + best.toFixed(1) + ' s)' : '') + '. Press New knot for another one.');
+      var assist = this.assist;
+      this.runs.push({ t: this.t, assist: assist });
+      var mine = this.runs.filter(function (r) { return r.assist === assist; });
+      var best = Math.min.apply(null, mine.map(function (r) { return r.t; }));
+      var count = function (k, word) { return k + ' ' + word + (k === 1 ? '' : word.slice(-1) === 's' ? 'es' : 's'); };
+      this.status('Untied in ' + this.t.toFixed(1) + ' s' + (assist ? ' with SA-CBF' : '') + ', ' + count(this.grasps, 'grasp') +
+        ' and ' + count(this.misses, 'miss') + (mine.length > 1 ? ' (your best here: ' + best.toFixed(1) + ' s)' : '') +
+        '. Press New knot for another one' + (assist ? '.' : ', or try it with SA-CBF.'));
     } else {
       this.status('Time is up. Press New knot to try again, or use the hint.');
     }
@@ -604,12 +665,22 @@
     order.sort(function (a, b) { return (s.z[a] + s.z[a + 1]) - (s.z[b] + s.z[b + 1]) || a - b; });
     this.rope.render(pts, order);
 
+    // SA-CBF: the funnels around the rope, and the rope point being approached.
+    this.funnels.setAttribute('d', 'M' + pts.map(function (q) { return f1(q[0]) + ' ' + f1(q[1]); }).join('L'));
+    this.funnels.setAttribute('opacity', this.assist ? 1 : 0);
+    var guided = this.target && this.target.node >= 0 && (this.phase === 'travel' || this.phase === 'descend');
+    if (guided) {
+      var T = this.targetPos();
+      this.intentRing.setAttribute('cx', f1(T[0])); this.intentRing.setAttribute('cy', f1(T[1]));
+    }
+    this.intentRing.setAttribute('opacity', guided ? 1 : 0);
+
     var h = this.hinted;
     if (h) {
       var pulse = 16 + 3 * Math.sin(performance.now() / 160);
       this.hintRing.setAttribute('cx', f1(h.x)); this.hintRing.setAttribute('cy', f1(h.y));
       this.hintRing.setAttribute('r', f1(pulse));
-      this.hintEnd.setAttribute('cx', f1(s.x[h.end])); this.hintEnd.setAttribute('cy', f1(s.y[h.end]));
+      this.hintEnd.setAttribute('cx', f1(s.x[h.mark])); this.hintEnd.setAttribute('cy', f1(s.y[h.mark]));
     }
     this.hintG.setAttribute('opacity', h ? 1 : 0);
 
@@ -629,6 +700,7 @@
     out.knot.className = this.tied ? '' : 'is-ok';
     out.cross.textContent = this.nCross;
     out.grasps.textContent = this.grasps;
+    out.misses.textContent = this.misses;
     this.flash.setAttribute('opacity', this.flashT ? Math.min(1, this.flashT * 2) : 0);
   };
 
