@@ -239,7 +239,9 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 }
 .card:hover { box-shadow: var(--shadow); border-color: rgba(68, 125, 155, .45); }
 
-.card-media { display: block; border-radius: 8px; overflow: hidden; align-self: start; }
+/* Side by side, the media panel runs the full height of the card. */
+.card-media { display: block; border-radius: 8px; overflow: hidden; align-self: stretch; }
+.card-media .teaser { height: 100%; min-height: 188px; aspect-ratio: auto; }
 .card-body { min-width: 0; }
 .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
 .card-title { font-size: 1.08rem; font-weight: 500; margin-bottom: 6px; }
@@ -669,6 +671,7 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 
   .hero { padding: 40px 0; }
   .card { grid-template-columns: 1fr; padding: 14px; }
+  .card-media .teaser { height: auto; min-height: 0; aspect-ratio: 16 / 10; }
   .pub { grid-template-columns: 1fr; gap: 8px; }
   .pub-badge .venue { display: inline-block; }
   .news li { grid-template-columns: 1fr; gap: 0; }
