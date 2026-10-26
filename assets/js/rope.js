@@ -224,9 +224,17 @@
       this.build(this.segments || clamp(Math.round(polyLength(dense) / (this.width * 0.75)), 12, 140));
     }
     var pts = resample(dense, this.segments + 1);
+    return this.render(pts, this.layered ? paintOrder(pts, this.overFirst) : null);
+  };
+
+  // Draw an already sampled centre line. `order` lists the segment indices
+  // from bottom to top (default: along the rope), e.g. sorted by height for
+  // a simulated rope.
+  Rope.prototype.render = function (pts, order) {
+    if (!this.paths.length) this.build(pts.length - 1);
     var tan = tangents(pts);
     var half = this.width / 2;
-    var order = this.layered ? paintOrder(pts, this.overFirst) : pts.slice(1).map(function (_, i) { return i; });
+    order = order || pts.slice(1).map(function (_, i) { return i; });
     if (this.shadow) this.shadow.setAttribute('d', pathD(pts));
     for (var m = 0; m < order.length; m++) {
       var k = order[m];

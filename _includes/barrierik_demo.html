@@ -1,0 +1,74 @@
+{%- comment -%} Shared-autonomy arm demo; behaviour in assets/js/barrierik-demo.js. {%- endcomment -%}
+<div class="comanip bik" data-barrierik>
+  <div class="comanip-controls">
+    <div class="ctl" data-group="assist">
+      <span class="ctl-label">Command</span>
+      <div class="seg">
+        <button type="button" data-value="pt" aria-pressed="false"><i class="fa-solid fa-hand" aria-hidden="true"></i> Teleoperation</button>
+        <button type="button" data-value="sa" aria-pressed="true"><i class="fa-solid fa-people-arrows" aria-hidden="true"></i> Shared autonomy</button>
+      </div>
+    </div>
+    <div class="ctl" data-group="solver">
+      <span class="ctl-label">IK solver</span>
+      <div class="seg">
+        <button type="button" data-value="n" aria-pressed="false">Baseline N</button>
+        <button type="button" data-value="p" aria-pressed="false">Baseline P</button>
+        <button type="button" data-value="b" aria-pressed="true">BarrierIK</button>
+      </div>
+    </div>
+    <div class="ctl" data-group="scene">
+      <span class="ctl-label">Scene</span>
+      <div class="seg">
+        <button type="button" data-value="pillar" aria-pressed="true">Pillar</button>
+        <button type="button" data-value="gap" aria-pressed="false">Narrow gap</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="comanip-stage bik-stage" tabindex="0" aria-label="Robot arm simulation. Move the pointer, drag on a touch screen, or use the arrow keys to move your target. Drag the grey obstacles or the orange block to rearrange the scene.">
+    <svg class="bik-svg" viewBox="0 0 640 400" role="img" aria-hidden="true"></svg>
+  </div>
+  <p class="comanip-legend">
+    <span class="lg-item"><span class="lg-ring lg-ring--hand"></span> your target</span>
+    <span class="lg-item"><span class="lg-ring lg-ring--blend"></span> blended target</span>
+    <span class="lg-item"><span class="lg-ring lg-ring--margin"></span> safety margin</span>
+    <span class="lg-item"><span class="lg lg--closest"></span> closest link–obstacle pair</span>
+  </p>
+
+  <div class="comanip-readout bik-readout">
+    <div class="ro"><span class="ro-label">Blend weight <span class="nc">α</span></span><b data-out="alpha">0.00</b></div>
+    <div class="ro ro--clear"><span class="ro-label">Clearance</span><b data-out="clear">0 mm</b></div>
+    <div class="ro"><span class="ro-label">Min clearance</span><b data-out="min">–</b></div>
+    <div class="ro ro--metric"><span class="ro-label">In collision</span><b data-out="viol">0.0%</b></div>
+    <div class="ro ro--metric"><span class="ro-label">Inside margin</span><b data-out="margin">0.0%</b></div>
+    <div class="ro"><span class="ro-label">Time</span><b data-out="time">0.0 s</b></div>
+  </div>
+
+  <div class="comanip-footer">
+    <p class="comanip-status bik-status" aria-live="polite"></p>
+    <div class="links">
+      <button type="button" class="btn btn--solid" data-script><i class="fa-solid fa-play" aria-hidden="true"></i>Scripted operator</button>
+      <button type="button" class="btn" data-reset><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Reset</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="game-results bik-results" hidden>
+      <thead><tr><th scope="col">Run</th><th scope="col">Reached</th><th scope="col">Min clearance</th><th scope="col">In collision</th><th scope="col">Inside margin</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <p class="comanip-note">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    A planar toy with the structure of the paper's pipeline, not its implementation: your target and
+    the autonomous target (the block) are blended linearly, with a sigmoid of their distance as the
+    weight, and an inverse-kinematics step turns the result into joint motion. Baseline N ignores
+    obstacles, Baseline P adds a proximity penalty to the objective, and BarrierIK adds control
+    barrier function constraints ∇h·Δθ + γh ≥ 0 for every link–obstacle pair, so it never moves
+    deeper into the safety margin. Each step is a small quadratic program solved in your browser
+    (Hildreth's method) instead of the paper's SLSQP solver; the numbers come from this toy, not
+    from the paper.
+  </p>
+</div>
+<script src="{{- '/assets/js/barrierik-demo.js' | relative_url -}}" defer></script>

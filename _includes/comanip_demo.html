@@ -71,8 +71,9 @@
     <div class="ro"><span class="ro-label">Your force</span><b data-out="force">0.0 N</b></div>
     <div class="ro"><span class="ro-label">Velocity</span><b data-out="vel">0.0 cm/s</b></div>
     <div class="ro"><span class="ro-label">Error</span><b data-out="err">0 mm</b></div>
-    <div class="ro"><span class="ro-label">Effort ∫|F·v|</span><b data-out="effort">0.00 J</b></div>
     <div class="ro"><span class="ro-label">Time</span><b data-out="time">0.00 s</b></div>
+    <div class="ro ro--metric"><span class="ro-label">Effort ∫|F·v| dt</span><b data-out="effort">0.00 J</b></div>
+    <div class="ro ro--metric"><span class="ro-label">Jerk ∫|v̈| dt</span><b data-out="jerk">0.00 m/s²</b></div>
   </div>
 
   <svg class="comanip-plot" viewBox="0 0 600 64" preserveAspectRatio="none" role="img" aria-label="Position and gain over time">
@@ -81,6 +82,24 @@
     <polyline class="cm-plot-g" fill="none" stroke="#FE7743" stroke-width="2" stroke-dasharray="4 3" vector-effect="non-scaling-stroke" />
   </svg>
   <p class="comanip-legend"><span class="lg lg--x"></span> position <span class="lg lg--g"></span> force gain <span class="lg lg--band"></span> target</p>
+
+  <div class="cm-trials">
+    <div class="cm-trials-head">
+      <span class="ro-label">Your parked trials: effort vs. jerk (lower-left is better)</span>
+      <button type="button" class="btn btn--sm" data-clear-trials hidden><i class="fa-solid fa-eraser" aria-hidden="true"></i>Clear</button>
+    </div>
+    <svg class="cm-scatter" viewBox="0 0 600 190" role="img" aria-label="Human effort against jerk for each parked trial in this session">
+      <g class="cm-sc-axes" font-family="Roboto, sans-serif" font-size="11" fill="#5d6f7b"></g>
+      <g class="cm-sc-dots"></g>
+      <text class="cm-sc-empty" x="300" y="95" text-anchor="middle" font-family="Roboto, sans-serif" font-size="12" fill="#5d6f7b">Park the object a few times with different gains to fill this plot.</text>
+    </svg>
+    <p class="comanip-legend">
+      <span class="lg-item"><svg class="lg-mark" viewBox="-6 -6 12 12" aria-hidden="true"><circle r="4.5" fill="#447D9B" /></svg> G<sub>H</sub>&nbsp;0.33</span>
+      <span class="lg-item"><svg class="lg-mark" viewBox="-6 -6 12 12" aria-hidden="true"><rect x="-4" y="-4" width="8" height="8" fill="#273F4F" /></svg> G<sub>H</sub>&nbsp;1.0</span>
+      <span class="lg-item"><svg class="lg-mark" viewBox="-6 -6 12 12" aria-hidden="true"><path d="M0 -5L5 4H-5Z" fill="#FE7743" /></svg> G<sub>H</sub>&nbsp;2.68</span>
+      <span class="lg-item"><svg class="lg-mark" viewBox="-6 -6 12 12" aria-hidden="true"><path d="M0 -5L5 0L0 5L-5 0Z" fill="#fff" stroke="#273F4F" stroke-width="1.6" /></svg> Adaptive</span>
+    </p>
+  </div>
 
   <div class="comanip-footer">
     <p class="comanip-status" aria-live="polite"></p>
@@ -98,7 +117,10 @@
     intent is read from the commanded acceleration (G<sub>H</sub>·F<sub>h</sub> − b·v: pushing harder than
     needed to hold the current speed means speeding up) instead of the thesis's neural network, and
     the simulated human follows a minimum-jerk plan instead of the study's learned human model.
-    The numbers shown come from this toy, not from the study.
+    Effort and jerk follow the definitions used in the paper: human effort is the energy the
+    operator puts in, ∫|F<sub>h</sub>·v|&nbsp;dt, and jerk is the integrated absolute jerk of the
+    object, ∫|v̈|&nbsp;dt. Lower is better for both; in this toy, a higher gain usually lowers the effort
+    but raises the jerk. The numbers shown come from this toy, not from the study.
   </p>
 </div>
 <script src="{{- '/assets/js/comanip.js' | relative_url -}}" defer></script>

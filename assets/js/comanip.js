@@ -81,6 +81,41 @@
   var PX0 = 70, PX_PER_M = 1000;                 // rail mapping in the SVG
   function px(x) { return PX0 + x * PX_PER_M; }
 
+  // Scatter of parked trials: colour and shape per gain setting.
+  var MARKS = {
+    '0.33': { fill: '#447D9B', shape: 'circle', name: 'G 0.33' },
+    '1': { fill: '#273F4F', shape: 'square', name: 'G 1.0' },
+    '2.68': { fill: '#FE7743', shape: 'triangle', name: 'G 2.68' },
+    adaptive: { fill: '#fff', stroke: '#273F4F', shape: 'diamond', name: 'Adaptive' }
+  };
+
+  function el(name, attrs, parent) {
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  function markPath(shape, r) {
+    if (shape === 'square') return 'M' + -r + ' ' + -r + 'h' + 2 * r + 'v' + 2 * r + 'h' + -2 * r + 'Z';
+    if (shape === 'triangle') return 'M0 ' + (-1.15 * r) + 'L' + 1.1 * r + ' ' + 0.85 * r + 'H' + -1.1 * r + 'Z';
+    if (shape === 'diamond') return 'M0 ' + -1.25 * r + 'L' + 1.25 * r + ' 0L0 ' + 1.25 * r + 'L' + -1.25 * r + ' 0Z';
+    return 'M' + -r + ' 0a' + r + ' ' + r + ' 0 1 0 ' + 2 * r + ' 0a' + r + ' ' + r + ' 0 1 0 ' + -2 * r + ' 0Z';
+  }
+
+  // Tightest axis of 3 to 6 round ticks that covers v with a little headroom.
+  function niceScale(v) {
+    v = Math.max(v, 1e-6) * 1.1;
+    var mag = Math.pow(10, Math.floor(Math.log(v) / Math.LN10)), best = null;
+    [mag / 10, mag].forEach(function (m) {
+      [1, 2, 2.5, 5].forEach(function (f) {
+        var step = f * m, n = Math.ceil(v / step - 1e-9);
+        if (n >= 3 && n <= 6 && (!best || n * step < best.max)) best = { max: n * step, step: step, n: n };
+      });
+    });
+    return best;
+  }
+
   function Demo(root) {
     this.root = root;
     this.svg = root.querySelector('.comanip-svg');
@@ -93,6 +128,7 @@
     this.pointerX = null;
     this.running = false;
     this.visible = false;
+    this.trials = [];
     this.bind();
     this.resetTrial();
     this.render();
@@ -117,6 +153,7 @@
         self.resetTrial();
       }
       if (b.hasAttribute('data-reset')) self.resetTrial();
+      if (b.hasAttribute('data-clear-trials')) { self.trials = []; self.drawScatter(); }
     });
 
     var stage = this.q('.comanip-stage');
@@ -150,6 +187,12 @@
       if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') self.keyForce = 0;
     });
 
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () { self.drawScatter(); }, 150);
+    });
+
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
         self.visible = entries[0].isIntersecting;
@@ -177,6 +220,7 @@
       : 'Press "Run" to watch the simulated human.'), '');
     this.q('[data-run]').hidden = this.human === 'you';
     this.drawTarget();
+    this.drawScatter();
     this.render();
   };
 
@@ -245,7 +289,13 @@
     if (this.parkedFor >= 0.4) {
       this.done = true;
       this.fH = 0;
-      this.status('Parked in ' + this.t.toFixed(2) + ' s · effort ' + this.effort.toFixed(2) + ' J', 'ok');
+      this.status('Parked in ' + this.t.toFixed(2) + ' s · effort ' + this.effort.toFixed(2) +
+        ' J · jerk ' + this.jerk.toFixed(2) + ' m/s²', 'ok');
+      this.trials.push({
+        mode: String(this.gainMode), rate: this.rate, human: this.human, width: this.width,
+        t: this.t, effort: this.effort, jerk: this.jerk
+      });
+      this.drawScatter();
     } else if (m.x > D + 0.08) {
       this.done = true;
       this.status('Overshot the target. Try a lower gain, or brake earlier.', 'bad');
@@ -289,6 +339,7 @@
     set('[data-out="vel"]', (m.vAct[0] * 100).toFixed(1) + ' cm/s');
     set('[data-out="err"]', ((m.x - D) * 1000).toFixed(1) + ' mm');
     set('[data-out="effort"]', this.effort.toFixed(2) + ' J');
+    set('[data-out="jerk"]', this.jerk.toFixed(2) + ' m/s²');
     set('[data-out="time"]', this.t.toFixed(2) + ' s');
     this.q('.cm-gain-fill').style.width = ((m.gain - G_MIN) / (G_MAX - G_MIN) * 100).toFixed(1) + '%';
     this.plot();
@@ -306,6 +357,53 @@
     var band = this.q('.cm-plot-band');
     band.setAttribute('y', (60 - (D + w / 2) / 0.5 * 56).toFixed(1));
     band.setAttribute('height', Math.max(w / 0.5 * 56, 1).toFixed(1));
+  };
+
+  // Effort against jerk for every parked trial of this visit; the newest is ringed.
+  Demo.prototype.drawScatter = function () {
+    var axes = this.q('.cm-sc-axes'), dots = this.q('.cm-sc-dots');
+    if (!axes) return;
+    axes.textContent = ''; dots.textContent = '';
+    // Drawn in CSS pixels at the current width, so labels stay readable on phones.
+    var svg = this.q('.cm-scatter');
+    var W = Math.round(svg.getBoundingClientRect().width) || 600, H = W < 480 ? 190 : 200;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var SC = { x0: 40, x1: W - 12, y0: H - 40, y1: 12 };
+    var tr = this.trials;
+    var empty = this.q('.cm-sc-empty');
+    empty.setAttribute('x', (SC.x0 + SC.x1) / 2);
+    empty.setAttribute('y', (SC.y0 + SC.y1) / 2);
+    empty.style.display = tr.length ? 'none' : '';
+    this.q('[data-clear-trials]').hidden = !tr.length;
+    var xs = niceScale(Math.max.apply(null, tr.map(function (d) { return d.effort; }).concat(5)));
+    var ys = niceScale(Math.max.apply(null, tr.map(function (d) { return d.jerk; }).concat(2)));
+    var X = function (v) { return SC.x0 + v / xs.max * (SC.x1 - SC.x0); };
+    var Y = function (v) { return SC.y0 - v / ys.max * (SC.y0 - SC.y1); };
+    var fmt = function (v) { return String(+v.toFixed(2)); };
+    for (var i = 0; i <= xs.n; i++) {
+      var gx = X(i * xs.step);
+      el('line', { x1: gx, x2: gx, y1: SC.y1, y2: SC.y0, stroke: '#ececec' }, axes);
+      el('text', { x: gx, y: SC.y0 + 14, 'text-anchor': 'middle' }, axes).textContent = fmt(i * xs.step);
+    }
+    for (var j = 0; j <= ys.n; j++) {
+      var gy = Y(j * ys.step);
+      el('line', { x1: SC.x0, x2: SC.x1, y1: gy, y2: gy, stroke: '#ececec' }, axes);
+      el('text', { x: SC.x0 - 6, y: gy + 4, 'text-anchor': 'end' }, axes).textContent = fmt(j * ys.step);
+    }
+    el('line', { x1: SC.x0, x2: SC.x1, y1: SC.y0, y2: SC.y0, stroke: '#b9c2c8' }, axes);
+    el('text', { x: SC.x1, y: SC.y0 + 28, 'text-anchor': 'end' }, axes).textContent = 'human effort ∫|F·v| dt [J]';
+    el('text', { x: SC.x0 + 6, y: SC.y1 + 10 }, axes).textContent = 'jerk ∫|v̈| dt [m/s²]';
+    tr.forEach(function (d, i) {
+      var mk = MARKS[d.mode];
+      var last = i === tr.length - 1;
+      var g = el('g', { class: 'cm-dot' + (last ? ' is-last' : ''), transform: 'translate(' + X(d.effort).toFixed(1) + ' ' + Y(d.jerk).toFixed(1) + ')' }, dots);
+      el('path', { d: markPath(mk.shape, 9), fill: 'transparent' }, g);   // larger hover target
+      if (last) el('path', { d: markPath(mk.shape, 8.5), fill: 'none', stroke: '#FE7743', 'stroke-width': 1.5, 'stroke-dasharray': '2 2' }, g);
+      el('path', { d: markPath(mk.shape, 5), fill: mk.fill, stroke: mk.stroke || '#fff', 'stroke-width': mk.stroke ? 1.8 : 1.5 }, g);
+      el('title', {}, g).textContent = mk.name + (d.mode === 'adaptive' ? ' ×' + d.rate : '') +
+        (d.human === 'sim' ? ' (simulated human)' : '') + ', ' + d.width + ' target: effort ' +
+        d.effort.toFixed(2) + ' J, jerk ' + d.jerk.toFixed(2) + ' m/s², ' + d.t.toFixed(2) + ' s';
+    });
   };
 
   function init() {

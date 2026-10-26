@@ -34,6 +34,7 @@ summary: >-
 ai_summary: >-
   <p>Longer AI-written summary (HTML) for the project page.</p>
 related: [<publication id>]        # optional cross-links
+interactive: try-it                # optional: id of a demo on the page; adds an "Interactive" badge
 teaser:
   type: image       # image | rope | svg | icon
   src: /assets/images/projects/example.jpg
@@ -62,12 +63,26 @@ Teaser types:
 - Palette: `#FE7743` orange, `#273F4F` navy, `#447D9B` blue, `#D7D7D7` gray (CSS variables in `assets/css/main.css`)
 - The rope illustrations follow Stanko Tadić's [Draw SVG rope using JavaScript](https://muffinman.io/blog/draw-svg-rope-using-javascript/) ([CodePen](https://codepen.io/stanko/pen/vYaEMKX)).
 
-## Push-and-park demo
+## Interactive demos
 
-`assets/js/comanip.js` (used on the M.Sc. thesis page) re-implements the thesis simulation's
-admittance model. It was checked step by step against `simulation_new.py` in
-KocUniversity/pHRI-simulation. The intent signal and the simulated human are labelled
-simplifications.
+Each demo is an include plus a script, placed on a project page under a heading with
+`id="try-it"` (the target of the project's `interactive:` badge).
+
+- **Push and park** (`_includes/comanip_demo.html`, `assets/js/comanip.js`, M.Sc. thesis page):
+  re-implements the thesis simulation's admittance model, checked step by step against
+  `simulation_new.py` in KocUniversity/pHRI-simulation. Reports human effort ∫|F·v| dt and
+  integrated absolute jerk ∫|v̈| dt, and plots the visitor's parked trials against each other.
+  The intent signal and the simulated human are labelled simplifications.
+- **Knot untangling** (`_includes/assistdlo_game.html`, `assets/js/assistdlo-game.js`, AssistDLO
+  page): a 3D position-based rope simulation (gravity, table friction, self-collision) drawn with
+  `RopeDraw.Rope.render`, with the four study conditions in simplified form. The knot counts as
+  untied when the knot determinant of the rope closed over the top drops from 3 to 1.
+- **Shared autonomy with a barrier** (`_includes/barrierik_demo.html`, `assets/js/barrierik-demo.js`,
+  BarrierIK page): a planar three-link arm with linear blending and three IK solvers (no
+  obstacles, proximity penalty, CBF constraints), each step a small QP solved with Hildreth's
+  method.
+
+The physics in each script is exported for Node (`module.exports`), so it can be tested headlessly.
 
 ## Local preview
 

@@ -135,20 +135,18 @@
     }
   });
 
-  // Publication filters: type chips, first-author toggle, and search.
+  // Publication filters: type chips and search.
   var pubs = Array.prototype.slice.call(document.querySelectorAll('.pub[data-kind]'));
   if (pubs.length) {
     var chips = Array.prototype.slice.call(document.querySelectorAll('.chip[data-filter]'));
-    var firstBtn = document.querySelector('[data-first-author]');
     var search = document.querySelector('[data-pub-search]');
     var empty = document.querySelector('.pub-empty');
-    var kind = 'all', firstOnly = false;
+    var kind = 'all';
     var apply = function () {
       var terms = search.value.toLowerCase().split(/\s+/).filter(Boolean);
       var shown = 0;
       pubs.forEach(function (li) {
         var ok = (kind === 'all' || li.getAttribute('data-kind') === kind) &&
-          (!firstOnly || li.getAttribute('data-first') === 'true') &&
           terms.every(function (term) { return li.getAttribute('data-search').indexOf(term) >= 0; });
         li.hidden = !ok;
         if (ok) shown++;
@@ -164,11 +162,6 @@
         chips.forEach(function (o) { o.setAttribute('aria-pressed', String(o === c)); });
         apply();
       });
-    });
-    firstBtn.addEventListener('click', function () {
-      firstOnly = !firstOnly;
-      firstBtn.setAttribute('aria-pressed', String(firstOnly));
-      apply();
     });
     search.addEventListener('input', apply);
   }

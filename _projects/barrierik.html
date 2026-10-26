@@ -4,6 +4,7 @@ pub: barrierik
 theme: shared-autonomy
 topic: Safety-aware teleoperation
 order: 1
+interactive: try-it
 summary: >-
   Blending the operator's command with autonomous assistance can be unsafe in clutter even when
   each command is collision-free on its own. BarrierIK puts control barrier functions inside the
@@ -26,6 +27,15 @@ teaser:
   fit: contain
   caption: BarrierIK enforces safety at the IK layer via control barrier functions.
 ---
+<h2 id="try-it">Try it: blending with and without a barrier</h2>
+<p>
+  Steer the arm to the orange block with your pointer. With <em>Shared autonomy</em> your target is
+  pulled toward the block, and the pull can drag the arm through an obstacle even though neither you
+  nor the autonomy aimed at it. Compare what each IK solver does with the blended target, try the
+  <em>Narrow gap</em> scene, or drag the obstacles and the block around.
+</p>
+{% include barrierik_demo.html %}
+
 <h2>My contributions</h2>
 <ul>
   <li>Formulated and implemented <code>BarrierIK</code>, a CBF-constrained IK solver that enforces post-blend safety as a hard inequality constraint alongside standard IK objectives.</li>

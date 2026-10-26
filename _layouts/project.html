@@ -16,6 +16,7 @@ layout: default
       <p class="card-meta">
         <span class="venue venue--{{ _info.kind | default: 'thesis' }}">{{ _info.venue_short }} {{ _info.year }}</span>
         {%- if page.topic -%}<span class="topic">{{ page.topic }}</span>{%- endif -%}
+        {%- if page.interactive -%}<a class="badge-play" href="#{{ page.interactive }}"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Interactive: try it</a>{%- endif -%}
       </p>
       <h1 class="project-title">{{ _info.title }}</h1>
       <p class="authors">{%- include authors.html authors=_info.authors -%}</p>
