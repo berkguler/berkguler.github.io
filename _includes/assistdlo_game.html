@@ -8,6 +8,27 @@
         <button type="button" data-assist="cbf" aria-pressed="false"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> SA-CBF</button>
       </div>
     </div>
+    <label class="ctl">
+      <span class="ctl-label">Knot</span>
+      <select class="ctl-select" data-knot>
+        <option value="3_1">3₁ overhand</option>
+        <option value="4_1">4₁ figure-eight</option>
+        <option value="5_1">5₁ cinquefoil</option>
+        <option value="5_2">5₂ three-twist</option>
+        <option value="6_1">6₁ stevedore (hardest)</option>
+        <option value="6_2">6₂</option>
+        <option value="6_3">6₃</option>
+        <option value="7_1">7₁ septafoil</option>
+      </select>
+    </label>
+    <label class="ctl ctl--range">
+      <span class="ctl-label">Bending stiffness <b data-out="stiff">soft</b></span>
+      <input type="range" min="0" max="100" value="20" data-stiff />
+    </label>
+    <label class="ctl ctl--range">
+      <span class="ctl-label">Thickness <b data-out="thick">14 mm</b></span>
+      <input type="range" min="5" max="9" step="1" value="7" data-thick />
+    </label>
   </div>
   <div class="game-hud" aria-live="off">
     <span>Knot <b data-out="knot">tied</b></span>
@@ -31,8 +52,11 @@
   <p class="comanip-note">
     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
     A browser game inspired by the study task. The rope is a small simulation with gravity, table
-    friction and self-collision, so strands cannot pass through each other. As in the study, the
-    knot counts as untied when the rope no longer crosses itself. SA-CBF is shown in simplified
+    friction, bending stiffness and self-collision, so strands cannot pass through each other. As in
+    the study, the knot counts as untied when the rope no longer crosses itself. Besides the overhand
+    knot you can pick prime knots from the <a href="https://katlas.org/wiki/The_Rolfsen_Knot_Table">Rolfsen
+    knot table</a>, drawn as closed braids and cut open on the outer strand like an overhand knot, so
+    the rope copies the knot's diagram (an open rope can always be undone). SA-CBF is shown in simplified
     form: a barrier keeps the gripper above the rope except in funnels (blue) around rope points,
     so a click near the rope is guided onto the nearest point, the upper strand at a crossing, and
     a click away from the rope does not make the gripper descend.

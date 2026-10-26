@@ -78,10 +78,14 @@ also get a tile in the home page's **Interactives** section; `play_visual` is `k
   integrated absolute jerk ∫|v̈| dt, and plots the visitor's parked trials against each other.
   The intent signal and the simulated human are labelled simplifications.
 - **Knot untangling** (`_includes/assistdlo_game.html`, `assets/js/assistdlo-game.js`, AssistDLO
-  page): a 3D position-based rope simulation (gravity, table friction, self-collision) drawn with
-  `RopeDraw.Rope.render`, teleoperated directly or with a simplified SA-CBF (barrier with funnels
-  around rope points). The knot counts as untied when the rope no longer crosses itself. The hint first marks where a free end is trapped under another strand (while the
-  knot determinant of the rope closed over the top is still 3), then the loose loops that are left.
+  page): a 3D position-based rope simulation (gravity, table friction, bending stiffness,
+  self-collision) drawn with `RopeDraw.Rope.render`, teleoperated directly or with a simplified
+  SA-CBF (barrier with funnels around rope points). Knots: the overhand knot and prime knots from
+  the Rolfsen table (`KNOTS`), drawn as closed braids and cut open on the outer strand; their knot
+  determinants match the table. Rope thickness and bending stiffness are adjustable
+  (`ropeParams`). The knot counts as untied when the rope no longer crosses itself. The hint
+  simulates candidate moves on copies of the rope (`candidateMoves`, `tryMove`, `score`) and draws
+  the best one as an arrow.
 - **Shared autonomy with a barrier** (`_includes/barrierik_demo.html`, `assets/js/barrierik-demo.js`,
   BarrierIK page): a planar three-link arm with linear blending and three IK solvers (no
   obstacles, proximity penalty, CBF constraints), each step a small QP solved with Hildreth's
