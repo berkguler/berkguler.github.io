@@ -2,12 +2,12 @@
  *
  * A loose overhand knot lies on a table, seen from above. Click a strand to
  * grasp it, drag to carry it, and release to put it down. The knot counts as
- * untied once lifting both ends and pulling them apart would leave a straight
- * rope (see knotDeterminant); the paper's study asked for no crossings at
- * all, which the game reports alongside. The rope is a small 3D simulation
- * (gravity, table friction and self-collision), so strands cannot pass
- * through each other. The gripper is teleoperated directly (no assistance);
- * a hint marks where a free end passes under another strand.
+ * untied when the rope no longer crosses itself, as in the paper's study.
+ * The rope is a small 3D simulation (gravity, table friction and
+ * self-collision), so strands cannot pass through each other. The gripper is
+ * teleoperated directly (no assistance). The hint first marks where a free
+ * end is trapped under another strand (freeing it undoes the knot, see
+ * knotDeterminant), then the loose loops that are left.
  * Rendering uses rope.js (window.RopeDraw).
  */
 (function () {
@@ -264,8 +264,9 @@
   Sim.prototype.knotted = function () { return knotDeterminant(this.x, this.y, this.z, this.n) !== 1; };
 
   // Where a free end first passes under another strand, walking in from
-  // either end: {end, x, y}, preferring the end closer to its crossing.
-  // Getting that end back out from under the strand undoes an overhand knot.
+  // either end: {mark: end node, x, y}, preferring the end closer to its
+  // crossing. Getting that end back out from under the strand undoes an
+  // overhand knot.
   Sim.prototype.hint = function () {
     var x = this.x, y = this.y, z = this.z, n = this.n, cr = [];
     for (var i = 0; i < n - 1; i++) {
@@ -278,10 +279,24 @@
     var first = cr.reduce(function (m, c) { return c.a < m.a ? c : m; });
     var last = cr.reduce(function (m, c) { return c.b > m.b ? c : m; });
     var opts = [];
-    if (first.za < first.zb) opts.push({ end: 0, x: first.x, y: first.y, dist: first.a });
-    if (last.zb < last.za) opts.push({ end: n - 1, x: last.x, y: last.y, dist: n - 1 - last.b });
+    if (first.za < first.zb) opts.push({ mark: 0, x: first.x, y: first.y, dist: first.a });
+    if (last.zb < last.za) opts.push({ mark: n - 1, x: last.x, y: last.y, dist: n - 1 - last.b });
     if (!opts.length) return null;
     return opts.reduce(function (m, o) { return o.dist < m.dist ? o : m; });
+  };
+
+  // The smallest loose loop: {mark: its apex node, x, y of its crossing}.
+  // Pulling the apex away from the crossing draws a free end through it.
+  Sim.prototype.loopHint = function () {
+    var cr = crossings(this.x, this.y, this.n);
+    if (!cr.length) return null;
+    var c = cr.reduce(function (m, q) { return q[1] - q[0] < m[1] - m[0] ? q : m; });
+    var h = hit(this.x[c[0]], this.y[c[0]], this.x[c[0] + 1], this.y[c[0] + 1], this.x[c[1]], this.y[c[1]], this.x[c[1] + 1], this.y[c[1] + 1]) || [0, 0];
+    return {
+      mark: Math.round((c[0] + c[1] + 1) / 2),
+      x: this.x[c[0]] + (this.x[c[0] + 1] - this.x[c[0]]) * h[0],
+      y: this.y[c[0]] + (this.y[c[0] + 1] - this.y[c[0]]) * h[0]
+    };
   };
 
   // The rope point nearest to (px, py) within r, preferring the upper strand.
@@ -447,10 +462,13 @@
   };
 
   Game.prototype.showHint = function () {
-    this.hinted = this.sim.hint();
-    this.status(this.hinted
-      ? 'Hint: the marked end passes under another strand at the orange ring. Get it back out from under that strand: pull the rope just inside the ring away from it, or lift the strand on top past the end.'
-      : 'No hint needed here: no end is caught under another strand. Spread the loops so the ends can slide out.');
+    var s = this.sim, trapped = s.knotted() ? s.hint() : null;
+    this.hinted = trapped || s.loopHint();
+    this.status(trapped
+      ? 'Hint: the marked end is trapped under another strand at the orange ring. Get it back out: grab the rope just inside the ring and pull it away from the ring, or lift the strand on top past the end.'
+      : this.hinted
+        ? 'Hint: the knot is gone, only a loose loop is left. Grab the loop at the marked point and pull it away from its crossing (orange ring) until a free end slides through.'
+        : 'No crossings left.');
     this.wake();
   };
 
@@ -519,7 +537,7 @@
     s.step(dt, g);
 
     this.nCross = s.crossingCount();
-    this.tied = s.knotted();
+    this.tied = this.nCross > 0;
     if (this.running) {
       if (!this.tied && s.grab < 0) this.solvedFor += dt; else this.solvedFor = 0;
       if (this.solvedFor > 0.5) this.finish(true);
@@ -609,7 +627,7 @@
       var pulse = 16 + 3 * Math.sin(performance.now() / 160);
       this.hintRing.setAttribute('cx', f1(h.x)); this.hintRing.setAttribute('cy', f1(h.y));
       this.hintRing.setAttribute('r', f1(pulse));
-      this.hintEnd.setAttribute('cx', f1(s.x[h.end])); this.hintEnd.setAttribute('cy', f1(s.y[h.end]));
+      this.hintEnd.setAttribute('cx', f1(s.x[h.mark])); this.hintEnd.setAttribute('cy', f1(s.y[h.mark]));
     }
     this.hintG.setAttribute('opacity', h ? 1 : 0);
 
