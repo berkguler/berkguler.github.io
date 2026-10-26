@@ -1,0 +1,41 @@
+---
+title: "ForwardDLO: Model-Based Bimanual Shape Matching of Unconstrained DLOs"
+pub: forwarddlo
+theme: dlo
+order: 2
+summary: >-
+  A compact learned forward model predicts how an unconstrained rope deforms under bimanual
+  pick-and-place actions. It is fast enough to score about 9,000 candidate actions per 30 Hz
+  planning step, which makes model-predictive shape matching and routing practical.
+teaser:
+  type: rope
+  scene: shape-matching
+  alt: Animated illustration of a rope being reshaped into the target letters S, U and J
+  caption: "Illustration: bimanual shape matching toward S, U and J targets."
+---
+<h2>Overview</h2>
+<p>
+  Many rope tasks, such as routing or untangling, require grasping interior points of a rope that
+  lies freely on a table, with two arms that can each choose where to grasp and how far to move.
+  This creates a large action space, so for model-predictive control the speed of the dynamics
+  model matters as much as its accuracy: a slightly more accurate but much slower model can
+  evaluate far fewer candidate actions per control cycle.
+</p>
+<p>
+  ForwardDLO is a recurrent latent dynamics model with a single shared per-segment decoder. Spatial
+  coupling along the rope is carried by the shared recurrent belief instead of explicit
+  segment-to-segment message passing, and multi-step rollouts are re-grounded on the predicted rope
+  state at every step. Trained on 2.4M simulated transitions, it is evaluated in open-loop
+  prediction, closed-loop shape matching on a bimanual ALOHA robot, and a time-budgeted routing task.
+</p>
+
+<h2>Key results</h2>
+<ul class="stats">
+  <li><b>≈9k</b><span>candidate actions per planning call at 30 Hz, 8–22× the closest learned baselines</span></li>
+  <li><b>13%</b><span>lower long-horizon error on real ropes than the strongest learned baseline</span></li>
+  <li><b>80%</b><span>success on real-robot S/U/J shape matching (60 runs)</span></li>
+</ul>
+<p>
+  The higher throughput translates into much better success when every model must plan within the
+  same 30 Hz budget, for example when routing a rope through a fence of obstacles in simulation.
+</p>

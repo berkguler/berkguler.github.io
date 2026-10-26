@@ -1,13 +1,29 @@
-<!-- Footer -->
-<div id="footer">
-  
-  <!-- Copyright -->
-  <ul class="copyright">
-    {% if site.title or site.author %}
-      <li>&copy; {{- site.title | default: site.author -}}. All rights reserved.</li>
-    {% endif %}
-    <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-    <li>Jekyll integration: <a href="https://chrisbobbe.github.io/">Chris Bobbe</a></li>
-  </ul>
-  
-</div>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <p class="footer-name">{{- site.author -}}</p>
+      <p>
+        Intelligent Autonomous Systems Lab, TU Darmstadt<br />
+        <a href="mailto:{{- site.email -}}">{{- site.email -}}</a>
+      </p>
+      <details class="egg">
+        <summary title="Psst…">
+          <img src="{{- 'assets/images/favicon.svg' | relative_url -}}" alt="" width="32" height="32" />
+          <span class="sr-only">A word about robots</span>
+        </summary>
+        <blockquote>
+          <p>“My dear Miss Glory, Robots are not people. They are mechanically more perfect than we are, they have an astounding intellectual capacity, but they have no soul.”</p>
+          <cite>Karel Čapek, <em>R.U.R.</em> (1920)</cite>
+        </blockquote>
+      </details>
+    </div>
+    <div class="footer-right">
+      {%- include social_links.html class="social--footer" -%}
+      <p class="footer-meta">
+        Last updated {{ site.time | date: "%B %Y" }}
+        {%- if site.website_url %} · <a href="{{- site.website_url -}}">Bilgişim</a>{%- endif %}<br />
+        Rope illustrations after Stanko Tadić's <a href="https://codepen.io/stanko/pen/vYaEMKX">SVG rope</a>.
+      </p>
+    </div>
+  </div>
+</footer>

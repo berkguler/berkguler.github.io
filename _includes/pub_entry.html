@@ -1,0 +1,15 @@
+{%- comment -%} One publication in the list. Include vars: pub {%- endcomment -%}
+{%- assign _pub = include.pub -%}
+{%- assign _proj = site.projects | where: "pub", _pub.id | first -%}
+<li class="pub" id="pub-{{ _pub.id }}">
+  <div class="pub-badge"><span class="venue venue--{{ _pub.kind }}">{{ _pub.venue_short }} {{ _pub.year }}</span></div>
+  <div class="pub-body">
+    <p class="pub-title">
+      {%- if _proj -%}<a href="{{- _proj.url | relative_url -}}">{{ _pub.title }}</a>{%- else -%}{{ _pub.title }}{%- endif -%}
+    </p>
+    <p class="authors">{%- include authors.html authors=_pub.authors -%}</p>
+    <p class="pub-venue"><em>{{ _pub.venue }}</em>, {{ _pub.year }}</p>
+    {%- include pub_links.html links=_pub.links details=_proj.url bib=_pub.id -%}
+    {%- include bibtex.html pub=_pub -%}
+  </div>
+</li>

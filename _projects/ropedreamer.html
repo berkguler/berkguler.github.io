@@ -1,0 +1,37 @@
+---
+title: "RopeDreamer: Kinematic Recurrent State Space Model for DLO Dynamics"
+pub: ropedreamer
+theme: dlo
+order: 3
+summary: >-
+  A recurrent state-space model over a quaternion kinematic-chain rope representation. Link
+  lengths are preserved by construction, and long-horizon predictions stay stable and
+  topologically consistent, including through loops and self-crossings.
+teaser:
+  type: rope
+  scene: loop
+  alt: Animated illustration of an observed rope with a loop and a translucent predicted rollout
+  caption: "Illustration: observed rope (orange) and the model's predicted rollout (blue)."
+---
+<h2>Overview</h2>
+<p>
+  Data-driven rope models often predict well for a few steps and then drift: segments stretch,
+  pass through each other, or lose loops that were there. RopeDreamer combines two ideas to keep
+  long rollouts physically plausible. First, the rope is represented as a kinematic chain, i.e.
+  the position of the first segment plus relative rotations (unit quaternions) between consecutive
+  links, so constant link length is built into the state. Second, dynamics are learned with a
+  recurrent state-space model (RSSM) that rolls the state forward in a compact latent space, with
+  separate decoders for reconstructing the current state and predicting the next one.
+</p>
+
+<h2>Key results</h2>
+<ul class="stats">
+  <li><b>40.5%</b><span>lower position error at 50 prediction steps than the best baseline</span></li>
+  <li><b>31%</b><span>less inference time per step than the best baseline</span></li>
+  <li><b>1M</b><span>simulated pick-and-place transitions for training and evaluation</span></li>
+</ul>
+<p>
+  RopeDreamer also preserves topology far better than graph-based baselines, measured by comparing
+  Gauss codes of predicted and true rope configurations, which matters for downstream tasks like
+  knot tying and untangling.
+</p>

@@ -1,0 +1,54 @@
+---
+layout: default
+---
+{%- assign _pub = nil -%}
+{%- if page.pub -%}{%- assign _pub = site.data.publications | where: "id", page.pub | first -%}{%- endif -%}
+{%- assign _info = _pub | default: page -%}
+{%- assign _theme = site.data.themes | where: "id", page.theme | first -%}
+<article class="project">
+  <header class="project-header">
+    <div class="container container--narrow">
+      <p class="project-crumbs">
+        <a href="{{- '/#research' | relative_url -}}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Research</a>
+        {%- if _theme %} <span aria-hidden="true">/</span> <span>{{ _theme.title }}</span>{% endif %}
+      </p>
+      <p class="card-meta">
+        <span class="venue venue--{{ _info.kind | default: 'thesis' }}">{{ _info.venue_short }} {{ _info.year }}</span>
+      </p>
+      <h1 class="project-title">{{ _info.title }}</h1>
+      <p class="authors">{%- include authors.html authors=_info.authors -%}</p>
+      {%- if _info.venue -%}<p class="project-venue"><em>{{ _info.venue }}</em>, {{ _info.year }}</p>{%- endif -%}
+      {%- if _pub.bibtex -%}{%- assign _bib = _pub.id -%}{%- else -%}{%- assign _bib = nil -%}{%- endif -%}
+      {%- include pub_links.html links=_info.links bib=_bib -%}
+      {%- if _pub.bibtex -%}{%- include bibtex.html pub=_pub -%}{%- endif -%}
+    </div>
+  </header>
+
+  <div class="container container--narrow">
+    <figure class="project-teaser">
+      {%- include teaser.html teaser=page.teaser -%}
+      {%- if page.teaser.caption -%}<figcaption>{{ page.teaser.caption }}</figcaption>{%- endif -%}
+    </figure>
+
+    <div class="prose">
+      {{- content -}}
+    </div>
+
+    {%- if page.related -%}
+    <section class="prose">
+      <h2>Related publications</h2>
+      <ul class="related">
+        {%- for _rel in page.related -%}
+        {%- assign _r = site.data.publications | where: "id", _rel | first -%}
+        <li>
+          <strong>{{ _r.title }}</strong><br />
+          <span class="authors">{%- include authors.html authors=_r.authors -%}</span><br />
+          <em>{{ _r.venue }}</em>, {{ _r.year }}
+          {%- include pub_links.html links=_r.links -%}
+        </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+    {%- endif -%}
+  </div>
+</article>

@@ -1,0 +1,28 @@
+{%- comment -%}
+  Research card: media on the left, paper info on the right.
+  Include vars: project (a document from the projects collection)
+  Paper info comes from _data/publications.yml via the project's `pub` id;
+  projects without a paper set title/authors/venue_short/year/links themselves.
+{%- endcomment -%}
+{%- assign _p = include.project -%}
+{%- assign _pub = nil -%}
+{%- if _p.pub -%}{%- assign _pub = site.data.publications | where: "id", _p.pub | first -%}{%- endif -%}
+{%- assign _info = _pub | default: _p -%}
+<article class="card" id="project-{{ _p.slug }}">
+  <a class="card-media" href="{{- _p.url | relative_url -}}" tabindex="-1" aria-hidden="true">
+    {%- include teaser.html teaser=_p.teaser -%}
+  </a>
+  <div class="card-body">
+    <p class="card-meta">
+      <span class="venue venue--{{ _info.kind | default: 'thesis' }}">{{ _info.venue_short }} {{ _info.year }}</span>
+      {%- for _rel in _p.related -%}
+        {%- assign _r = site.data.publications | where: "id", _rel | first -%}
+        <a class="venue venue--{{ _r.kind }}" href="{{- _r.links[0].url -}}" title="{{ _r.title | escape }}">+ {{ _r.venue_short }} {{ _r.year }}</a>
+      {%- endfor -%}
+    </p>
+    <h4 class="card-title"><a href="{{- _p.url | relative_url -}}">{{ _info.title }}</a></h4>
+    <p class="authors">{%- include authors.html authors=_info.authors -%}</p>
+    <p class="card-summary">{{ _p.summary }}</p>
+    {%- include pub_links.html links=_info.links details=_p.url -%}
+  </div>
+</article>

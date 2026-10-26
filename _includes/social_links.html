@@ -1,0 +1,30 @@
+{%- comment -%}
+  Icon links to the profiles set in _config.yml.
+  Include vars: class (extra class on the list)
+{%- endcomment -%}
+<ul class="social {{ include.class }}">
+  {%- if site.email -%}
+  <li><a href="mailto:{{- site.email -}}" title="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span class="sr-only">Email</span></a></li>
+  {%- endif -%}
+  {%- if site.scholar_url -%}
+  <li><a href="{{- site.scholar_url -}}" title="Google Scholar"><i class="fa-brands fa-google-scholar" aria-hidden="true"></i><span class="sr-only">Google Scholar</span></a></li>
+  {%- endif -%}
+  {%- if site.orcid_url -%}
+  <li><a href="{{- site.orcid_url -}}" title="ORCID"><i class="fa-brands fa-orcid" aria-hidden="true"></i><span class="sr-only">ORCID</span></a></li>
+  {%- endif -%}
+  {%- if site.ias_url -%}
+  <li><a href="{{- site.ias_url -}}" title="IAS TU Darmstadt profile"><i class="fa-solid fa-building-columns" aria-hidden="true"></i><span class="sr-only">IAS TU Darmstadt profile</span></a></li>
+  {%- endif -%}
+  {%- if site.github_url -%}
+  <li><a href="{{- site.github_url -}}" title="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i><span class="sr-only">GitHub</span></a></li>
+  {%- endif -%}
+  {%- if site.linkedin_url -%}
+  <li><a href="{{- site.linkedin_url -}}" title="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><span class="sr-only">LinkedIn</span></a></li>
+  {%- endif -%}
+  {%- if site.researchgate_url -%}
+  <li><a href="{{- site.researchgate_url -}}" title="ResearchGate"><i class="fa-brands fa-researchgate" aria-hidden="true"></i><span class="sr-only">ResearchGate</span></a></li>
+  {%- endif -%}
+  {%- if site.twitter_url -%}
+  <li><a href="{{- site.twitter_url -}}" title="X / Twitter"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i><span class="sr-only">X / Twitter</span></a></li>
+  {%- endif -%}
+</ul>

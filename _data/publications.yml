@@ -1,0 +1,185 @@
+# Publication list. Rendered on the home page (grouped by `kind`) and on the
+# project pages (looked up by `id` from a project's `pub` field).
+#
+# kind:     journal | conference | workshop | preprint | thesis
+# authors:  full names; a trailing * marks equal contribution
+# A project page in _projects/ links to its paper with `pub: <id>`.
+
+- id: forwarddlo
+  kind: preprint
+  title: "ForwardDLO: Model-Based Bimanual Shape Matching of Unconstrained Deformable Linear Objects"
+  authors: [Tim Missal, Berk Guler, Lucas Domingues, Simon Manschitz, Jan Peters, Paula Dornhofer Paro Costa]
+  venue: arXiv preprint arXiv:2609.18455
+  venue_short: arXiv
+  year: 2026
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2609.18455", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @misc{missal2026forwarddlo,
+      title         = {{ForwardDLO}: Model-Based Bimanual Shape Matching of Unconstrained Deformable Linear Objects},
+      author        = {Missal, Tim and Guler, Berk and Domingues, Lucas and Manschitz, Simon and Peters, Jan and Costa, Paula Dornhofer Paro},
+      year          = {2026},
+      eprint        = {2609.18455},
+      archivePrefix = {arXiv}
+    }
+
+- id: assistdlo
+  kind: preprint
+  title: "AssistDLO: Assistive Teleoperation for Deformable Linear Object Manipulation"
+  authors: [Berk Guler, Simon Manschitz, Kay Pompetzki, Jan Peters]
+  venue: arXiv preprint arXiv:2605.06323
+  venue_short: arXiv
+  year: 2026
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2605.06323", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @misc{guler2026assistdlo,
+      title         = {{AssistDLO}: Assistive Teleoperation for Deformable Linear Object Manipulation},
+      author        = {Guler, Berk and Manschitz, Simon and Pompetzki, Kay and Peters, Jan},
+      year          = {2026},
+      eprint        = {2605.06323},
+      archivePrefix = {arXiv}
+    }
+
+- id: ropedreamer
+  kind: preprint
+  title: "RopeDreamer: A Kinematic Recurrent State Space Model for Dynamics of Flexible Deformable Linear Objects"
+  authors: [Tim Missal, Lucas Domingues, Berk Guler, Simon Manschitz, Jan Peters, Paula Dornhofer Paro Costa]
+  venue: arXiv preprint arXiv:2604.28161
+  venue_short: arXiv
+  year: 2026
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2604.28161", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @misc{missal2026ropedreamer,
+      title         = {{RopeDreamer}: A Kinematic Recurrent State Space Model for Dynamics of Flexible Deformable Linear Objects},
+      author        = {Missal, Tim and Domingues, Lucas and Guler, Berk and Manschitz, Simon and Peters, Jan and Costa, Paula Dornhofer Paro},
+      year          = {2026},
+      eprint        = {2604.28161},
+      archivePrefix = {arXiv}
+    }
+
+- id: barrierik
+  kind: conference
+  title: "A Safety-Aware Shared Autonomy Framework with BarrierIK Using Control Barrier Functions"
+  authors: [Berk Guler*, Kay Pompetzki*, Yuanzheng Sun, Simon Manschitz, Jan Peters]
+  venue: IEEE International Conference on Robotics and Automation (ICRA)
+  venue_short: ICRA
+  year: 2026
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2603.01705", icon: fa-solid fa-file-pdf }
+    - { name: Project Page, url: "https://berkguler.github.io/barrierik/", icon: fa-solid fa-globe }
+    - { name: Code, url: "https://github.com/berkguler/barrierik_ros", icon: fa-brands fa-github }
+    - { name: Unity Framework, url: "https://github.com/berkguler/barrierik_unity", icon: fa-solid fa-vr-cardboard }
+    - { name: Video, url: "https://www.youtube.com/watch?v=AtFMYE62igY", icon: fa-brands fa-youtube }
+  bibtex: |
+    @inproceedings{guler2026barrierik,
+      title     = {A Safety-Aware Shared Autonomy Framework with {BarrierIK} Using Control Barrier Functions},
+      author    = {Guler, Berk and Pompetzki, Kay and Sun, Yuanzheng and Manschitz, Simon and Peters, Jan},
+      booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+      year      = {2026}
+    }
+
+- id: grasp-collision
+  kind: conference
+  title: "Sampling-Based Grasp and Collision Prediction for Assisted Teleoperation"
+  authors: [Simon Manschitz, Berk Gueler, Wei Ma, Dirk Ruiken]
+  venue: IEEE International Conference on Robotics and Automation (ICRA)
+  venue_short: ICRA
+  year: 2025
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2504.18186", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @inproceedings{manschitz2025sampling,
+      title     = {Sampling-Based Grasp and Collision Prediction for Assisted Teleoperation},
+      author    = {Manschitz, Simon and Gueler, Berk and Ma, Wei and Ruiken, Dirk},
+      booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+      year      = {2025}
+    }
+
+- id: knot-untangling
+  kind: conference
+  title: "Towards Assistive Teleoperation for Knot Untangling"
+  authors: [Berk Guler, Kay Pompetzki, Simon Manschitz, Jan Peters]
+  venue: German Robotics Conference (GRC)
+  venue_short: GRC
+  year: 2025
+  links:
+    - { name: PDF, url: "https://www.ias.informatik.tu-darmstadt.de/uploads/Team/BerkGueler/GRC_2025_assistiveteleoperationforknotuntanling.pdf", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @inproceedings{guler2025knot,
+      title     = {Towards Assistive Teleoperation for Knot Untangling},
+      author    = {Guler, Berk and Pompetzki, Kay and Manschitz, Simon and Peters, Jan},
+      booktitle = {German Robotics Conference (GRC)},
+      year      = {2025}
+    }
+
+- id: drilling-iros
+  kind: conference
+  title: "Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance under Adaptive Admittance Control"
+  authors: [Alireza Madani, Pouya P. Niaz, Berk Guler, Yusuf Aydin, Cagatay Basdogan]
+  venue: IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)
+  venue_short: IROS
+  year: 2022
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2207.13999", icon: fa-solid fa-file-pdf }
+    - { name: Video, url: "https://www.youtube.com/watch?v=8SZp-AtENpE", icon: fa-brands fa-youtube }
+  bibtex: |
+    @inproceedings{madani2022drilling,
+      title     = {Robot-Assisted Drilling on Curved Surfaces with Haptic Guidance under Adaptive Admittance Control},
+      author    = {Madani, Alireza and Niaz, Pouya P. and Guler, Berk and Aydin, Yusuf and Basdogan, Cagatay},
+      booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+      year      = {2022}
+    }
+
+- id: wigginghaus-ws
+  kind: workshop
+  title: "Learning Sim-Grounded Policies for Bimanual Rope Manipulation from Human Teleoperation Data"
+  authors: [Gina Wigginghaus*, Tim Missal*, Berk Guler, Simon Manschitz, Jan Peters]
+  venue: ICRA Workshop on Beyond Teleoperation
+  venue_short: ICRA Workshop
+  year: 2026
+  links:
+    - { name: arXiv, url: "https://arxiv.org/abs/2605.16043", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @inproceedings{wigginghaus2026simgrounded,
+      title     = {Learning Sim-Grounded Policies for Bimanual Rope Manipulation from Human Teleoperation Data},
+      author    = {Wigginghaus, Gina and Missal, Tim and Guler, Berk and Manschitz, Simon and Peters, Jan},
+      booktitle = {ICRA Workshop on Beyond Teleoperation},
+      year      = {2026}
+    }
+
+- id: mechatronics
+  kind: journal
+  title: "An adaptive admittance controller for collaborative drilling with a robot based on subtask classification via deep learning"
+  authors: [Berk Guler, Pouya P. Niaz, Alireza Madani, Yusuf Aydin, Cagatay Basdogan]
+  venue: Mechatronics, vol. 86, p. 102851
+  venue_short: Mechatronics
+  year: 2022
+  links:
+    - { name: Paper, url: "https://www.sciencedirect.com/science/article/pii/S0957415822000800", icon: fa-solid fa-book-open }
+    - { name: arXiv, url: "https://arxiv.org/abs/2205.14457", icon: fa-solid fa-file-pdf }
+  bibtex: |
+    @article{guler2022adaptive,
+      title   = {An adaptive admittance controller for collaborative drilling with a robot based on subtask classification via deep learning},
+      author  = {Guler, Berk and Niaz, Pouya P. and Madani, Alireza and Aydin, Yusuf and Basdogan, Cagatay},
+      journal = {Mechatronics},
+      volume  = {86},
+      pages   = {102851},
+      year    = {2022}
+    }
+
+- id: msc-thesis
+  kind: thesis
+  title: "Deep Reinforcement Learning to Optimize Task Performance in Human-Robot Co-Manipulation"
+  authors: [Berk Guler]
+  venue: M.Sc. Thesis, Koç University
+  venue_short: M.Sc. Thesis
+  year: 2023
+  bibtex: |
+    @mastersthesis{guler2023comanipulation,
+      title  = {Deep Reinforcement Learning to Optimize Task Performance in Human-Robot Co-Manipulation},
+      author = {Guler, Berk},
+      school = {Ko{\c{c}} University},
+      year   = {2023}
+    }

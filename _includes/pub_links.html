@@ -1,0 +1,16 @@
+{%- comment -%}
+  Link buttons for a publication.
+  Include vars: links (array of {name, url, icon}), details (project URL, optional),
+                bib (id used for the BibTeX toggle, optional)
+{%- endcomment -%}
+<div class="links">
+  {%- if include.details -%}
+  <a class="btn btn--solid" href="{{- include.details | relative_url -}}"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Details</a>
+  {%- endif -%}
+  {%- for _l in include.links -%}
+  <a class="btn" href="{{- _l.url -}}"><i class="{{ _l.icon }}" aria-hidden="true"></i>{{ _l.name }}</a>
+  {%- endfor -%}
+  {%- if include.bib -%}
+  <button class="btn btn--ghost" type="button" data-bibtex-toggle aria-controls="bib-{{ include.bib }}" aria-expanded="false"><i class="fa-solid fa-quote-right" aria-hidden="true"></i>BibTeX</button>
+  {%- endif -%}
+</div>

@@ -1,0 +1,68 @@
+<svg class="sampling" viewBox="0 0 400 250" role="img" aria-label="{{ include.alt | escape }}">
+  <style>
+    .smp-dot { animation: smp-pop .35s ease-out both; transform-box: fill-box; transform-origin: center; }
+    .smp-best { animation: smp-pop .35s ease-out 1.9s both, smp-pulse 1.6s ease-in-out 2.4s infinite; transform-box: fill-box; transform-origin: center; }
+    .smp-arrow { stroke-dasharray: 160; stroke-dashoffset: 0; animation: smp-draw .7s ease-out 2.1s both; }
+    @keyframes smp-pop { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
+    @keyframes smp-pulse { 50% { transform: scale(1.35); } }
+    @keyframes smp-draw { from { stroke-dashoffset: 160; } to { stroke-dashoffset: 0; } }
+  </style>
+  <text x="14" y="22" fill="#273F4F" font-family="Roboto, sans-serif" font-size="13" font-weight="500" letter-spacing=".04em">SAMPLE → PREDICT CONSTRAINTS → SELECT</text>
+  <path d="M118 152L292 96" stroke="#447D9B" stroke-width="1.5" stroke-dasharray="3 5" opacity=".7"/>
+  <rect x="168" y="92" width="40" height="58" rx="4" fill="#D7D7D7" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.2"/>
+  <circle cx="170" cy="203" r="17" fill="#D7D7D7" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.2"/>
+  <g transform="translate(292 96)"><circle r="13" fill="none" stroke="#447D9B" stroke-width="2" stroke-dasharray="4 3"/><path d="M-5 0H5M0 -5V5" stroke="#447D9B" stroke-width="2"/></g>
+  <text x="258" y="74" fill="#447D9B" font-family="Roboto, sans-serif" font-size="12" font-weight="500" paint-order="stroke" stroke="#f7f7f5" stroke-width="4" stroke-linejoin="round">operator target</text>
+  <circle class="smp-dot" style="animation-delay:0.25s" cx="154.3" cy="151.1" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.29s" cx="149.3" cy="156.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.32s" cx="164.6" cy="163.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.35s" cx="171.4" cy="167.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.39s" cx="164.4" cy="171.3" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.43s" cx="144.4" cy="167.3" r="3.6" fill="#447D9B"/>
+  <g class="smp-dot" style="animation-delay:0.46s" transform="translate(168.0 195.9)"><path d="M-3 -3L3 3M3 -3L-3 3" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/></g>
+  <circle class="smp-dot" style="animation-delay:0.49s" cx="142.1" cy="177.4" r="3.6" fill="#447D9B"/>
+  <g class="smp-dot" style="animation-delay:0.53s" transform="translate(150.4 211.0)"><path d="M-3 -3L3 3M3 -3L-3 3" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/></g>
+  <circle class="smp-dot" style="animation-delay:0.57s" cx="131.5" cy="190.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.60s" cx="119.7" cy="175.7" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.64s" cx="115.1" cy="186.6" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.67s" cx="115.3" cy="178.8" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.71s" cx="99.5" cy="208.5" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.74s" cx="95.9" cy="196.5" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.78s" cx="90.5" cy="183.7" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.81s" cx="97.4" cy="170.3" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.85s" cx="90.3" cy="174.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.88s" cx="73.2" cy="173.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.92s" cx="63.1" cy="173.4" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.95s" cx="75.1" cy="162.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:0.99s" cx="50.5" cy="156.8" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.02s" cx="57.4" cy="154.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.06s" cx="40.9" cy="143.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.09s" cx="76.2" cy="140.9" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.12s" cx="88.1" cy="138.7" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.16s" cx="57.6" cy="122.6" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.20s" cx="73.7" cy="125.6" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.23s" cx="70.8" cy="115.9" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.27s" cx="87.7" cy="111.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.30s" cx="101.9" cy="118.6" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.34s" cx="102.7" cy="105.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.37s" cx="111.1" cy="110.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.41s" cx="123.0" cy="88.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.44s" cx="127.1" cy="101.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.48s" cx="131.9" cy="100.0" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.51s" cx="155.2" cy="92.5" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.55s" cx="143.9" cy="124.2" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.62s" cx="155.7" cy="121.6" r="3.6" fill="#447D9B"/>
+  <circle class="smp-dot" style="animation-delay:1.65s" cx="145.7" cy="136.1" r="3.6" fill="#447D9B"/>
+  <g class="smp-dot" style="animation-delay:1.69s" transform="translate(180.7 124.7)"><path d="M-3 -3L3 3M3 -3L-3 3" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/></g>
+  <circle class="smp-dot" style="animation-delay:1.72s" cx="157.3" cy="140.7" r="3.6" fill="#447D9B"/>
+  <g class="smp-dot" style="animation-delay:1.76s" transform="translate(194.7 142.2)"><path d="M-3 -3L3 3M3 -3L-3 3" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/></g>
+  <path class="smp-arrow" d="M118 152L160.2 112.2" stroke="#FE7743" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle class="smp-best" cx="160.2" cy="112.2" r="6" fill="#FE7743" stroke="#273F4F" stroke-width="1.5"/>
+  <g transform="translate(118 152) rotate(-20)"><rect x="-3" y="-21" width="6" height="42" rx="3" fill="#273F4F"/><rect x="-8" y="-21" width="16" height="7" rx="2" fill="#273F4F"/><rect x="-8" y="14" width="16" height="7" rx="2" fill="#273F4F"/><circle r="3.4" fill="#FE7743" stroke="#fff" stroke-width="1.2"/></g>
+  <text x="78" y="192" fill="#273F4F" font-family="Roboto, sans-serif" font-size="12" font-weight="500" paint-order="stroke" stroke="#f7f7f5" stroke-width="4" stroke-linejoin="round">robot end-effector</text>
+  <g font-family="Roboto, sans-serif" font-size="12" fill="#273F4F">
+    <circle cx="20" cy="235" r="3.6" fill="#447D9B"/><text x="30" y="239">feasible sample</text>
+    <path d="M128 232L134 238M134 232L128 238" stroke="#273F4F" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/><text x="142" y="239">predicted collision</text>
+    <circle cx="268" cy="235" r="5" fill="#FE7743" stroke="#273F4F" stroke-width="1.2"/><text x="279" y="239">selected command</text>
+  </g>
+</svg>

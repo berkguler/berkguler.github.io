@@ -1,0 +1,157 @@
+---
+layout: default
+title: Home
+---
+<!-- About -->
+<section class="hero" id="about">
+  <div class="container hero-grid">
+    <aside class="profile">
+      <img class="profile-photo" src="{{- site.avatar | relative_url -}}" alt="Portrait of {{ site.author }}" width="220" height="220" />
+      <h1 class="profile-name">{{- site.author -}}</h1>
+      <p class="profile-role">PhD Candidate in Computer Science</p>
+      <p class="profile-affil">
+        <a href="https://www.ias.informatik.tu-darmstadt.de/">Intelligent Autonomous Systems Lab</a>, TU&nbsp;Darmstadt<br />
+        <a href="https://www.honda-ri.de/">Honda Research Institute Europe</a>
+      </p>
+      {%- include social_links.html -%}
+    </aside>
+
+    <div class="hero-text">
+      <h2>About me</h2>
+      <p>
+        I am a PhD candidate at the <a href="https://www.ias.informatik.tu-darmstadt.de/">Intelligent
+        Autonomous Systems Lab</a> at TU Darmstadt, advised by Prof. Jan Peters, and I work jointly
+        with Dr. Simon Manschitz at <a href="https://www.honda-ri.de/">Honda Research Institute
+        Europe</a>. I build <strong>assistive teleoperation</strong> and <strong>shared
+        autonomy</strong> systems for dexterous manipulation: the robot takes care of safety and
+        precision, and the human stays in charge of the task.
+      </p>
+      <p>
+        My recent work enforces safety in shared autonomy as a hard constraint with control barrier
+        functions (<a href="{{ '/projects/barrierik/' | relative_url }}">BarrierIK</a>, ICRA 2026)
+        and brings assistance to the manipulation of ropes and cables
+        (<a href="{{ '/projects/assistdlo/' | relative_url }}">AssistDLO</a>). Before my PhD, I worked
+        on physical human–robot interaction at Koç University and studied control and automation
+        engineering at Istanbul Technical University.
+      </p>
+      <ul class="interests" aria-label="Research interests">
+        <li>Assistive Teleoperation</li>
+        <li>Shared Autonomy</li>
+        <li>Control Barrier Functions</li>
+        <li>Deformable Linear Objects</li>
+        <li>Physical Human–Robot Interaction</li>
+        <li>Robot Learning</li>
+      </ul>
+      <div class="hero-actions">
+        <a class="btn btn--solid btn--lg" href="#research"><i class="fa-solid fa-flask" aria-hidden="true"></i>Research</a>
+        <a class="btn btn--lg" href="#publications"><i class="fa-solid fa-book" aria-hidden="true"></i>Publications</a>
+        {%- if site.cv_url -%}
+        <a class="btn btn--lg" href="{{- site.cv_url | relative_url -}}"><i class="fa-solid fa-file-lines" aria-hidden="true"></i>CV</a>
+        {%- endif -%}
+        <a class="btn btn--lg" href="{{- site.scholar_url -}}"><i class="fa-brands fa-google-scholar" aria-hidden="true"></i>Google Scholar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- News -->
+<section class="section" id="news">
+  <div class="container">
+    <h2 class="section-title">News</h2>
+    <ul class="news" id="news-list">
+      {%- for item in site.data.news -%}
+      <li{% if forloop.index > 5 %} class="is-old"{% endif %}>
+        <span class="news-date">{{ item.date }}</span>
+        <p class="news-text">{{ item.text }}</p>
+      </li>
+      {%- endfor -%}
+    </ul>
+    {%- if site.data.news.size > 5 -%}
+    <button class="btn news-more" type="button" data-news-toggle aria-controls="news-list" aria-expanded="false">
+      <i class="fa-solid fa-angle-down" aria-hidden="true"></i><span>Show older news</span>
+    </button>
+    {%- endif -%}
+  </div>
+</section>
+
+<!-- Research -->
+<section class="section section--alt" id="research">
+  <div class="container">
+    <h2 class="section-title">Research</h2>
+    <p class="section-lead">
+      Projects grouped by theme. Each card links to a page with details, media, and BibTeX.
+    </p>
+    {%- assign _projects = site.projects | sort: 'order' -%}
+    {%- for _theme in site.data.themes -%}
+      {%- assign _items = _projects | where: 'theme', _theme.id -%}
+      {%- if _items.size > 0 -%}
+      <div class="theme" id="theme-{{ _theme.id }}">
+        <div class="theme-head">
+          <span class="theme-icon"><i class="{{ _theme.icon }}" aria-hidden="true"></i></span>
+          <div>
+            <h3 class="theme-title">{{ _theme.title }}</h3>
+            <p class="theme-blurb">{{ _theme.blurb }}</p>
+          </div>
+        </div>
+        <div class="cards">
+          {%- for _p in _items -%}
+            {%- include project_card.html project=_p -%}
+          {%- endfor -%}
+        </div>
+      </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+<!-- Publications -->
+<section class="section" id="publications">
+  <div class="container">
+    <h2 class="section-title">
+      Publications
+      <span class="count"><a href="{{- site.scholar_url -}}"><i class="fa-brands fa-google-scholar" aria-hidden="true"></i> Google Scholar</a></span>
+    </h2>
+    {%- assign _groups = "conference:Conference Papers|journal:Journal Articles|workshop:Workshop Papers|preprint:Preprints|thesis:Theses" | split: "|" -%}
+    {%- for _g in _groups -%}
+      {%- assign _parts = _g | split: ":" -%}
+      {%- assign _pubs = site.data.publications | where: "kind", _parts[0] -%}
+      {%- if _pubs.size > 0 -%}
+      <div class="pub-group">
+        <h3 class="pub-group-title">{{ _parts[1] }}</h3>
+        <ol class="pubs">
+          {%- for _pub in _pubs -%}
+            {%- include pub_entry.html pub=_pub -%}
+          {%- endfor -%}
+        </ol>
+      </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+<!-- Education -->
+<section class="section section--alt" id="education">
+  <div class="container">
+    <h2 class="section-title">Education</h2>
+    <ol class="timeline">
+      {%- for _e in site.data.education -%}
+      <li class="tl-item{% if _e.current %} is-current{% endif %}">
+        <span class="tl-dot"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
+        <div>
+          <div class="tl-head">
+            <h3 class="tl-degree">{{ _e.degree }}</h3>
+            <span class="tl-period">{{ _e.period }}</span>
+          </div>
+          <p class="tl-inst"><a href="{{- _e.institution_url -}}">{{ _e.institution }}</a></p>
+          <p class="tl-unit">
+            <a href="{{- _e.unit_url -}}">{{ _e.unit }}</a>
+            {%- if _e.partner %} · jointly with <a href="{{- _e.partner_url -}}">{{ _e.partner }}</a>{%- endif -%}
+          </p>
+          <p class="tl-advisor">Advisor{% if _e.advisors contains ' and ' %}s{% endif %}: {{ _e.advisors }}</p>
+          <p class="tl-details">{{ _e.details }}</p>
+        </div>
+      </li>
+      {%- endfor -%}
+    </ol>
+  </div>
+</section>
