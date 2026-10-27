@@ -20,12 +20,13 @@
   'use strict';
 
   var W = 640, H = 400;
+  var SIM_VERSION = 'pbd-3';             // recorded with every run: pbd-3 = multi-scale bending
   var GRAV = 1800, SUB = 3, ITER = 6;    // px/s², substeps per frame, solver iterations
   var W_TABLE = 0.2;                     // rope resting on the table is harder to move (friction)
   var FINGER = 4;                        // finger pad radius (px)
   var Z_HOVER = 80;                      // gripper height while travelling (px above the table)
   var V_XY = 330, V_Z = 240;             // gripper speed limits (px/s)
-  var MAX_STIFF = 0.06;                  // bending stiffness at the top of the slider
+  var MAX_STIFF = 0.03;                  // bending stiffness (see solveBending) at the top of the slider
 
   // Everything that scales with the rope: rad is the radius in px, stiff the
   // bending stiffness (0: limp, MAX_STIFF: springy).
@@ -197,6 +198,7 @@
       this.buildGrid();
       for (var it = 0; it < ITER; it++) {
         this.solveLinks();
+        this.solveBending();
         if (this.grab >= 0) this.solveTether();
         this.solveContacts();
         this.solveLinks();   // again: in a tight knot the contacts would otherwise stretch the rope
@@ -212,11 +214,10 @@
     return i === this.grab ? 0 : this.z[i] < 0.6 ? W_TABLE : 1;
   };
 
-  // Fixed length between neighbours; between nodes i and i+2 a hard limit on
-  // how sharply the rope can kink, plus a soft pull toward straight (the
-  // bending stiffness).
+  // Fixed length between neighbours, and between nodes i and i+2 a hard limit
+  // on how sharply the rope can kink.
   Sim.prototype.solveLinks = function () {
-    var x = this.x, y = this.y, z = this.z, n = this.n, p = this.p, straight = 2 * p.seg;
+    var x = this.x, y = this.y, z = this.z, n = this.n, p = this.p;
     for (var pass = 0; pass < 2; pass++) {
       var gap = pass === 0 ? 1 : 2;
       for (var i = 0; i + gap < n; i++) {
@@ -228,10 +229,34 @@
         var k;
         if (gap === 1) k = (L - p.seg) / L / (wi + wj);
         else if (L < p.bend) k = (L - p.bend) / L / (wi + wj);
-        else if (p.stiff > 0) k = p.stiff * (L - straight) / L / (wi + wj);
         else continue;
         x[i] += dx * k * wi; y[i] += dy * k * wi; z[i] += dz * k * wi;
         x[j] -= dx * k * wj; y[j] -= dy * k * wj; z[j] -= dz * k * wj;
+      }
+    }
+  };
+
+  // Bending stiffness: every node is pulled toward the midpoint of the nodes
+  // 1, 2 and 4 places away on either side (with weight 1, 1/2, 1/4 of
+  // p.stiff), a discrete curvature penalty at three scales. A stiff rope so
+  // resists gentle curves as well as sharp kinks, and holds smooth loops.
+  // Only in the table plane: flattening a strand that rides over another
+  // would press it down into the one below.
+  var BEND_SPANS = [[1, 1], [2, 0.5], [4, 0.25]];
+  Sim.prototype.solveBending = function () {
+    var k0 = this.p.stiff, x = this.x, y = this.y, n = this.n;
+    if (!(k0 > 0)) return;
+    for (var q = 0; q < BEND_SPANS.length; q++) {
+      var m = BEND_SPANS[q][0], k = k0 * BEND_SPANS[q][1];
+      for (var i = m; i < n - m; i++) {
+        var a = i - m, c = i + m;
+        var wa = this.weight(a), wb = this.weight(i), wc = this.weight(c), den = wb + (wa + wc) / 4;
+        if (!den) continue;
+        var f = k / den;
+        var cx = x[i] - (x[a] + x[c]) / 2, cy = y[i] - (y[a] + y[c]) / 2;
+        x[i] -= wb * f * cx; y[i] -= wb * f * cy;
+        x[a] += wa * f / 2 * cx; y[a] += wa * f / 2 * cy;
+        x[c] += wc * f / 2 * cx; y[c] += wc * f / 2 * cy;
       }
     }
   };
@@ -549,6 +574,7 @@
     this.rad = 7;
     this.stiffness = 0.2;   // slider position, 0..1
     this.lab = root.hasAttribute('data-lab');   // Knot Lab: every round is shuffled and recorded
+    this.simVersion = SIM_VERSION;
     this.hideFunnels = root.hasAttribute('data-hide-funnels');   // SA-CBF without drawing its funnels
     this.visible = false;
     this.build();
@@ -694,7 +720,9 @@
     }
   };
 
-  Game.prototype.stiffValue = function () { return MAX_STIFF * this.stiffness * this.stiffness; };
+  // Slider (0..1) to bending stiffness, curved so that equal steps of the
+  // slider change how sharply a dragged rope bends by about equal amounts.
+  Game.prototype.stiffValue = function () { return MAX_STIFF * Math.pow(this.stiffness, 1.75); };
 
   Game.prototype.showSettings = function () {
     var s = this.stiffness;

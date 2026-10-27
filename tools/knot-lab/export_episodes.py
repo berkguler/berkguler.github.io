@@ -137,6 +137,7 @@ def main():
         meta = {k: row.get(k) for k in ("id", "created_at", "knot", "crossings", "seconds", "grasps", "misses", "hints", "points")}
         meta["username"] = user
         meta.update({k: header[k] for k in ("format", "rate", "res", "table", "n", "samples", "round", "params", "events", "result", "device")})
+        meta["sim"] = header.get("sim")  # simulation version; None for runs from before it was recorded (see README)
         base = os.path.join(args.out, "episode_%d" % rid)
         np.savez_compressed(base + ".npz", **arrays)
         with open(base + ".json", "w", encoding="utf-8") as f:

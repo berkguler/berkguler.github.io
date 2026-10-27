@@ -83,7 +83,7 @@
     for (var k = 0; k < T; k += every) keep.push(k);
     if (keep[keep.length - 1] !== T - 1) keep.push(T - 1);
     var header = {
-      format: 'knot-lab/2', rate: RATE, res: RES, table: this.table, n: n, samples: T, ropeFrames: keep,
+      format: 'knot-lab/2', sim: g.simVersion, rate: RATE, res: RES, table: this.table, n: n, samples: T, ropeFrames: keep,
       round: g.round, params: g.sim.p, events: this.events, result: result, device: this.device
     };
     var json = new TextEncoder().encode(JSON.stringify(header));
@@ -448,7 +448,7 @@
       var meta = {
         knot: r.knot, crossings: r.crossings, seconds: result.seconds, grasps: d.grasps, misses: d.misses,
         hints: 0,   // the game has no hints any more; the server still expects the field
-        format: 'knot-lab/2', rate: RATE, ropeEvery: enc.every, n: self.game.sim.n, samples: rec.t.length,
+        format: 'knot-lab/2', sim: self.game.simVersion, rate: RATE, ropeEvery: enc.every, n: self.game.sim.n, samples: rec.t.length,
         rad: r.rad, stiffness: +r.stiffness.toFixed(3), assist: r.assist || 'off', device: rec.device, bytes: enc.data.length
       };
       self.queue({ meta: meta, data: enc.data });
