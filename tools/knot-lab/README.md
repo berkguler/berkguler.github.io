@@ -56,9 +56,9 @@ video must allow embedding; otherwise the player and the speaker button hide the
 - Submissions: valid PIN, at most one run per 5 seconds per player, sane values (3 to 9 crossings,
   1 to 900 s, at least one grasp), recording between 100 bytes and 6 MB.
 - Points are computed on the server from the submitted values:
-  `10·c + 10·c·max(0, 1 − seconds / max(180, 60·c))` for a knot with `c` crossings, halved if a
-  hint was used. A browser game cannot be made cheat-proof; the recordings let you spot and drop
-  implausible runs before using the data.
+  `10·c + 10·c·max(0, 1 − seconds / max(180, 60·c))` for a knot with `c` crossings (halved if
+  `hints` > 0; the game no longer has hints and always sends 0). A browser game cannot be made
+  cheat-proof; the recordings let you spot and drop implausible runs before using the data.
 
 ### Useful SQL
 
@@ -105,9 +105,17 @@ Gripper phases: 0 idle, 1 travel, 2 descend, 3 close, 4 carry, 5 lift. The `.jso
 the round (knot, thickness `rad` as the rope radius, stiffness from 0 to 1, mirror, flip, rotation, crossings
 as dealt, determinant, and `minSep`, the closest approach of two strands at the deal in rope
 diameters), the
-simulation parameters, the table, the event list (press, grasp, miss, release, up, hint, with
-time, position and rope node; `table` when the table changed size), the result (seconds, grasps,
-misses, hints) and the row's username, time and points.
+simulation parameters, the table, the event list (press, grasp, miss, release, up, with
+time, position and rope node; `blocked` when SA-CBF kept the gripper up after a click away from
+the rope; `table` when the table changed size), the result (seconds, grasps,
+misses) and the row's username, time and points. Runs recorded before hints were removed may
+also have `hint` events and a `hints` count.
+
+**Assistance.** `round.assist` (also in the row's `meta`) is `off` or `sa-cbf`. With SA-CBF a
+press near the rope sends the gripper to the nearest rope point (the upper strand at a crossing)
+instead of the pressed point, and a press away from the rope does not lower the gripper, as on
+the AssistDLO page (the page does not draw the funnels there). The pointer channel (`hand`) is
+where the player pressed; the gripper channel (`grip`) is where the gripper went.
 
 **The table.** Knots are dealt in the middle 640 × 400 (`[0, 0, 640, 400]`), or, on screens
 taller than wide such as phones held upright, in an upright 400 × 640 (`[120, -120, 520, 520]`)
@@ -119,6 +127,33 @@ full screen or turned the phone), always keeping the rope on it, which shows up 
 event with the new `box`. The simulation keeps the rope inside the table at all times.
 
 Training on the data (for example with ACT) is not part of this folder.
+
+## Simulation
+
+The rope (in `assets/js/assistdlo-game.js`) is simulated with position-based dynamics (PBD) in 3D:
+a chain of nodes one rope radius apart, moved by Verlet integration under gravity, at 3 substeps
+per frame with 6 solver passes each. In every pass:
+
+- **links** keep neighbouring nodes one radius apart; a hard limit between nodes i and i+2 stops
+  kinks, and the bending stiffness pulls those towards straight;
+- **tether** (long-range attachments): while the gripper holds node k, no node i may be farther
+  from k than the rope between them is long, so pulling drags the rope instead of stretching it;
+- **self-collision**: spheres of the rope's radius on every node push apart (found through a grid),
+  then the links are solved again so that a tight knot does not stretch the rope;
+- **gripper**: the held node follows the gripper; the finger pads push other strands aside;
+- **crossing guard** (last pass of each substep): wherever two segments cross in the table plan,
+  the upper one is kept at least 0.9 rope thicknesses above the lower one, on the side it is on,
+  so strands can press together but never swap over and under;
+- **table**: nodes stay above it and inside the table; resting nodes are heavier and lose half
+  their speed per substep (friction).
+
+With the tether and the guard, pulling knots tight in tests (all knots, thicknesses and stiffnesses,
+pulled by an end or the middle, and random fast drags) gives no strands passing through each other,
+and links stretch at most about 2× in the tightest knots.
+
+The gripper is not a rigid body in the simulation: it moves at most 330 units/s sideways and
+240 units/s up and down, closes on the rope node between its jaws, and the held node then follows
+it exactly. With SA-CBF it is sent to the chosen rope point instead of the pressed point.
 
 ## Recording format (`knot-lab/2`)
 

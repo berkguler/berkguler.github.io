@@ -635,13 +635,13 @@ html.game-full, html.game-full body { overflow: hidden; }
   position: fixed; inset: 0; z-index: 1000; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none;
   background: #f7f7f5;
 }
-.dlo-game.is-full .game-stage { position: absolute; inset: var(--coach-h, 0px) 0 0; border-radius: 0; box-shadow: none; outline: none; }
+.dlo-game.is-full .game-stage { position: absolute; inset: 0; border-radius: 0; box-shadow: none; outline: none; }
 .dlo-game.is-full .game-svg { width: 100%; height: 100%; }
 .dlo-game.is-full .game-hud, .dlo-game.is-full .game-status {
   background: rgba(255, 255, 255, .82); border-radius: 8px; box-shadow: 0 1px 3px rgba(39, 63, 79, .15); pointer-events: none;
 }
 .dlo-game.is-full .game-hud {
-  position: absolute; z-index: 2; top: calc(var(--coach-h, 0px) + 8px); left: max(8px, env(safe-area-inset-left));
+  position: absolute; z-index: 2; top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left));
   max-width: calc(100% - 16px); margin: 0; padding: 4px 10px;
 }
 .dlo-game.is-full .comanip-footer {
@@ -649,7 +649,7 @@ html.game-full, html.game-full body { overflow: hidden; }
   left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom));
 }
 .dlo-game.is-full .game-status { flex: 0 1 auto; min-width: 0; max-width: 560px; padding: 4px 10px; font-size: .8rem; }
-.dlo-game.is-full .game-status:empty, .dlo-game.is-full.is-tutorial .game-status { display: none; }
+.dlo-game.is-full .game-status:empty { display: none; }
 .dlo-game.is-full .comanip-footer .links { flex: none; flex-wrap: nowrap; pointer-events: auto; }
 .dlo-game.is-full .comanip-footer .btn { white-space: nowrap; }
 .dlo-game.is-full .comanip-controls, .dlo-game.is-full .comanip-note { display: none; }
@@ -661,22 +661,6 @@ html.game-full, html.game-full body { overflow: hidden; }
   .dlo-game.is-full .game-status { max-width: none; }
   .dlo-game.is-full .comanip-footer .links { flex-wrap: wrap; justify-content: flex-end; }
 }
-
-/* Tutorial: what to do next, above the table (on it in full screen). */
-.game-coach {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px;
-  margin: 0 0 10px; padding: 10px 12px; border-radius: 8px; background: var(--orange-soft); box-shadow: inset 3px 0 0 var(--orange);
-}
-.game-coach[hidden] { display: none; }
-.game-coach-text { flex: 1 1 260px; margin: 0; font-size: .9rem; font-weight: 500; color: var(--navy); }
-.game-coach-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.game-coach-actions .btn[hidden] { display: none; }
-.dlo-game.is-full .game-coach {
-  position: absolute; z-index: 3; top: 0; left: 0; right: 0; margin: 0; border-radius: 0; gap: 6px 14px; background: #fff1eb;
-  padding: max(6px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 6px max(12px, env(safe-area-inset-left));
-  box-shadow: inset 0 -3px 0 var(--orange);
-}
-.dlo-game.is-full .game-coach-text { font-size: .85rem; }
 
 /* ---------- Knot Lab ---------- */
 
