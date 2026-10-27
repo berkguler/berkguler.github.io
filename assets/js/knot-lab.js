@@ -143,10 +143,25 @@
       headers: headers,
       body: JSON.stringify(args)
     }).then(function (res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.json();
+      if (res.ok) return res.json();
+      // Keep the server's answer (PostgREST sends {code, message}) to say what went wrong.
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        var err = new Error('HTTP ' + res.status + (body.message ? ': ' + body.message : ''));
+        err.status = res.status;
+        err.code = body.code;
+        throw err;
+      });
     });
   };
+
+  // What to tell the player when a call failed; the details go to the console.
+  function problem(e) {
+    if (window.console) console.warn('Knot Lab server:', e);
+    if (!e || !e.status) return 'Could not reach the server. Check your connection and try again.';
+    if (e.code === 'PGRST202' || e.status === 404) return 'The game server is not set up yet (its database functions are missing).';
+    if (e.status === 401 || e.status === 403) return 'The game server did not accept this page\'s key.';
+    return 'The game server had a problem (' + e.message + ').';
+  }
 
   var ERRORS = {
     bad_username: 'Usernames are 3 to 20 letters, digits, - or _.',
@@ -350,9 +365,9 @@
       self.say(r.new ? 'Welcome, ' + r.username + '! Your name is saved with this PIN.' : 'Welcome back, ' + r.username + '.', 'ok');
       self.flush();
       self.highlight();
-    }).catch(function () {
+    }).catch(function (e) {
       btn.disabled = false;
-      self.say('Could not reach the server. Check your connection and try again.', 'bad');
+      self.say(problem(e), 'bad');
       if (quiet) self.signedOut();
     });
   };
@@ -411,9 +426,9 @@
         self.say(ERRORS[r.error] || 'This run could not be saved.', 'bad');
         if (r.error === 'wrong_pin' || r.error === 'bad_login' || r.error === 'locked') self.signedOut();
       }
-    }).catch(function () {
+    }).catch(function (e) {
       self.sending = false;
-      self.say('Could not save just now; your run is kept and will be sent again.', 'bad');
+      self.say(problem(e) + ' Your run is kept and will be sent again.', 'bad');
       setTimeout(function () { self.flush(); }, 15000);
     });
   };
@@ -439,8 +454,8 @@
         tr.appendChild(td); body.appendChild(tr);
       }
       self.highlight();
-    }).catch(function () {
-      self.q('[data-lab-count]').textContent = 'The leaderboard could not be loaded.';
+    }).catch(function (e) {
+      self.q('[data-lab-count]').textContent = 'The leaderboard could not be loaded. ' + problem(e);
     });
   };
 
