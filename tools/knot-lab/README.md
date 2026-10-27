@@ -136,8 +136,13 @@ The rope (in `assets/js/assistdlo-game.js`) is simulated with position-based dyn
 a chain of nodes one rope radius apart, moved by Verlet integration under gravity, at 3 substeps
 per frame with 6 solver passes each. In every pass:
 
-- **links** keep neighbouring nodes one radius apart; a hard limit between nodes i and i+2 stops
-  kinks, and the bending stiffness pulls those towards straight;
+- **links** keep neighbouring nodes one radius apart, and a hard limit between nodes i and i+2
+  stops kinks;
+- **bending**: each node is pulled toward the midpoint of the nodes 1, 2 and 4 places away on
+  either side (weights 1, ½, ¼), in the table plane, by the fraction `k = 0.03·s^1.75` per pass,
+  where `s` is the round's `stiffness` (0 limp to 1 stiff) and `k` its `stiff`. Dragging the
+  middle of a rope (thickness 14) then bends it about 50° per node when limp and 14° when stiff,
+  and a stiff, thick rope laid in a loop springs partly open;
 - **tether** (long-range attachments): while the gripper holds node k, no node i may be farther
   from k than the rope between them is long, so pulling drags the rope instead of stretching it;
 - **self-collision**: spheres of the rope's radius on every node push apart (found through a grid),
@@ -157,6 +162,19 @@ The gripper is not a rigid body in the simulation: it moves at most 330 units/s 
 240 units/s up and down, closes on the rope node between its jaws, and the held node then follows
 it exactly. With SA-CBF it is sent to the chosen rope point instead of the pressed point.
 
+### Simulation versions
+
+The physics has changed twice; mix runs from different versions only on purpose.
+
+| `sim` | in use | what changed |
+|---|---|---|
+| `pbd-3` | from this field's introduction | multi-scale bending (above), stiffness `k = 0.03·s^1.75` |
+| (none) | 2026-10-27, about 19:40 to the `pbd-3` release (UTC) | tether and crossing guard: no pass-through; bending only between nodes i and i+2, `k = 0.06·s²` |
+| (none) | before 2026-10-27 about 19:40 UTC | first version: pulled tight, the rope could stretch and strands could pass through each other |
+
+Runs without `sim` can be told apart by the row's `created_at` (allow a few minutes around the
+switch for browsers that still had the old script).
+
 ## Recording format (`knot-lab/2`)
 
 The `data` column is base64 of a gzip-compressed binary file (raw, not gzipped, if the browser
@@ -173,7 +191,7 @@ had no `CompressionStream`). All numbers are little-endian.
 | 4·4·T | float32 `hand`, row-major (T, 4) |
 | 2·3·n·K | int16 rope frames (K, n, 3) in 1/`res` units: the first frame as is, every other frame as the difference to the frame before it |
 
-Header fields: `format`, `rate` (Hz), `res` (rope positions are stored in 1/`res` units),
+Header fields: `format`, `sim` (simulation version, below), `rate` (Hz), `res` (rope positions are stored in 1/`res` units),
 `table` (`[x0, y0, x1, y1]`), `n` (rope nodes), `samples` (T), `ropeFrames` (the sample indices of the K stored rope
 frames), `round`, `params`, `events`, `result`, `device` (`mouse`, `touch` or `pen`).
 
