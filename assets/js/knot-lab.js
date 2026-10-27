@@ -36,7 +36,7 @@
   }
 
   Recorder.prototype.reset = function () {
-    this.t = []; this.grip = []; this.hand = []; this.rope = []; this.events = [];
+    this.t = []; this.grip = []; this.hand = []; this.rope = []; this.events = []; this.table = null;
     this.next = 0;
     this.device = 'mouse';
   };
@@ -44,6 +44,7 @@
   // One sample of the whole scene at game time t.
   Recorder.prototype.sample = function (t) {
     var g = this.game, s = g.sim, gr = g.g, n = s.n, r = new Int16Array(3 * n);
+    if (!this.table) this.table = s.p.box.slice();   // the table when recording starts
     for (var i = 0; i < n; i++) {
       r[3 * i] = Math.round(s.x[i] * RES);
       r[3 * i + 1] = Math.round(s.y[i] * RES);
@@ -70,6 +71,7 @@
     var e = { t: +g.t.toFixed(3), type: d.type };
     ['x', 'y'].forEach(function (k) { if (d[k] != null) e[k] = +d[k].toFixed(2); });
     if (d.node != null) e.node = d.node;
+    if (d.box) e.box = d.box;   // 'table': the table changed size (screen turned, full screen)
     this.events.push(e);
   };
 
@@ -80,7 +82,7 @@
     for (var k = 0; k < T; k += every) keep.push(k);
     if (keep[keep.length - 1] !== T - 1) keep.push(T - 1);
     var header = {
-      format: 'knot-lab/1', rate: RATE, res: RES, table: [640, 400], n: n, samples: T, ropeFrames: keep,
+      format: 'knot-lab/2', rate: RATE, res: RES, table: this.table, n: n, samples: T, ropeFrames: keep,
       round: g.round, params: g.sim.p, events: this.events, result: result, device: this.device
     };
     var json = new TextEncoder().encode(JSON.stringify(header));
@@ -275,6 +277,8 @@
       this.q('[data-lab-offline]').hidden = false;
       this.q('[data-lab-board-wrap]').hidden = true;
     }
+    // First visit: start with the tutorial (it can be played before signing in).
+    if (!this.game.tutorialSeen()) this.game.startTutorial();
   }
 
   Lab.prototype.q = function (s) { return this.root.querySelector(s); };
@@ -283,10 +287,12 @@
     var self = this;
     var next = gameRoot.querySelector('[data-new]');
     var label = function (text) { next.lastChild.textContent = text; };
+    // The tutorial's practice knot is not recorded.
+    var practice = function () { return self.game.round && self.game.round.tutorial; };
     gameRoot.addEventListener('knot:new', function (ev) { self.rec.reset(); self.showRound(ev.detail.round); label('Skip knot'); });
-    gameRoot.addEventListener('knot:frame', function (ev) { self.rec.frame(ev.detail.t); });
-    gameRoot.addEventListener('knot:action', function (ev) { self.rec.action(ev.detail); });
-    gameRoot.addEventListener('knot:finish', function (ev) { label('Next knot'); self.finished(ev.detail); });
+    gameRoot.addEventListener('knot:frame', function (ev) { if (!practice()) self.rec.frame(ev.detail.t); });
+    gameRoot.addEventListener('knot:action', function (ev) { if (!practice()) self.rec.action(ev.detail); });
+    gameRoot.addEventListener('knot:finish', function (ev) { if (!practice()) { label('Next knot'); self.finished(ev.detail); } });
     gameRoot.addEventListener('pointerdown', function (ev) { self.rec.device = ev.pointerType || 'mouse'; }, true);
     // Signed out and playing in full screen: back to the page to sign in.
     gameRoot.addEventListener('knot:locked', function () {
@@ -327,6 +333,7 @@
 
   Lab.prototype.showRound = function (r) {
     if (!r) return;
+    if (r.tutorial) { this.q('[data-lab-round]').textContent = 'practice knot (tutorial, not recorded)'; return; }
     var stiff = r.stiffness < 0.05 ? 'limp' : r.stiffness < 0.35 ? 'soft' : r.stiffness < 0.7 ? 'medium' : 'stiff';
     this.q('[data-lab-round]').textContent = r.name + ' · ' + r.crossings + ' crossings · ' + stiff + ' · ' + (2 * r.rad) + ' mm';
   };
@@ -383,7 +390,7 @@
       var r = d.round;
       var meta = {
         knot: r.knot, crossings: r.crossings, seconds: result.seconds, grasps: d.grasps, misses: d.misses, hints: d.hints,
-        format: 'knot-lab/1', rate: RATE, ropeEvery: enc.every, n: self.game.sim.n, samples: rec.t.length,
+        format: 'knot-lab/2', rate: RATE, ropeEvery: enc.every, n: self.game.sim.n, samples: rec.t.length,
         rad: r.rad, stiffness: +r.stiffness.toFixed(3), device: rec.device, bytes: enc.data.length
       };
       self.queue({ meta: meta, data: enc.data });
