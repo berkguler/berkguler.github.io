@@ -398,16 +398,17 @@
 
   // Prime knots from the Rolfsen table as closed braids (braid words as in
   // KnotInfo: generator i crosses strands i and i+1, its sign says which is
-  // on top). The overhand knot (3_1) keeps its familiar drawing.
+  // on top). The overhand knot (3_1) keeps its familiar drawing. det is the
+  // knot determinant from the table, weight how often the Knot Lab deals it.
   var KNOTS = {
-    '3_1': { name: '3₁ overhand' },
-    '4_1': { name: '4₁ figure-eight', word: [1, -2, 1, -2], strands: 3 },
-    '5_1': { name: '5₁ cinquefoil', word: [1, 1, 1, 1, 1], strands: 2 },
-    '5_2': { name: '5₂ three-twist', word: [1, 1, 1, 2, -1, 2], strands: 3 },
-    '6_1': { name: '6₁ stevedore', word: [1, 1, 2, -1, -3, 2, -3], strands: 4 },
-    '6_2': { name: '6₂', word: [1, 1, 1, -2, 1, -2], strands: 3 },
-    '6_3': { name: '6₃', word: [1, 1, -2, 1, -2, -2], strands: 3 },
-    '7_1': { name: '7₁ septafoil', word: [1, 1, 1, 1, 1, 1, 1], strands: 2 }
+    '3_1': { name: '3₁ overhand', det: 3, weight: 30 },
+    '4_1': { name: '4₁ figure-eight', word: [1, -2, 1, -2], strands: 3, det: 5, weight: 15 },
+    '5_1': { name: '5₁ cinquefoil', word: [1, 1, 1, 1, 1], strands: 2, det: 5, weight: 15 },
+    '5_2': { name: '5₂ three-twist', word: [1, 1, 1, 2, -1, 2], strands: 3, det: 7, weight: 12 },
+    '6_1': { name: '6₁ stevedore', word: [1, 1, 2, -1, -3, 2, -3], strands: 4, det: 9, weight: 4 },
+    '6_2': { name: '6₂', word: [1, 1, 1, -2, 1, -2], strands: 3, det: 11, weight: 8 },
+    '6_3': { name: '6₃', word: [1, 1, -2, 1, -2, -2], strands: 3, det: 13, weight: 8 },
+    '7_1': { name: '7₁ septafoil', word: [1, 1, 1, 1, 1, 1, 1], strands: 2, det: 7, weight: 8 }
   };
 
   // Points [x, y(, h)] every `step` px along a polyline.
@@ -474,11 +475,16 @@
     return pts.slice(Math.max(0, lo - TAIL), Math.min(pts.length, hi + TAIL + 1));
   }
 
-  // The rope for a knot from KNOTS, centred on the table, optionally mirrored.
-  function knotPoints(R, id, p, mirror, flip) {
+  // The rope for a knot from KNOTS, centred on the table, optionally mirrored
+  // and turned by rot (radians).
+  function knotPoints(R, id, p, mirror, flip, rot) {
     var K = KNOTS[id];
     var pts = K.word ? braidRope(K.word, K.strands, p) : overhandRope(R, p);
     if (flip && K.word) pts = pts.map(function (q) { return [q[0], q[1], -q[2]]; });
+    if (rot) {
+      var c = Math.cos(rot), sn = Math.sin(rot);
+      pts = pts.map(function (q) { var r = [q[0] * c - q[1] * sn, q[0] * sn + q[1] * c]; if (q.length > 2) r.push(q[2]); return r; });
+    }
     var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
     pts.forEach(function (q) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
     var dx = W / 2 - (x0 + x1) / 2, dy = (H - 4) / 2 - (y0 + y1) / 2;
@@ -487,6 +493,35 @@
       if (q.length > 2) out.push(q[2]);
       return out;
     });
+  }
+
+  // Crossings in the drawing of a knot: the braid word's length, 3 for the overhand.
+  function drawnCrossings(id) { return KNOTS[id].word ? KNOTS[id].word.length : 3; }
+
+  // Build a rope for the given settings and check it before anyone sees it:
+  // it lies on the table, strands keep their distance, it has the drawing's
+  // crossings and the knot's determinant, and still has both after settling.
+  // Returns {sim, ...checks} or null when a check fails.
+  function verifiedRope(R, id, p, mirror, flip, rot) {
+    var pts = knotPoints(R, id, p, mirror, flip, rot), r = p.rad;
+    for (var i = 0; i < pts.length; i++) {
+      if (pts[i][0] < r + 2 || pts[i][0] > W - r - 2 || pts[i][1] < r + 2 || pts[i][1] > H - r - 2) return null;
+    }
+    var sim = new Sim(pts, p, flip), want = drawnCrossings(id), det = KNOTS[id].det;
+    var check = function () {
+      return sim.crossingCount() === want && knotDeterminant(sim.x, sim.y, sim.z, sim.n) === det;
+    };
+    if (!check()) return null;
+    var minSep = Infinity;
+    for (var a = 0; a < sim.n; a++) {
+      for (var b = a + 3; b < sim.n; b++) {
+        minSep = Math.min(minSep, Math.hypot(sim.x[a] - sim.x[b], sim.y[a] - sim.y[b], sim.z[a] - sim.z[b]));
+      }
+    }
+    if (minSep < 1.8 * r) return null;
+    for (var f = 0; f < 30; f++) sim.step(1 / 60, null);
+    if (!check()) return null;
+    return { sim: sim, crossings: want, det: det, minSep: minSep / (2 * r) };
   }
 
   // ---------- page widget ----------
@@ -510,6 +545,7 @@
     this.knot = '3_1';
     this.rad = 7;
     this.stiffness = 0.2;   // slider position, 0..1
+    this.lab = root.hasAttribute('data-lab');   // Knot Lab: every round is shuffled and recorded
     this.visible = false;
     this.build();
     this.bind();
@@ -517,6 +553,12 @@
   }
 
   Game.prototype.q = function (s) { return this.root.querySelector(s); };
+
+  // Tell listeners (the Knot Lab recorder) what happens: 'new', 'frame',
+  // 'action' and 'finish', as knot:* events on the game's root element.
+  Game.prototype.emit = function (type, detail) {
+    this.root.dispatchEvent(new CustomEvent('knot:' + type, { detail: detail || {} }));
+  };
 
   Game.prototype.build = function () {
     var svg = this.svg;
@@ -563,8 +605,20 @@
       self.press();
       ev.preventDefault();
     });
+    // On phones a long press would start text selection, the loupe or a callout.
+    stage.addEventListener('touchstart', function (ev) { ev.preventDefault(); }, { passive: false });
+    ['selectstart', 'contextmenu'].forEach(function (t) {
+      self.root.addEventListener(t, function (ev) {
+        var el = ev.target.nodeType === 3 ? ev.target.parentNode : ev.target;
+        if (!el.closest('input, select, textarea')) ev.preventDefault();
+      });
+    });
     ['pointerup', 'pointercancel'].forEach(function (t) {
-      stage.addEventListener(t, function () { self.held = false; self.wake(); });
+      stage.addEventListener(t, function () {
+        if (self.held) self.emit('action', { type: 'up', x: self.ptr[0], y: self.ptr[1] });
+        self.held = false;
+        self.wake();
+      });
     });
     // Keyboard: arrows move the hand, Space or Enter holds the grasp.
     stage.addEventListener('keydown', function (ev) {
@@ -582,7 +636,10 @@
       }
     });
     stage.addEventListener('keyup', function (ev) {
-      if (ev.key === ' ' || ev.key === 'Enter') { self.held = false; self.wake(); }
+      if (ev.key !== ' ' && ev.key !== 'Enter') return;
+      if (self.held) self.emit('action', { type: 'up', x: self.ptr[0], y: self.ptr[1] });
+      self.held = false;
+      self.wake();
     });
 
     this.root.addEventListener('click', function (ev) {
@@ -590,6 +647,7 @@
       if (!b) return;
       if (b.hasAttribute('data-new')) self.newKnot();
       if (b.hasAttribute('data-hint')) self.showHint();
+      if (b.hasAttribute('data-full')) self.toggleFull(!self.full);
       if (b.hasAttribute('data-assist')) {
         self.assist = b.getAttribute('data-assist') === 'cbf';
         self.root.querySelectorAll('[data-assist]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
@@ -610,6 +668,17 @@
       thick.addEventListener('change', function () { self.rad = +thick.value; self.newKnot(); });
     }
 
+    // Leaving the browser's full screen (Esc, back gesture) leaves ours too.
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (t) {
+      document.addEventListener(t, function () {
+        if (self.fsApi && !(document.fullscreenElement || document.webkitFullscreenElement)) { self.fsApi = false; self.toggleFull(false); }
+        self.fit();
+      });
+    });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && self.full) self.toggleFull(false); });
+    if ('ResizeObserver' in window) new ResizeObserver(function () { self.fit(); }).observe(stage);
+    else window.addEventListener('resize', function () { self.fit(); });
+
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
         self.visible = entries[0].isIntersecting;
@@ -628,10 +697,44 @@
     if (this.out.thick) this.out.thick.textContent = 2 * this.rad + ' mm';
   };
 
+  // A random knot (by weight), thickness, stiffness, mirror image and turn.
+  Game.prototype.shuffle = function () {
+    var ids = Object.keys(KNOTS), total = 0, pick = Math.random();
+    ids.forEach(function (id) { total += KNOTS[id].weight; });
+    for (var i = 0, acc = 0; i < ids.length; i++) {
+      acc += KNOTS[ids[i]].weight / total;
+      if (pick < acc || i === ids.length - 1) { this.knot = ids[i]; break; }
+    }
+    this.rad = 5 + Math.floor(Math.random() * 5);
+    this.stiffness = Math.random();
+  };
+
   Game.prototype.newKnot = function () {
-    var R = window.RopeDraw, p = ropeParams(this.rad, this.stiffValue());
-    var mirror = Math.random() < 0.5, flip = Math.random() < 0.5;
-    this.sim = new Sim(knotPoints(R, this.knot, p, mirror, flip), p, flip);
+    var R = window.RopeDraw, made = null, tries = 0;
+    // Shuffle (in the Knot Lab) and build until a rope passes every check.
+    while (!made && tries < 25) {
+      if (this.lab && tries % 5 === 0) this.shuffle();
+      tries++;
+      var p = ropeParams(this.rad, this.stiffValue());
+      var mirror = Math.random() < 0.5, flip = Math.random() < 0.5;
+      var rot = this.lab ? Math.random() * 2 * Math.PI : 0;
+      made = verifiedRope(R, this.knot, p, mirror, flip, rot);
+    }
+    if (!made) {   // never seen in testing; fall back to the plain overhand knot
+      this.knot = '3_1';
+      p = ropeParams(this.rad, this.stiffValue());
+      mirror = flip = false; rot = 0;
+      made = { sim: new Sim(knotPoints(R, '3_1', p, false, false, 0), p, false), crossings: 3, det: 3, minSep: 1 };
+    }
+    this.sim = made.sim;
+    this.round = {
+      knot: this.knot, name: KNOTS[this.knot].name, rad: this.rad, stiffness: this.stiffness, stiff: p.stiff,
+      mirror: mirror, flip: flip, rot: rot, crossings: made.crossings, det: made.det, minSep: made.minSep, tries: tries
+    };
+    var thick = this.q('[data-thick]'), stiffInput = this.q('[data-stiff]'), knotInput = this.q('[data-knot]');
+    if (thick) thick.value = this.rad;
+    if (stiffInput) stiffInput.value = Math.round(this.stiffness * 100);
+    if (knotInput) knotInput.value = this.knot;
     // The renderer has one shape per rope segment, so every rope gets its own.
     this.ropeSlot.textContent = '';
     this.rope = new R.Rope(this.ropeSlot, { width: 2 * p.rad });
@@ -645,16 +748,19 @@
     this.t = 0;
     this.grasps = 0;
     this.misses = 0;
+    this.hints = 0;
     this.flashT = 0;
     this.solvedFor = 0;
     this.hinted = null;
     this.planning = null;
     this.nCross = this.sim.crossingCount();
-    this.timeLimit = Math.max(180, 60 * this.nCross);
+    // Knot Lab keeps going until the knot is untied (up to the 15 minutes the server accepts).
+    this.timeLimit = this.lab ? 900 : Math.max(180, 60 * this.nCross);
     this.tied = true;
     this.showSettings();
     this.status('Untie the ' + KNOTS[this.knot].name + ' knot: click a strand to grasp it, drag to move it, release to put it down.');
     this.render();
+    this.emit('new', { round: this.round });
     this.wake();
   };
 
@@ -669,6 +775,54 @@
     this.flash.textContent = text;
     this.flash.setAttribute('fill', color);
     this.flashT = 1.4;
+  };
+
+  // Full screen: the game covers the window (that alone works on iPhones,
+  // which have no full screen for page elements), and where the browser
+  // allows it, it also goes full screen and, on phones, turns to landscape.
+  Game.prototype.toggleFull = function (on) {
+    if (!on === !this.full) return;
+    var root = this.root, doc = document, self = this;
+    this.full = on;
+    root.classList.toggle('is-full', on);
+    doc.documentElement.classList.toggle('game-full', on);
+    var b = this.q('[data-full]');
+    if (b) {
+      var label = on ? 'Exit full screen' : 'Full screen';
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('aria-label', label);
+      b.title = label;
+      b.querySelector('i').className = 'fa-solid ' + (on ? 'fa-compress' : 'fa-expand');
+    }
+    var req = root.requestFullscreen || root.webkitRequestFullscreen;
+    var current = doc.fullscreenElement || doc.webkitFullscreenElement;
+    if (on && req && !current) {
+      try {
+        var pr = req.call(root, { navigationUI: 'hide' });
+        var turn = function () {
+          self.fsApi = true;
+          var o = screen.orientation;
+          if (o && o.lock && window.matchMedia('(pointer: coarse)').matches) o.lock('landscape').catch(function () {});
+        };
+        if (pr && pr.then) pr.then(turn, function () {}); else turn();
+      } catch (e) { /* the window-filling layout is enough */ }
+    } else if (!on && current) {
+      this.fsApi = false;
+      var exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      try { var px = exit.call(doc); if (px && px.catch) px.catch(function () {}); } catch (e) { /* already out */ }
+    }
+    this.fit();
+    if (on) this.stage.focus({ preventScroll: true });
+    this.wake();
+  };
+
+  // In full screen the table takes the largest 16:10 box the stage leaves.
+  Game.prototype.fit = function () {
+    var st = this.svg.style;
+    if (!this.full) { st.width = st.height = ''; return; }
+    var w = Math.min(this.stage.clientWidth, this.stage.clientHeight * W / H);
+    st.width = Math.floor(w) + 'px';
+    st.height = Math.floor(w * H / W) + 'px';
   };
 
   // The hint tries candidate moves on copies of the rope, a few per frame so
@@ -691,6 +845,8 @@
       if (i < moves.length) { setTimeout(chunk, 0); return; }
       self.planning = null;
       self.hinted = best;
+      self.hints++;
+      self.emit('action', { type: 'hint', node: best.k, x: best.x, y: best.y });
       var gain = self.nCross - best.crossings;
       self.status(gain > 0
         ? 'Hint: grab the rope at the dashed ring and drag it to the orange ring. That should remove ' + gain + (gain === 1 ? ' crossing.' : ' crossings.')
@@ -704,6 +860,7 @@
   // Hand pressed: send the gripper to that point (with SA-CBF, to the rope
   // point nearest to it).
   Game.prototype.press = function () {
+    if (this.locked) { this.flashText(this.locked, C.navy); this.emit('locked'); this.wake(); return; }   // e.g. Knot Lab before signing in
     this.held = true;
     this.wake();
     if (this.finished || (this.phase !== 'idle' && this.phase !== 'lift')) return;
@@ -712,6 +869,7 @@
       node = this.sim.pick(this.ptr[0], this.ptr[1], this.sim.p.funnel);
       if (node < 0) {
         this.flashText('Barrier: no rope here, the gripper stays up', C.navy);
+        this.emit('action', { type: 'blocked', x: this.ptr[0], y: this.ptr[1] });
         return;
       }
     }
@@ -719,6 +877,7 @@
     this.hinted = null;
     this.planning = null;
     this.target = { node: node, x: this.ptr[0], y: this.ptr[1] };
+    this.emit('action', { type: 'press', x: this.ptr[0], y: this.ptr[1], node: node });
     // Like an operator would, turn the jaws across the strand below.
     var below = node >= 0 ? node : this.sim.pick(this.target.x, this.target.y, 30);
     if (below >= 0) this.g.yaw = this.tangentAngle(below);
@@ -791,6 +950,7 @@
 
     this.nCross = s.crossingCount();
     this.tied = this.nCross > 0;
+    if (this.running) this.emit('frame', { t: this.t, dt: dt });
     if (this.running) {
       if (!this.tied && s.grab < 0) this.solvedFor += dt; else this.solvedFor = 0;
       if (this.solvedFor > 0.5) this.finish(true);
@@ -820,9 +980,11 @@
       this.misses++;
       this.flashText('Missed: click right on the rope', '#b4451f');
       this.phase = 'lift';
+      this.emit('action', { type: 'miss', x: g.x, y: g.y });
       return;
     }
     this.grasps++;
+    this.emit('action', { type: 'grasp', node: best, x: s.x[best], y: s.y[best] });
     s.grab = best;
     g.open = false;
     g.x = s.x[best]; g.y = s.y[best];
@@ -831,6 +993,7 @@
   };
 
   Game.prototype.release = function () {
+    this.emit('action', { type: 'release', node: this.sim.grab, x: this.g.x, y: this.g.y });
     this.sim.grab = -1;
     this.g.open = true;
     this.phase = 'lift';
@@ -841,6 +1004,7 @@
     this.finished = true;
     this.hinted = null;
     if (this.sim.grab >= 0) this.release();
+    this.emit('finish', { ok: ok, t: this.t, grasps: this.grasps, misses: this.misses, hints: this.hints, round: this.round, timeLimit: this.timeLimit });
     if (ok) {
       var key = this.knot + (this.assist ? ' cbf' : '');
       this.runs.push({ t: this.t, key: key });
@@ -849,9 +1013,9 @@
       var count = function (k, word) { return k + ' ' + word + (k === 1 ? '' : word.slice(-1) === 's' ? 'es' : 's'); };
       this.status('Untied the ' + KNOTS[this.knot].name + ' in ' + this.t.toFixed(1) + ' s' + (this.assist ? ' with SA-CBF' : '') + ', ' +
         count(this.grasps, 'grasp') + ' and ' + count(this.misses, 'miss') + (mine.length > 1 ? ' (your best here: ' + best.toFixed(1) + ' s)' : '') +
-        '. Press New knot, or pick a harder knot.');
+        (this.lab ? '. Press Next knot for another one.' : '. Press New knot, or pick a harder knot.'));
     } else {
-      this.status('Time is up. Press New knot to try again, or use the hint.');
+      this.status(this.lab ? 'Time is up. Press Next knot for another one.' : 'Time is up. Press New knot to try again, or use the hint.');
     }
     this.flashText(ok ? 'Untied!' : 'Time is up', ok ? '#2f7d4f' : '#b4451f');
   };
@@ -932,5 +1096,5 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
   }
-  if (typeof module !== 'undefined') module.exports = { Sim: Sim, crossings: crossings, knotPoints: knotPoints, knotDeterminant: knotDeterminant, ropeParams: ropeParams, KNOTS: KNOTS };
+  if (typeof module !== 'undefined') module.exports = { Sim: Sim, crossings: crossings, knotPoints: knotPoints, knotDeterminant: knotDeterminant, ropeParams: ropeParams, verifiedRope: verifiedRope, KNOTS: KNOTS };
 })();

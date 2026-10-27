@@ -1,0 +1,84 @@
+---
+layout: default
+title: Knot Lab
+permalink: /knot/
+body_class: no-select
+description: Untie shuffled knots in a rope simulation, climb the leaderboard, and help collect data for research on robot rope manipulation.
+---
+<section class="section knot-lab-page">
+  <div class="container container--narrow">
+    <h1 class="section-title">Knot Lab</h1>
+    <p class="section-lead">
+      Untie as many knots as you can. Every round deals a new knot from the
+      <a href="https://katlas.org/wiki/The_Rolfsen_Knot_Table">Rolfsen table</a>, with its own
+      stiffness and thickness. Click a strand to grasp it, drag to move it, release to put it down;
+      a knot counts as untied when the rope no longer crosses itself.
+    </p>
+
+    <div class="lab" data-knot-lab data-supabase-url="{{ site.knot_lab.supabase_url }}" data-supabase-key="{{ site.knot_lab.supabase_anon_key }}" data-music-video="{{ site.knot_lab.music_youtube_id }}">
+      <div class="lab-top">
+        <form class="lab-login" data-lab-login autocomplete="on">
+          <label>
+            <span class="ctl-label">Username</span>
+            <input type="text" name="username" data-lab-user required minlength="3" maxlength="20" pattern="[A-Za-z0-9_\-]{3,20}" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="e.g. rope_master" />
+          </label>
+          <label>
+            <span class="ctl-label">4-digit PIN</span>
+            <input type="password" name="pin" data-lab-pin required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="current-password" placeholder="••••" />
+          </label>
+          <button type="submit" class="btn btn--solid"><i class="fa-solid fa-play" aria-hidden="true"></i>Start playing</button>
+          <p class="lab-hint">New here? Pick any free name and a PIN; that claims the name. No email needed.</p>
+        </form>
+        <div class="lab-who" data-lab-who hidden>
+          <span>Playing as <b data-lab-name></b></span>
+          <button type="button" class="btn btn--sm" data-lab-logout><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>Switch player</button>
+        </div>
+        <p class="lab-offline" data-lab-offline hidden>
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          Saving runs and the leaderboard are not switched on yet. You can still play.
+        </p>
+        <p class="lab-msg" data-lab-msg aria-live="polite"></p>
+      </div>
+
+      <p class="lab-round"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> This round: <b data-lab-round></b></p>
+      {% include knot_lab_game.html %}
+
+      <div class="lab-music" data-lab-music hidden>
+        <div class="lab-music-frame"><div data-lab-music-player></div></div>
+        <p class="lab-music-note">
+          <i class="fa-solid fa-music" aria-hidden="true"></i>
+          Music while you play. Switch it off with the <i class="fa-solid fa-volume-high" aria-label="speaker"></i> button under the game.
+        </p>
+      </div>
+
+      <div class="lab-board-wrap" data-lab-board-wrap>
+        <h2 class="lab-h2"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Leaderboard</h2>
+        <p class="lab-count" data-lab-count>Loading…</p>
+        <div class="table-wrap">
+          <table class="game-results lab-board" data-lab-board>
+            <thead><tr><th scope="col">#</th><th scope="col">Player</th><th scope="col">Points</th><th scope="col">Untied</th><th scope="col">Hardest</th><th scope="col">Best time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="lab-rules">
+          Points per untied knot: 10 for every crossing it started with, up to as many again for
+          speed, and half of that if you used a hint. "Hardest" is the most crossings you have untied.
+        </p>
+      </div>
+
+      <p class="lab-consent">
+        <i class="fa-solid fa-flask" aria-hidden="true"></i>
+        <strong>What is recorded.</strong> Your username is shown on the public leaderboard, so pick one
+        that is not your real name if you prefer. When you untie a knot, the run is saved with your username:
+        the rope's shape over time, where you pointed and grasped, the gripper's motion, the hints
+        you used and the timing. Runs you do not finish are not kept. Nothing else is collected (no
+        email, no name, no location). The runs are used for research on robot rope manipulation,
+        for example to train imitation-learning models, and may be shared in anonymised form.
+        The background music is streamed from YouTube once you start; while it is switched off,
+        nothing is loaded from YouTube.
+      </p>
+    </div>
+  </div>
+</section>
+<script src="{{- '/assets/js/assistdlo-game.js' | relative_url -}}" defer></script>
+<script src="{{- '/assets/js/knot-lab.js' | relative_url -}}" defer></script>

@@ -46,8 +46,10 @@
     <div class="links">
       <button type="button" class="btn" data-hint><i class="fa-solid fa-lightbulb" aria-hidden="true"></i>Hint</button>
       <button type="button" class="btn" data-new><i class="fa-solid fa-shuffle" aria-hidden="true"></i>New knot</button>
+      <button type="button" class="btn btn--icon" data-full aria-pressed="false" aria-label="Full screen" title="Full screen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
     </div>
   </div>
+  <p class="game-rotate"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Turn your phone sideways for a bigger table.</p>
 
   <p class="comanip-note">
     <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
@@ -60,6 +62,11 @@
     form: a barrier keeps the gripper above the rope except in funnels (blue) around rope points,
     so a click near the rope is guided onto the nearest point, the upper strand at a crossing, and
     a click away from the rope does not make the gripper descend.
+  </p>
+  <p class="comanip-note comanip-note--more">
+    <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+    Want more? The <a href="{{- '/knot/' | relative_url -}}">Knot Lab</a> deals a new shuffled knot every
+    round and keeps a leaderboard.
   </p>
 </div>
 <script src="{{- '/assets/js/assistdlo-game.js' | relative_url -}}" defer></script>

@@ -1,0 +1,23 @@
+{%- comment -%} The knot game in Knot Lab mode: shuffled rounds, recorded by assets/js/knot-lab.js. {%- endcomment -%}
+<div class="comanip dlo-game" data-dlo-game data-lab>
+  <div class="game-hud" aria-live="off">
+    <span>Knot <b data-out="knot">tied</b></span>
+    <span>Crossings <b data-out="cross">3</b></span>
+    <span>Grasps <b data-out="grasps">0</b></span>
+    <span>Misses <b data-out="misses">0</b></span>
+    <span>Time <b data-out="time">0.0 s</b></span>
+  </div>
+  <div class="comanip-stage game-stage" tabindex="0" aria-label="Knot-untangling game. Click or tap a strand to grasp it, drag to move it, release to put it down. With the keyboard, move the hand with the arrow keys and hold Space to grasp.">
+    <svg class="game-svg" viewBox="0 0 640 400" role="img" aria-hidden="true"></svg>
+  </div>
+  <div class="comanip-footer">
+    <p class="comanip-status game-status" aria-live="polite"></p>
+    <div class="links">
+      <button type="button" class="btn" data-hint><i class="fa-solid fa-lightbulb" aria-hidden="true"></i>Hint</button>
+      <button type="button" class="btn" data-new><i class="fa-solid fa-forward" aria-hidden="true"></i>Skip knot</button>
+      <button type="button" class="btn btn--icon" data-music aria-pressed="true" aria-label="Music" title="Mute music" hidden><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+      <button type="button" class="btn btn--icon" data-full aria-pressed="false" aria-label="Full screen" title="Full screen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <p class="game-rotate"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Turn your phone sideways for a bigger table.</p>
+</div>
