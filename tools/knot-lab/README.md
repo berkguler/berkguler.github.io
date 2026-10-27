@@ -141,7 +141,7 @@ per frame with 6 solver passes each. In every pass:
 - **bending**: each node is pulled toward the midpoint of the nodes 1, 2 and 4 places away on
   either side (weights 1, ½, ¼), in the table plane, by the fraction `k = 0.03·s^1.75` per pass,
   where `s` is the round's `stiffness` (0 limp to 1 stiff) and `k` its `stiff`. Dragging the
-  middle of a rope (thickness 14) then bends it about 50° per node when limp and 14° when stiff,
+  middle of a rope (thickness 14) then bends it about 56° per node when limp and 21° when stiff,
   and a stiff, thick rope laid in a loop springs partly open;
 - **tether** (long-range attachments): while the gripper holds node k, no node i may be farther
   from k than the rope between them is long, so pulling drags the rope instead of stretching it;
@@ -152,7 +152,11 @@ per frame with 6 solver passes each. In every pass:
   the upper one is kept at least 0.9 rope thicknesses above the lower one, on the side it is on,
   so strands can press together but never swap over and under;
 - **table**: nodes stay above it and inside the table; resting nodes are heavier and lose half
-  their speed per substep (friction).
+  their speed per substep (sliding friction);
+- **static friction** (end of each substep): a node lying on the table or on another strand that
+  moved less than 0.04 units in the substep is put back where it was. Without it, small steady
+  pushes (bending, strands settling on each other) made ropes nobody touched creep across the
+  table; with it, an untouched rope comes to rest at once, and real pulls are far stronger.
 
 With the tether and the guard, pulling knots tight in tests (all knots, thicknesses and stiffnesses,
 pulled by an end or the middle, and random fast drags) gives no strands passing through each other,
@@ -164,11 +168,12 @@ it exactly. With SA-CBF it is sent to the chosen rope point instead of the press
 
 ### Simulation versions
 
-The physics has changed twice; mix runs from different versions only on purpose.
+The physics has changed several times; mix runs from different versions only on purpose.
 
 | `sim` | in use | what changed |
 |---|---|---|
-| `pbd-3` | from this field's introduction | multi-scale bending (above), stiffness `k = 0.03·s^1.75` |
+| `pbd-4` | from the static-friction release | static friction (above): untouched ropes no longer creep |
+| `pbd-3` | 2026-10-27, about 20:25 UTC, to `pbd-4` | multi-scale bending (above), stiffness `k = 0.03·s^1.75`; untouched ropes crept (stiff ones by up to about 40 units in 10 s) |
 | (none) | 2026-10-27, about 19:40 to the `pbd-3` release (UTC) | tether and crossing guard: no pass-through; bending only between nodes i and i+2, `k = 0.06·s²` |
 | (none) | before 2026-10-27 about 19:40 UTC | first version: pulled tight, the rope could stretch and strands could pass through each other |
 

@@ -20,12 +20,13 @@
   'use strict';
 
   var W = 640, H = 400;
-  var SIM_VERSION = 'pbd-3';             // recorded with every run: pbd-3 = multi-scale bending
+  var SIM_VERSION = 'pbd-4';             // recorded with every run: pbd-4 = static friction (see README)
   var GRAV = 1800, SUB = 3, ITER = 6;    // px/s², substeps per frame, solver iterations
   var W_TABLE = 0.2;                     // rope resting on the table is harder to move (friction)
   var FINGER = 4;                        // finger pad radius (px)
   var Z_HOVER = 80;                      // gripper height while travelling (px above the table)
   var V_XY = 330, V_Z = 240;             // gripper speed limits (px/s)
+  var STICK = 0.04;                      // static friction: smallest move of a resting node per substep (px)
   var MAX_STIFF = 0.03;                  // bending stiffness (see solveBending) at the top of the slider
 
   // Everything that scales with the rope: rad is the radius in px, stiff the
@@ -206,6 +207,7 @@
         if (it === ITER - 1) this.solveCrossings();   // once per substep: motion within one is far too small to swap strands
         this.solveBounds();
       }
+      this.stick();
     }
   };
 
@@ -394,6 +396,19 @@
       if (this.z[i] < 0) this.z[i] = 0;
       this.x[i] = clamp(this.x[i], b[0] + r, b[2] - r);
       this.y[i] = clamp(this.y[i], b[1] + r, b[3] - r);
+    }
+  };
+
+  // Static friction: rope lying on the table (or on another strand) that moved
+  // less than STICK this substep stays where it was. Small steady pushes
+  // (bending, strands settling on each other) then cannot make a rope that
+  // nobody touches creep across the table; real pulls are far stronger.
+  Sim.prototype.stick = function () {
+    var x = this.x, y = this.y, z = this.z, px = this.px, py = this.py, high = 2.5 * this.p.rad, lim2 = STICK * STICK;
+    for (var i = 0; i < this.n; i++) {
+      if (i === this.grab || z[i] > high) continue;
+      var dx = x[i] - px[i], dy = y[i] - py[i];
+      if (dx * dx + dy * dy < lim2) { x[i] = px[i]; y[i] = py[i]; }
     }
   };
 
