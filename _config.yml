@@ -61,4 +61,6 @@ exclude:
 knot_lab:
   supabase_url: https://xbtazbhdspubgrlbdlmg.supabase.co
   supabase_anon_key: sb_publishable_cqpQ1MPq3ad-0TC6F8RFPg_xZNjiJOh
-  music_youtube_id: B63R7G8aFh4   # background music (a YouTube video id); empty for none
+  # Background music: YouTube video ids. Each visit picks one and starts at a random point; the
+  # shuffle button moves to another (or, with one, to another part of it). Empty list: no music.
+  music_youtube_ids: [B63R7G8aFh4]

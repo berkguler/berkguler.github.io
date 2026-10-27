@@ -179,19 +179,27 @@
 
   // ---------- music ----------
 
-  // Background music from a YouTube video, in a small player under the game
+  // Background music from YouTube, in a small player under the game
   // (YouTube's embedding rules ask for a visible player). Browsers only allow
-  // sound after the visitor has clicked or typed, so it starts then; the
-  // speaker button under the game turns it off and on, and the choice is kept.
+  // sound after the visitor has clicked or typed, so it starts then, at a
+  // random point (long mixes sound different on every visit). The speaker
+  // button turns it off and on (the choice is kept); the shuffle button
+  // changes the music: another of the videos, or another part of a long one.
   // Nothing is loaded from YouTube while the music is off.
   function Music(root, gameRoot) {
     var self = this;
-    this.id = root.getAttribute('data-music-video');
+    this.ids = root.getAttribute('data-music-video').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    this.track = Math.floor(Math.random() * this.ids.length);
     this.card = root.querySelector('[data-lab-music]');
     this.mount = root.querySelector('[data-lab-music-player]');
     this.button = gameRoot.querySelector('[data-music]');
+    this.shuffle = gameRoot.querySelector('[data-music-next]');
     this.on = get('localStorage', 'music') !== 'off';
     this.button.hidden = false;
+    if (this.shuffle) {
+      this.shuffle.hidden = false;
+      this.shuffle.addEventListener('click', function () { self.change(); });
+    }
     this.show();
     this.button.addEventListener('click', function () {
       self.on = !self.on;
@@ -200,7 +208,7 @@
       if (self.on) self.play(); else self.call('pauseVideo');
     });
     var first = function (ev) {
-      if (self.button.contains(ev.target)) return;   // the button's own click decides
+      if (self.button.contains(ev.target) || (self.shuffle && self.shuffle.contains(ev.target))) return;   // the buttons decide
       document.removeEventListener('pointerdown', first, true);
       document.removeEventListener('keydown', first, true);
       if (self.on) self.play();
@@ -225,6 +233,36 @@
     this.failed = true;
     this.card.hidden = true;
     this.button.hidden = true;
+    if (this.shuffle) this.shuffle.hidden = true;
+  };
+
+  // Somewhere random in the current video, away from where it is now. Until
+  // the video's length is known (it can be 0 before it plays), wait for it.
+  Music.prototype.jump = function () {
+    var p = this.player, d = 0, now = 0, t, tries = 0;
+    try { d = p.getDuration(); now = p.getCurrentTime(); } catch (e) { return; }
+    if (!(d > 0)) { this.landing = true; return; }
+    this.landing = false;
+    if (d < 120) return;   // a short piece plays from the start
+    // Not in the last few minutes, so it plays a while before looping.
+    do { t = Math.random() * (d - Math.min(300, d / 3)); } while (Math.abs(t - now) < Math.min(180, d / 4) && ++tries < 20);
+    p.seekTo(t, true);
+  };
+
+  // The shuffle button: another video if there are several, else another
+  // part of this one. It also turns the music on.
+  Music.prototype.change = function () {
+    if (this.failed) return;
+    if (!this.on) { this.on = true; put('localStorage', 'music', null); this.show(); }
+    if (!this.ready) { this.play(); return; }   // starts at a random point anyway
+    if (this.ids.length > 1) {
+      this.track = (this.track + 1 + Math.floor(Math.random() * (this.ids.length - 1))) % this.ids.length;
+      this.landing = true;
+      this.player.loadVideoById(this.ids[this.track]);   // jumps once its length is known
+    } else {
+      this.jump();
+      this.call('playVideo');
+    }
   };
 
   Music.prototype.play = function () {
@@ -235,11 +273,21 @@
     var make = function () {
       self.player = new window.YT.Player(self.mount, {
         host: 'https://www.youtube-nocookie.com',
-        videoId: self.id, width: 356, height: 200,
-        playerVars: { loop: 1, playlist: self.id, playsinline: 1, rel: 0 },
+        videoId: self.ids[self.track], width: 356, height: 200,
+        playerVars: { playsinline: 1, rel: 0 },
         events: {
-          onReady: function (e) { e.target.setVolume(35); if (self.on) e.target.playVideo(); },
-          onStateChange: function (e) { if (e.data === 0 && self.on) { e.target.seekTo(0); e.target.playVideo(); } },
+          onReady: function (e) {
+            self.ready = true;
+            e.target.setVolume(35);
+            self.jump();
+            if (self.on) e.target.playVideo();
+          },
+          onStateChange: function (e) {
+            if (e.data === 1 && self.landing) self.jump();   // playing: now the length is known
+            if (e.data === 0 && self.on) {   // ended: the next video, or this one again
+              if (self.ids.length > 1) self.change(); else { e.target.seekTo(0); e.target.playVideo(); }
+            }
+          },
           onError: function () { self.fail(); }   // e.g. the video does not allow embedding
         }
       });

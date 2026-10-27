@@ -44,9 +44,11 @@ playable but nothing is saved.
    is only for the export script below.
 4. Push. The page picks the settings up at the next GitHub Pages build.
 
-`knot_lab.music_youtube_id` in `_config.yml` sets the background music: the id of a YouTube video
-(the part after `youtu.be/`), played in a small player under the game, or empty for no music. The
-video must allow embedding; otherwise the player and the speaker button hide themselves.
+`knot_lab.music_youtube_ids` in `_config.yml` sets the background music: a list of YouTube video
+ids (the part after `youtu.be/`), played in a small player under the game, or an empty list for no
+music. Each visit picks one and starts at a random point; the shuffle button under the game moves
+to another video, or with a single video to another part of it. The videos must allow embedding;
+otherwise the player and the music buttons hide themselves.
 
 ### What the backend checks
 
