@@ -15,7 +15,7 @@ description: Untie shuffled knots in a rope simulation, climb the leaderboard, a
       a knot counts as untied when the rope no longer crosses itself.
     </p>
 
-    <div class="lab" data-knot-lab data-supabase-url="{{ site.knot_lab.supabase_url }}" data-supabase-key="{{ site.knot_lab.supabase_anon_key }}">
+    <div class="lab" data-knot-lab data-supabase-url="{{ site.knot_lab.supabase_url }}" data-supabase-key="{{ site.knot_lab.supabase_anon_key }}" data-music-video="{{ site.knot_lab.music_youtube_id }}">
       <div class="lab-top">
         <form class="lab-login" data-lab-login autocomplete="on">
           <label>
@@ -43,6 +43,14 @@ description: Untie shuffled knots in a rope simulation, climb the leaderboard, a
       <p class="lab-round"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> This round: <b data-lab-round></b></p>
       {% include knot_lab_game.html %}
 
+      <div class="lab-music" data-lab-music hidden>
+        <div class="lab-music-frame"><div data-lab-music-player></div></div>
+        <p class="lab-music-note">
+          <i class="fa-solid fa-music" aria-hidden="true"></i>
+          Music while you play. Switch it off with the <i class="fa-solid fa-volume-high" aria-label="speaker"></i> button under the game.
+        </p>
+      </div>
+
       <div class="lab-board-wrap" data-lab-board-wrap>
         <h2 class="lab-h2"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Leaderboard</h2>
         <p class="lab-count" data-lab-count>Loading…</p>
@@ -66,6 +74,8 @@ description: Untie shuffled knots in a rope simulation, climb the leaderboard, a
         you used and the timing. Runs you do not finish are not kept. Nothing else is collected (no
         email, no name, no location). The runs are used for research on robot rope manipulation,
         for example to train imitation-learning models, and may be shared in anonymised form.
+        The background music is streamed from YouTube once you start; while it is switched off,
+        nothing is loaded from YouTube.
       </p>
     </div>
   </div>

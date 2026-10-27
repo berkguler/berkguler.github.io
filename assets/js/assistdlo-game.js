@@ -647,6 +647,7 @@
       if (!b) return;
       if (b.hasAttribute('data-new')) self.newKnot();
       if (b.hasAttribute('data-hint')) self.showHint();
+      if (b.hasAttribute('data-full')) self.toggleFull(!self.full);
       if (b.hasAttribute('data-assist')) {
         self.assist = b.getAttribute('data-assist') === 'cbf';
         self.root.querySelectorAll('[data-assist]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
@@ -666,6 +667,17 @@
       thick.addEventListener('input', function () { self.rad = +thick.value; self.showSettings(); });
       thick.addEventListener('change', function () { self.rad = +thick.value; self.newKnot(); });
     }
+
+    // Leaving the browser's full screen (Esc, back gesture) leaves ours too.
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (t) {
+      document.addEventListener(t, function () {
+        if (self.fsApi && !(document.fullscreenElement || document.webkitFullscreenElement)) { self.fsApi = false; self.toggleFull(false); }
+        self.fit();
+      });
+    });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && self.full) self.toggleFull(false); });
+    if ('ResizeObserver' in window) new ResizeObserver(function () { self.fit(); }).observe(stage);
+    else window.addEventListener('resize', function () { self.fit(); });
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
@@ -765,6 +777,54 @@
     this.flashT = 1.4;
   };
 
+  // Full screen: the game covers the window (that alone works on iPhones,
+  // which have no full screen for page elements), and where the browser
+  // allows it, it also goes full screen and, on phones, turns to landscape.
+  Game.prototype.toggleFull = function (on) {
+    if (!on === !this.full) return;
+    var root = this.root, doc = document, self = this;
+    this.full = on;
+    root.classList.toggle('is-full', on);
+    doc.documentElement.classList.toggle('game-full', on);
+    var b = this.q('[data-full]');
+    if (b) {
+      var label = on ? 'Exit full screen' : 'Full screen';
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('aria-label', label);
+      b.title = label;
+      b.querySelector('i').className = 'fa-solid ' + (on ? 'fa-compress' : 'fa-expand');
+    }
+    var req = root.requestFullscreen || root.webkitRequestFullscreen;
+    var current = doc.fullscreenElement || doc.webkitFullscreenElement;
+    if (on && req && !current) {
+      try {
+        var pr = req.call(root, { navigationUI: 'hide' });
+        var turn = function () {
+          self.fsApi = true;
+          var o = screen.orientation;
+          if (o && o.lock && window.matchMedia('(pointer: coarse)').matches) o.lock('landscape').catch(function () {});
+        };
+        if (pr && pr.then) pr.then(turn, function () {}); else turn();
+      } catch (e) { /* the window-filling layout is enough */ }
+    } else if (!on && current) {
+      this.fsApi = false;
+      var exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      try { var px = exit.call(doc); if (px && px.catch) px.catch(function () {}); } catch (e) { /* already out */ }
+    }
+    this.fit();
+    if (on) this.stage.focus({ preventScroll: true });
+    this.wake();
+  };
+
+  // In full screen the table takes the largest 16:10 box the stage leaves.
+  Game.prototype.fit = function () {
+    var st = this.svg.style;
+    if (!this.full) { st.width = st.height = ''; return; }
+    var w = Math.min(this.stage.clientWidth, this.stage.clientHeight * W / H);
+    st.width = Math.floor(w) + 'px';
+    st.height = Math.floor(w * H / W) + 'px';
+  };
+
   // The hint tries candidate moves on copies of the rope, a few per frame so
   // the page stays responsive, and shows the best one as an arrow.
   Game.prototype.showHint = function () {
@@ -800,7 +860,7 @@
   // Hand pressed: send the gripper to that point (with SA-CBF, to the rope
   // point nearest to it).
   Game.prototype.press = function () {
-    if (this.locked) { this.flashText(this.locked, C.navy); this.wake(); return; }   // e.g. Knot Lab before signing in
+    if (this.locked) { this.flashText(this.locked, C.navy); this.emit('locked'); this.wake(); return; }   // e.g. Knot Lab before signing in
     this.held = true;
     this.wake();
     if (this.finished || (this.phase !== 'idle' && this.phase !== 'lift')) return;

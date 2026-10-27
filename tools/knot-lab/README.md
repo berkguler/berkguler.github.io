@@ -44,6 +44,10 @@ playable but nothing is saved.
    is only for the export script below.
 4. Push. The page picks the settings up at the next GitHub Pages build.
 
+`knot_lab.music_youtube_id` in `_config.yml` sets the background music: the id of a YouTube video
+(the part after `youtu.be/`), played in a small player under the game, or empty for no music. The
+video must allow embedding; otherwise the player and the speaker button hide themselves.
+
 ### What the backend checks
 
 - Usernames: 3 to 20 letters, digits, `-` or `_`, unique regardless of case.

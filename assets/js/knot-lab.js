@@ -159,6 +159,84 @@
     bad_meta: 'This run could not be saved.'
   };
 
+  // ---------- music ----------
+
+  // Background music from a YouTube video, in a small player under the game
+  // (YouTube's embedding rules ask for a visible player). Browsers only allow
+  // sound after the visitor has clicked or typed, so it starts then; the
+  // speaker button under the game turns it off and on, and the choice is kept.
+  // Nothing is loaded from YouTube while the music is off.
+  function Music(root, gameRoot) {
+    var self = this;
+    this.id = root.getAttribute('data-music-video');
+    this.card = root.querySelector('[data-lab-music]');
+    this.mount = root.querySelector('[data-lab-music-player]');
+    this.button = gameRoot.querySelector('[data-music]');
+    this.on = get('localStorage', 'music') !== 'off';
+    this.button.hidden = false;
+    this.show();
+    this.button.addEventListener('click', function () {
+      self.on = !self.on;
+      put('localStorage', 'music', self.on ? null : 'off');
+      self.show();
+      if (self.on) self.play(); else self.call('pauseVideo');
+    });
+    var first = function (ev) {
+      if (self.button.contains(ev.target)) return;   // the button's own click decides
+      document.removeEventListener('pointerdown', first, true);
+      document.removeEventListener('keydown', first, true);
+      if (self.on) self.play();
+    };
+    document.addEventListener('pointerdown', first, true);
+    document.addEventListener('keydown', first, true);
+  }
+
+  Music.prototype.show = function () {
+    var b = this.button;
+    b.setAttribute('aria-pressed', String(this.on));
+    b.setAttribute('aria-label', 'Music');
+    b.title = this.on ? 'Mute music' : 'Play music';
+    b.querySelector('i').className = 'fa-solid ' + (this.on ? 'fa-volume-high' : 'fa-volume-xmark');
+  };
+
+  Music.prototype.call = function (fn) {
+    try { if (this.player && typeof this.player[fn] === 'function') this.player[fn](); } catch (e) { /* not ready yet */ }
+  };
+
+  Music.prototype.fail = function () {
+    this.failed = true;
+    this.card.hidden = true;
+    this.button.hidden = true;
+  };
+
+  Music.prototype.play = function () {
+    var self = this;
+    if (this.failed) return;
+    if (this.player) { this.call('playVideo'); return; }   // until it is ready, onReady starts it
+    this.card.hidden = false;
+    var make = function () {
+      self.player = new window.YT.Player(self.mount, {
+        host: 'https://www.youtube-nocookie.com',
+        videoId: self.id, width: 356, height: 200,
+        playerVars: { loop: 1, playlist: self.id, playsinline: 1, rel: 0 },
+        events: {
+          onReady: function (e) { e.target.setVolume(35); if (self.on) e.target.playVideo(); },
+          onStateChange: function (e) { if (e.data === 0 && self.on) { e.target.seekTo(0); e.target.playVideo(); } },
+          onError: function () { self.fail(); }   // e.g. the video does not allow embedding
+        }
+      });
+    };
+    if (window.YT && window.YT.Player) { make(); return; }
+    if (this.loading) return;
+    this.loading = true;
+    var before = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function () { if (before) before(); make(); };
+    var script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    script.onerror = function () { self.fail(); };   // blocked or offline
+    document.head.appendChild(script);
+  };
+
   // ---------- page ----------
 
   function Lab(root) {
@@ -171,6 +249,7 @@
     this.pin = get('sessionStorage', 'pin') || '';
     this.session = { runs: 0, points: 0 };
     this.bind(gameRoot);
+    if (root.getAttribute('data-music-video') && gameRoot.querySelector('[data-music]')) this.music = new Music(root, gameRoot);
     this.showRound(this.game.round);
     if (this.backend.ready()) {
       this.q('[data-lab-user]').value = this.user;
@@ -194,6 +273,26 @@
     gameRoot.addEventListener('knot:action', function (ev) { self.rec.action(ev.detail); });
     gameRoot.addEventListener('knot:finish', function (ev) { label('Next knot'); self.finished(ev.detail); });
     gameRoot.addEventListener('pointerdown', function (ev) { self.rec.device = ev.pointerType || 'mouse'; }, true);
+    // Signed out and playing in full screen: back to the page to sign in.
+    gameRoot.addEventListener('knot:locked', function () {
+      if (!self.game.full) return;
+      var input = self.q('[data-lab-user]'), done = false;
+      var go = function () {
+        if (done) return;
+        done = true;
+        input.focus({ preventScroll: true });
+        input.scrollIntoView({ block: 'center' });
+      };
+      self.game.toggleFull(false);
+      // Focus once the browser has left its full screen (it takes a moment).
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        document.addEventListener('fullscreenchange', go, { once: true });
+        document.addEventListener('webkitfullscreenchange', go, { once: true });
+        setTimeout(go, 600);
+      } else {
+        setTimeout(go, 0);
+      }
+    });
     // No text selection anywhere on the page outside the form fields (the
     // game root already blocks it, along with its context menu).
     document.addEventListener('selectstart', function (ev) {
@@ -221,6 +320,8 @@
     var el = this.q('[data-lab-msg]');
     el.textContent = text;
     el.className = 'lab-msg' + (cls ? ' is-' + cls : '');
+    // In full screen the page is hidden, so show it on the table.
+    if (this.game.full && text) this.game.flashText(text, cls === 'bad' ? '#b4451f' : cls === 'ok' ? '#2f7d4f' : '#273F4F');
   };
 
   Lab.prototype.signedOut = function () {

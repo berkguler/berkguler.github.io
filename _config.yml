@@ -59,5 +59,6 @@ exclude:
 # can be played, but nothing is saved. The publishable (or legacy anon) key is
 # public by design; never put a secret key here.
 knot_lab:
-  supabase_url:
-  supabase_anon_key:
+  supabase_url: https://xbtazbhdspubgrlbdlmg.supabase.co
+  supabase_anon_key: sb_publishable_cqpQ1MPq3ad-0TC6F8RFPg_xZNjiJOh
+  music_youtube_id: B63R7G8aFh4   # background music (a YouTube video id); empty for none
