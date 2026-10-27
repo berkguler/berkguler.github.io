@@ -109,8 +109,11 @@ simulation parameters, the table, the event list (press, grasp, miss, release, u
 time, position and rope node; `table` when the table changed size), the result (seconds, grasps,
 misses, hints) and the row's username, time and points.
 
-**The table.** Knots are always dealt in the middle 640 × 400. On wider or taller screens the
-table extends on both sides to fit the screen, so positions can be negative or beyond 640 / 400.
+**The table.** Knots are dealt in the middle 640 × 400 (`[0, 0, 640, 400]`), or, on screens
+taller than wide such as phones held upright, in an upright 400 × 640 (`[120, -120, 520, 520]`)
+with the drawing turned a quarter; the round records which (`upright`, `area`), and `rot`
+includes the quarter turn. The table then extends on both sides to fit the screen, so positions
+can be negative or beyond 640 / 400.
 `table` is `[x0, y0, x1, y1]` when recording starts; during a run it can change (the player went
 full screen or turned the phone), always keeping the rope on it, which shows up as a `table`
 event with the new `box`. The simulation keeps the rope inside the table at all times.

@@ -29,11 +29,15 @@
 
   // Everything that scales with the rope: rad is the radius in px, stiff the
   // bending stiffness (0: limp, MAX_STIFF: springy).
-  // box is the table [x0, y0, x1, y1]: the 640 x 400 table, extended on wide
-  // or tall screens (knots are always dealt in the middle 640 x 400).
+  // Knots are dealt in the middle 640 x 400 of the table, or in an upright
+  // 400 x 640 on screens taller than wide (phones held upright).
+  var DEAL = [0, 0, W, H], DEAL_UPRIGHT = [W / 2 - H / 2, H / 2 - W / 2, W / 2 + H / 2, H / 2 + W / 2];
+
+  // box is the table [x0, y0, x1, y1]: the deal area, extended on both sides
+  // to the screen's shape.
   function ropeParams(rad, stiff, box) {
     var cell = 2 * rad + 2;
-    box = box || [0, 0, W, H];
+    box = box || DEAL;
     return {
       rad: rad, seg: rad, bend: 1.45 * rad, stiff: stiff, box: box,
       cell: cell, cols: Math.ceil((box[2] - box[0]) / cell), rows: Math.ceil((box[3] - box[1]) / cell),
@@ -518,9 +522,9 @@
   // crossings and the knot's determinant, and still has both after settling.
   // Returns {sim, ...checks} or null when a check fails.
   function verifiedRope(R, id, p, mirror, flip, rot) {
-    var pts = knotPoints(R, id, p, mirror, flip, rot), r = p.rad;
+    var pts = knotPoints(R, id, p, mirror, flip, rot), r = p.rad, area = p.box;
     for (var i = 0; i < pts.length; i++) {
-      if (pts[i][0] < r + 2 || pts[i][0] > W - r - 2 || pts[i][1] < r + 2 || pts[i][1] > H - r - 2) return null;
+      if (pts[i][0] < area[0] + r + 2 || pts[i][0] > area[2] - r - 2 || pts[i][1] < area[1] + r + 2 || pts[i][1] > area[3] - r - 2) return null;
     }
     var sim = new Sim(pts, p, flip), want = drawnCrossings(id), det = KNOTS[id].det;
     var check = function () {
@@ -748,25 +752,28 @@
     var practice = !!(opts && opts.tutorial);
     if (this.tut && !practice) this.closeTutorial();
     var R = window.RopeDraw, made = null, tries = 0;
+    // On a screen taller than wide, deal upright (the drawing turned a quarter).
+    var want = this.wantBox(), upright = want[2] - want[0] < want[3] - want[1], area = upright ? DEAL_UPRIGHT : DEAL, turn = upright ? Math.PI / 2 : 0;
     // Shuffle (in the Knot Lab) and build until a rope passes every check.
     while (!made && tries < 25) {
       if (this.lab && !practice && tries % 5 === 0) this.shuffle();
       tries++;
-      var p = ropeParams(this.rad, this.stiffValue());
+      var p = ropeParams(this.rad, this.stiffValue(), area);
       var mirror = !practice && Math.random() < 0.5, flip = !practice && Math.random() < 0.5;
-      var rot = this.lab && !practice ? Math.random() * 2 * Math.PI : 0;
+      var rot = ((this.lab && !practice ? Math.random() * 2 * Math.PI : 0) + turn) % (2 * Math.PI);
       made = verifiedRope(R, this.knot, p, mirror, flip, rot);
     }
     if (!made) {   // never seen in testing; fall back to the plain overhand knot
       this.knot = '3_1';
-      p = ropeParams(this.rad, this.stiffValue());
-      mirror = flip = false; rot = 0;
-      made = { sim: new Sim(knotPoints(R, '3_1', p, false, false, 0), p, false), crossings: 3, det: 3, minSep: 1 };
+      p = ropeParams(this.rad, this.stiffValue(), area);
+      mirror = flip = false; rot = turn;
+      made = { sim: new Sim(knotPoints(R, '3_1', p, false, false, rot), p, false), crossings: 3, det: 3, minSep: 1 };
     }
     this.sim = made.sim;
     this.round = {
       knot: this.knot, name: KNOTS[this.knot].name, rad: this.rad, stiffness: this.stiffness, stiff: p.stiff,
-      mirror: mirror, flip: flip, rot: rot, crossings: made.crossings, det: made.det, minSep: made.minSep, tries: tries
+      mirror: mirror, flip: flip, rot: rot, crossings: made.crossings, det: made.det, minSep: made.minSep, tries: tries,
+      upright: upright, area: area.slice()
     };
     if (practice) this.round.tutorial = true;   // not recorded by the Knot Lab
     var thick = this.q('[data-thick]'), stiffInput = this.q('[data-stiff]'), knotInput = this.q('[data-knot]');
@@ -866,10 +873,13 @@
   Game.prototype.wantBox = function () {
     var w = this.stage.clientWidth || W, a;
     if (this.full) a = clamp(w / (this.stage.clientHeight || H), 0.45, 3.2);
-    else a = clamp(w / Math.max(240, window.innerHeight - 260), W / H, 2.4);
-    // In steps of 20, so small changes (a phone's address bar) leave it alone.
-    var ex = a >= W / H ? 20 * Math.round((H * a - W) / 40) : 0, ey = a < W / H ? 20 * Math.round((W / a - H) / 40) : 0;
-    return [-ex, -ey, W + ex, H + ey];
+    else a = clamp(w / Math.max(240, window.innerHeight - (w < 600 ? 220 : 260)), 0.62, 2.4);
+    // The deal area for that shape (upright below 1:1), extended to it in
+    // steps of 20, so small changes (a phone's address bar) leave it alone.
+    var d = a < 1 ? DEAL_UPRIGHT : DEAL, k = (d[2] - d[0]) / (d[3] - d[1]);
+    var ex = a > k ? 20 * Math.round(((d[3] - d[1]) * a - (d[2] - d[0])) / 40) : 0;
+    var ey = a < k ? 20 * Math.round(((d[2] - d[0]) / a - (d[3] - d[1])) / 40) : 0;
+    return [d[0] - ex, d[1] - ey, d[2] + ex, d[3] + ey];
   };
 
   // Fit the table to the screen. A new round gets exactly that; during a
@@ -888,7 +898,10 @@
     if (!fresh && old[0] === b[0] && old[1] === b[1] && old[2] === b[2] && old[3] === b[3]) return;
     s.setBox(b);
     this.svg.setAttribute('viewBox', b[0] + ' ' + b[1] + ' ' + (b[2] - b[0]) + ' ' + (b[3] - b[1]));
-    if (fresh) { g.x = b[2] - 34; g.y = b[3] - 34; }   // parked in the corner
+    // Parked until the first press: in the corner, or in full screen (where
+    // the buttons cover the corners) halfway down the right edge.
+    if (fresh) this.parked = true;
+    if (this.parked) { g.x = b[2] - 34; g.y = this.full ? (b[1] + b[3]) / 2 : b[3] - 34; }
     else if (s.grab < 0) { g.x = clamp(g.x, b[0] + 34, b[2] - 34); g.y = clamp(g.y, b[1] + 34, b[3] - 34); }   // carrying, it is on the rope
     if (this.ptr) this.ptr = [clamp(this.ptr[0], b[0], b[2]), clamp(this.ptr[1], b[1], b[3])];
     if (!fresh) this.emit('action', { type: 'table', box: b.slice() });
@@ -945,6 +958,7 @@
       }
     }
     if (!this.running) this.running = true;
+    this.parked = false;
     this.hinted = null;
     this.planning = null;
     this.target = { node: node, x: this.ptr[0], y: this.ptr[1] };

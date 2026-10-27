@@ -637,7 +637,7 @@ html.game-full, html.game-full body { overflow: hidden; }
 }
 .dlo-game.is-full .game-stage { position: absolute; inset: var(--coach-h, 0px) 0 0; border-radius: 0; box-shadow: none; outline: none; }
 .dlo-game.is-full .game-svg { width: 100%; height: 100%; }
-.dlo-game.is-full .game-hud, .dlo-game.is-full .game-status, .dlo-game.is-full .game-rotate {
+.dlo-game.is-full .game-hud, .dlo-game.is-full .game-status {
   background: rgba(255, 255, 255, .82); border-radius: 8px; box-shadow: 0 1px 3px rgba(39, 63, 79, .15); pointer-events: none;
 }
 .dlo-game.is-full .game-hud {
@@ -656,12 +656,7 @@ html.game-full, html.game-full body { overflow: hidden; }
 .btn--icon { padding: 5px 9px; }
 .btn[hidden] { display: none; }
 .btn--icon i { margin: 0; }
-.game-rotate { display: none; margin: 6px 0 0; font-size: .8rem; color: var(--muted); text-align: center; }
 @media (orientation: portrait) and (max-width: 760px) {
-  .dlo-game.is-full .game-rotate {
-    display: block; position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); white-space: nowrap;
-    top: calc(var(--coach-h, 0px) + 64px); margin: 0; padding: 4px 10px;
-  }
   .dlo-game.is-full .comanip-footer { flex-direction: column; align-items: stretch; gap: 6px; }
   .dlo-game.is-full .game-status { max-width: none; }
   .dlo-game.is-full .comanip-footer .links { flex-wrap: wrap; justify-content: flex-end; }
@@ -801,6 +796,10 @@ body.no-select button, body.no-select a { touch-action: manipulation; }
   .rope-band svg { height: 90px; }
   .comanip { padding: 12px; }
   .lab-login label { flex: 1 1 140px; }
+  /* The Knot Lab game edge to edge on phones: every pixel for the table. */
+  .knot-lab-page .dlo-game:not(.is-full) { margin-left: -16px; margin-right: -16px; padding: 10px 0; border-left: 0; border-right: 0; border-radius: 0; }
+  .knot-lab-page .dlo-game:not(.is-full) > :not(.game-stage) { margin-left: 12px; margin-right: 12px; }
+  .knot-lab-page .dlo-game:not(.is-full) .game-stage { border-radius: 0; }
   .lab-login input, .lab-login input[data-lab-pin] { width: 100%; }
   .lab-login .btn { flex: 1 1 100%; justify-content: center; }
   .comanip-readout, .bik-readout { grid-template-columns: repeat(2, 1fr); }
