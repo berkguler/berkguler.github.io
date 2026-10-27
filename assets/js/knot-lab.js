@@ -67,6 +67,7 @@
 
   Recorder.prototype.action = function (d) {
     var g = this.game;
+    if (d.type === 'table' && !this.t.length) return;   // before the first press: the header's table has it
     if (d.type === 'press' && !this.t.length) { this.sample(0); this.next = 1 / RATE; }
     var e = { t: +g.t.toFixed(3), type: d.type };
     ['x', 'y'].forEach(function (k) { if (d[k] != null) e[k] = +d[k].toFixed(2); });
@@ -392,12 +393,13 @@
     if (!d.ok) return;            // only successful runs are kept
     if (!rec.t.length || d.t > rec.t[rec.t.length - 1] + 1e-6) rec.sample(d.t);
     if (!this.backend.ready() || !this.user) return;
-    var result = { ok: true, seconds: +d.t.toFixed(2), grasps: d.grasps, misses: d.misses, hints: d.hints, timeLimit: d.timeLimit };
+    var result = { ok: true, seconds: +d.t.toFixed(2), grasps: d.grasps, misses: d.misses, timeLimit: d.timeLimit };
     this.say('Saving your run…');
     rec.encode(result).then(function (enc) {
       var r = d.round;
       var meta = {
-        knot: r.knot, crossings: r.crossings, seconds: result.seconds, grasps: d.grasps, misses: d.misses, hints: d.hints,
+        knot: r.knot, crossings: r.crossings, seconds: result.seconds, grasps: d.grasps, misses: d.misses,
+        hints: 0,   // the game has no hints any more; the server still expects the field
         format: 'knot-lab/2', rate: RATE, ropeEvery: enc.every, n: self.game.sim.n, samples: rec.t.length,
         rad: r.rad, stiffness: +r.stiffness.toFixed(3), assist: r.assist || 'off', device: rec.device, bytes: enc.data.length
       };
