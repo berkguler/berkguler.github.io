@@ -266,6 +266,8 @@
     this.pin = get('sessionStorage', 'pin') || '';
     this.session = { runs: 0, points: 0 };
     this.bind(gameRoot);
+    var cbf = gameRoot.querySelector('[data-assist="cbf"]');
+    if (cbf && get('localStorage', 'assist') === 'cbf') cbf.click();
     if (root.getAttribute('data-music-video') && gameRoot.querySelector('[data-music]')) this.music = new Music(root, gameRoot);
     this.showRound(this.game.round);
     if (this.backend.ready()) {
@@ -294,6 +296,11 @@
     gameRoot.addEventListener('knot:action', function (ev) { if (!practice()) self.rec.action(ev.detail); });
     gameRoot.addEventListener('knot:finish', function (ev) { if (!practice()) { label('Next knot'); self.finished(ev.detail); } });
     gameRoot.addEventListener('pointerdown', function (ev) { self.rec.device = ev.pointerType || 'mouse'; }, true);
+    // Remember the assistance mode (off or SA-CBF) for the next visit.
+    gameRoot.addEventListener('click', function (ev) {
+      var b = ev.target.closest && ev.target.closest('[data-assist]');
+      if (b) put('localStorage', 'assist', b.getAttribute('data-assist'));
+    });
     // Signed out and playing in full screen: back to the page to sign in.
     gameRoot.addEventListener('knot:locked', function () {
       if (!self.game.full) return;
@@ -335,7 +342,8 @@
     if (!r) return;
     if (r.tutorial) { this.q('[data-lab-round]').textContent = 'practice knot (tutorial, not recorded)'; return; }
     var stiff = r.stiffness < 0.05 ? 'limp' : r.stiffness < 0.35 ? 'soft' : r.stiffness < 0.7 ? 'medium' : 'stiff';
-    this.q('[data-lab-round]').textContent = r.name + ' · ' + r.crossings + ' crossings · ' + stiff + ' · ' + (2 * r.rad) + ' mm';
+    this.q('[data-lab-round]').textContent = r.name + ' · ' + r.crossings + ' crossings · ' + stiff + ' · ' + (2 * r.rad) + ' mm' +
+      (r.assist === 'sa-cbf' ? ' · SA-CBF' : '');
   };
 
   Lab.prototype.say = function (text, cls) {
@@ -391,7 +399,7 @@
       var meta = {
         knot: r.knot, crossings: r.crossings, seconds: result.seconds, grasps: d.grasps, misses: d.misses, hints: d.hints,
         format: 'knot-lab/2', rate: RATE, ropeEvery: enc.every, n: self.game.sim.n, samples: rec.t.length,
-        rad: r.rad, stiffness: +r.stiffness.toFixed(3), device: rec.device, bytes: enc.data.length
+        rad: r.rad, stiffness: +r.stiffness.toFixed(3), assist: r.assist || 'off', device: rec.device, bytes: enc.data.length
       };
       self.queue({ meta: meta, data: enc.data });
       self.flush();

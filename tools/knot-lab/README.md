@@ -106,8 +106,15 @@ the round (knot, thickness `rad` as the rope radius, stiffness from 0 to 1, mirr
 as dealt, determinant, and `minSep`, the closest approach of two strands at the deal in rope
 diameters), the
 simulation parameters, the table, the event list (press, grasp, miss, release, up, hint, with
-time, position and rope node; `table` when the table changed size), the result (seconds, grasps,
+time, position and rope node; `blocked` when SA-CBF kept the gripper up after a click away from
+the rope; `table` when the table changed size), the result (seconds, grasps,
 misses, hints) and the row's username, time and points.
+
+**Assistance.** `round.assist` (also in the row's `meta`) is `off` or `sa-cbf`. With SA-CBF a
+press near the rope sends the gripper to the nearest rope point (the upper strand at a crossing)
+instead of the pressed point, and a press away from the rope does not lower the gripper, as on
+the AssistDLO page (the page does not draw the funnels there). The pointer channel (`hand`) is
+where the player pressed; the gripper channel (`grip`) is where the gripper went.
 
 **The table.** Knots are dealt in the middle 640 × 400 (`[0, 0, 640, 400]`), or, on screens
 taller than wide such as phones held upright, in an upright 400 × 640 (`[120, -120, 520, 520]`)

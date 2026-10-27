@@ -1,5 +1,15 @@
-{%- comment -%} The knot game in Knot Lab mode: shuffled rounds, recorded by assets/js/knot-lab.js. {%- endcomment -%}
-<div class="comanip dlo-game" data-dlo-game data-lab>
+{%- comment -%} The knot game in Knot Lab mode: shuffled rounds, recorded by assets/js/knot-lab.js.
+SA-CBF works as on the AssistDLO page, but its funnels around the rope are not drawn (data-hide-funnels). {%- endcomment -%}
+<div class="comanip dlo-game" data-dlo-game data-lab data-hide-funnels>
+  <div class="comanip-controls">
+    <div class="ctl">
+      <span class="ctl-label">Assistance</span>
+      <div class="seg" role="group" aria-label="Assistance">
+        <button type="button" data-assist="off" aria-pressed="true"><i class="fa-solid fa-hand" aria-hidden="true"></i> Off</button>
+        <button type="button" data-assist="cbf" aria-pressed="false" title="A click near the rope guides the gripper onto it; a click away from the rope keeps the gripper up"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> SA-CBF</button>
+      </div>
+    </div>
+  </div>
   <div class="game-hud" aria-live="off">
     <span>Knot <b data-out="knot">tied</b></span>
     <span>Crossings <b data-out="cross">3</b></span>

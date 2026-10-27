@@ -565,6 +565,7 @@
     this.rad = 7;
     this.stiffness = 0.2;   // slider position, 0..1
     this.lab = root.hasAttribute('data-lab');   // Knot Lab: every round is shuffled and recorded
+    this.hideFunnels = root.hasAttribute('data-hide-funnels');   // SA-CBF without drawing its funnels
     this.visible = false;
     this.build();
     this.bind();
@@ -773,7 +774,7 @@
     this.round = {
       knot: this.knot, name: KNOTS[this.knot].name, rad: this.rad, stiffness: this.stiffness, stiff: p.stiff,
       mirror: mirror, flip: flip, rot: rot, crossings: made.crossings, det: made.det, minSep: made.minSep, tries: tries,
-      upright: upright, area: area.slice()
+      upright: upright, area: area.slice(), assist: this.assist ? 'sa-cbf' : 'off'
     };
     if (practice) this.round.tutorial = true;   // not recorded by the Knot Lab
     var thick = this.q('[data-thick]'), stiffInput = this.q('[data-stiff]'), knotInput = this.q('[data-knot]');
@@ -1231,8 +1232,9 @@
     this.rope.render(pts, order);
 
     // SA-CBF: the funnels around the rope, and the rope point being approached.
-    this.funnels.setAttribute('d', 'M' + pts.map(function (q) { return f1(q[0]) + ' ' + f1(q[1]); }).join('L'));
-    this.funnels.setAttribute('opacity', this.assist ? 1 : 0);
+    var showFunnels = this.assist && !this.hideFunnels;
+    if (showFunnels) this.funnels.setAttribute('d', 'M' + pts.map(function (q) { return f1(q[0]) + ' ' + f1(q[1]); }).join('L'));
+    this.funnels.setAttribute('opacity', showFunnels ? 1 : 0);
     var guided = this.target && this.target.node >= 0 && (this.phase === 'travel' || this.phase === 'descend');
     if (guided) {
       var T = this.targetPos();
