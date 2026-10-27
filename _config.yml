@@ -46,9 +46,18 @@ kramdown:
   input: GFM
 
 exclude:
+  - tools
   - README.md
   - LICENSE.md
   - Gemfile
   - Gemfile.lock
   - vendor
   - .sass-cache
+
+# Knot Lab (/knot/): the Supabase project that stores successful runs and the
+# leaderboard. Setup: tools/knot-lab/README.md. While these are empty the page
+# can be played, but nothing is saved. The publishable (or legacy anon) key is
+# public by design; never put a secret key here.
+knot_lab:
+  supabase_url:
+  supabase_anon_key:

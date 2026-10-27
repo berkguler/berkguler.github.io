@@ -619,6 +619,54 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 .game-results tr.is-current td { background: var(--gray-soft); font-weight: 500; }
 .comanip-note { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--gray); font-size: .85rem; color: var(--muted); }
 .comanip-note i { color: var(--blue); margin-right: 4px; }
+.comanip-note--more { margin-top: 8px; padding-top: 0; border-top: 0; }
+.comanip-note--more i { color: var(--orange); }
+.play-more { margin: 14px 0 0; font-size: .9rem; color: var(--muted); }
+.play-more a { font-weight: 500; }
+.play-more i { color: var(--orange); margin-right: 2px; }
+/* No text selection or callouts on the game: a long press on a phone would start one. */
+.dlo-game { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.dlo-game input, .dlo-game select { -webkit-user-select: auto; user-select: auto; }
+
+/* ---------- Knot Lab ---------- */
+
+body.no-select { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+body.no-select input, body.no-select textarea { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+body.no-select button, body.no-select a { touch-action: manipulation; }
+.knot-lab-page .section-lead { margin-bottom: 20px; }
+.lab [hidden] { display: none !important; }
+.lab .comanip { margin-top: 8px; }
+.lab-top { margin-bottom: 14px; }
+.lab-login { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; }
+.lab-login label { display: flex; flex-direction: column; gap: 6px; }
+.lab-login input {
+  width: 190px; padding: 7px 10px; border: 1px solid var(--gray); border-radius: 8px; background: #fff;
+  color: var(--navy); font: 16px var(--font);
+}
+.lab-login input[data-lab-pin] { width: 110px; letter-spacing: .3em; font-family: var(--mono); }
+.lab-login input:focus-visible { outline: 3px solid var(--orange); outline-offset: 1px; border-color: var(--navy); }
+.lab-login .btn { padding: 8px 14px; }
+.lab-hint { flex-basis: 100%; margin: 0; font-size: .82rem; color: var(--muted); }
+.lab-who { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--muted); }
+.lab-who b { color: var(--navy); }
+.lab-offline { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--blue-soft); color: var(--navy); font-size: .9rem; }
+.lab-offline i { color: var(--blue); margin-right: 4px; }
+.lab-msg { min-height: 1.4em; margin: 8px 0 0; font-size: .88rem; font-weight: 500; color: var(--navy); }
+.lab-msg.is-ok { color: #2f7d4f; }
+.lab-msg.is-bad { color: #b4451f; }
+.lab-round { margin: 0; font-size: .88rem; color: var(--muted); }
+.lab-round i { color: var(--orange); margin-right: 2px; }
+.lab-round b { color: var(--navy); }
+.lab-board-wrap { margin-top: 32px; }
+.lab-h2 { font-size: 1.25rem; margin-bottom: 4px; }
+.lab-h2 i { color: var(--orange); margin-right: 4px; }
+.lab-count { margin: 0; font-size: .88rem; color: var(--muted); }
+.lab-board td:first-child, .lab-board th:first-child { width: 2.5em; color: var(--muted); }
+.lab-board tr.is-me td { background: var(--orange-soft); font-weight: 500; color: var(--navy); }
+.lab-rules { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
+.lab-consent { margin: 28px 0 0; padding-top: 14px; border-top: 1px solid var(--gray); font-size: .85rem; color: var(--muted); }
+.lab-consent i { color: var(--blue); margin-right: 4px; }
+.lab-consent strong { color: var(--navy); }
 
 /* ---------- Footer ---------- */
 
@@ -691,6 +739,9 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
   .js .search { min-width: 0; width: 100%; }
   .rope-band svg { height: 90px; }
   .comanip { padding: 12px; }
+  .lab-login label { flex: 1 1 140px; }
+  .lab-login input, .lab-login input[data-lab-pin] { width: 100%; }
+  .lab-login .btn { flex: 1 1 100%; justify-content: center; }
   .comanip-readout, .bik-readout { grid-template-columns: repeat(2, 1fr); }
   .ro--gain { grid-column: span 2; }
 }
