@@ -105,13 +105,22 @@ Gripper phases: 0 idle, 1 travel, 2 descend, 3 close, 4 carry, 5 lift. The `.jso
 the round (knot, thickness `rad` as the rope radius, stiffness from 0 to 1, mirror, flip, rotation, crossings
 as dealt, determinant, and `minSep`, the closest approach of two strands at the deal in rope
 diameters), the
-simulation parameters, the event list (press, grasp, miss, release, up, hint, with time, position
-and rope node), the result (seconds, grasps, misses, hints) and the row's username, time and
-points.
+simulation parameters, the table, the event list (press, grasp, miss, release, up, hint, with
+time, position and rope node; `table` when the table changed size), the result (seconds, grasps,
+misses, hints) and the row's username, time and points.
+
+**The table.** Knots are dealt in the middle 640 × 400 (`[0, 0, 640, 400]`), or, on screens
+taller than wide such as phones held upright, in an upright 400 × 640 (`[120, -120, 520, 520]`)
+with the drawing turned a quarter; the round records which (`upright`, `area`), and `rot`
+includes the quarter turn. The table then extends on both sides to fit the screen, so positions
+can be negative or beyond 640 / 400.
+`table` is `[x0, y0, x1, y1]` when recording starts; during a run it can change (the player went
+full screen or turned the phone), always keeping the rope on it, which shows up as a `table`
+event with the new `box`. The simulation keeps the rope inside the table at all times.
 
 Training on the data (for example with ACT) is not part of this folder.
 
-## Recording format (`knot-lab/1`)
+## Recording format (`knot-lab/2`)
 
 The `data` column is base64 of a gzip-compressed binary file (raw, not gzipped, if the browser
 had no `CompressionStream`). All numbers are little-endian.
@@ -128,9 +137,12 @@ had no `CompressionStream`). All numbers are little-endian.
 | 2·3·n·K | int16 rope frames (K, n, 3) in 1/`res` units: the first frame as is, every other frame as the difference to the frame before it |
 
 Header fields: `format`, `rate` (Hz), `res` (rope positions are stored in 1/`res` units),
-`table`, `n` (rope nodes), `samples` (T), `ropeFrames` (the sample indices of the K stored rope
+`table` (`[x0, y0, x1, y1]`), `n` (rope nodes), `samples` (T), `ropeFrames` (the sample indices of the K stored rope
 frames), `round`, `params`, `events`, `result`, `device` (`mouse`, `touch` or `pen`).
 
 The rope is stored for every sample unless the compressed run would exceed about 1.3 MB; then
 only every 2nd (or 4th, 8th) rope frame is kept, always including the last. Gripper and pointer
 are always stored at the full rate.
+
+`knot-lab/1` (the first runs) is the same, except that the table was always 640 × 400 and
+`table` is `[640, 400]`; the export script turns it into `[0, 0, 640, 400]`.

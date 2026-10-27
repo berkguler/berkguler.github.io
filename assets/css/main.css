@@ -628,47 +628,55 @@ a.venue:hover { text-decoration: none; background: var(--blue); color: #fff; }
 .dlo-game { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
 .dlo-game input, .dlo-game select { -webkit-user-select: auto; user-select: auto; }
 
-/* Full screen: the game covers the window, the table as large as fits (sized in JS). */
+/* Full screen: the table covers the whole window (fitTable gives it the
+   window's shape), with the counters, the status and the buttons on top. */
 html.game-full, html.game-full body { overflow: hidden; }
 .dlo-game.is-full {
-  position: fixed; inset: 0; z-index: 1000; margin: 0; border: 0; border-radius: 0; box-shadow: none;
-  display: flex; flex-direction: column; background: #fff;
-  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  position: fixed; inset: 0; z-index: 1000; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none;
+  background: #f7f7f5;
 }
-.dlo-game.is-full .game-stage {
-  flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
-  background: none; box-shadow: none; outline: none;
+.dlo-game.is-full .game-stage { position: absolute; inset: var(--coach-h, 0px) 0 0; border-radius: 0; box-shadow: none; outline: none; }
+.dlo-game.is-full .game-svg { width: 100%; height: 100%; }
+.dlo-game.is-full .game-hud, .dlo-game.is-full .game-status {
+  background: rgba(255, 255, 255, .82); border-radius: 8px; box-shadow: 0 1px 3px rgba(39, 63, 79, .15); pointer-events: none;
 }
-.dlo-game.is-full .game-svg {
-  flex: none; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--gray);
-  background: radial-gradient(circle at 1px 1px, rgba(39, 63, 79, .10) 1px, transparent 0) 0 0 / 16px 16px, #f7f7f5;
+.dlo-game.is-full .game-hud {
+  position: absolute; z-index: 2; top: calc(var(--coach-h, 0px) + 8px); left: max(8px, env(safe-area-inset-left));
+  max-width: calc(100% - 16px); margin: 0; padding: 4px 10px;
 }
-.dlo-game.is-full .comanip-controls { margin-bottom: 8px; }
-.dlo-game.is-full .comanip-footer { margin-top: 8px; flex-wrap: nowrap; }
-.dlo-game.is-full .game-status { font-size: .85rem; }
-.dlo-game.is-full .comanip-note { display: none; }
+.dlo-game.is-full .comanip-footer {
+  position: absolute; z-index: 2; margin: 0; flex-wrap: nowrap; align-items: flex-end; pointer-events: none;
+  left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom));
+}
+.dlo-game.is-full .game-status { flex: 0 1 auto; min-width: 0; max-width: 560px; padding: 4px 10px; font-size: .8rem; }
+.dlo-game.is-full .game-status:empty, .dlo-game.is-full.is-tutorial .game-status { display: none; }
+.dlo-game.is-full .comanip-footer .links { flex: none; flex-wrap: nowrap; pointer-events: auto; }
+.dlo-game.is-full .comanip-footer .btn { white-space: nowrap; }
+.dlo-game.is-full .comanip-controls, .dlo-game.is-full .comanip-note { display: none; }
 .btn--icon { padding: 5px 9px; }
 .btn[hidden] { display: none; }
 .btn--icon i { margin: 0; }
-.game-rotate { display: none; margin: 6px 0 0; font-size: .8rem; color: var(--muted); text-align: center; }
 @media (orientation: portrait) and (max-width: 760px) {
-  .dlo-game.is-full .game-rotate { display: block; }
-  .dlo-game.is-full .comanip-footer { flex-wrap: wrap; }
+  .dlo-game.is-full .comanip-footer { flex-direction: column; align-items: stretch; gap: 6px; }
+  .dlo-game.is-full .game-status { max-width: none; }
+  .dlo-game.is-full .comanip-footer .links { flex-wrap: wrap; justify-content: flex-end; }
 }
-/* Phones held sideways: the table takes the full height, the rest goes in a side column. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .dlo-game.is-full {
-    display: grid; grid-template-columns: minmax(0, 1fr) clamp(150px, 27vw, 240px); grid-template-rows: auto auto 1fr;
-    column-gap: 12px; align-content: stretch;
-  }
-  .dlo-game.is-full > * { grid-column: 2; }
-  .dlo-game.is-full .game-stage { grid-column: 1; grid-row: 1 / 4; }
-  .dlo-game.is-full .comanip-controls { display: none; }
-  .dlo-game.is-full .game-hud { gap: 2px 10px; font-size: .78rem; }
-  .dlo-game.is-full .comanip-footer { flex-wrap: wrap; flex-direction: column; align-items: stretch; margin-top: 6px; }
-  .dlo-game.is-full .comanip-footer .links { justify-content: flex-start; }
-  .dlo-game.is-full .game-status { font-size: .78rem; }
+
+/* Tutorial: what to do next, above the table (on it in full screen). */
+.game-coach {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px;
+  margin: 0 0 10px; padding: 10px 12px; border-radius: 8px; background: var(--orange-soft); box-shadow: inset 3px 0 0 var(--orange);
 }
+.game-coach[hidden] { display: none; }
+.game-coach-text { flex: 1 1 260px; margin: 0; font-size: .9rem; font-weight: 500; color: var(--navy); }
+.game-coach-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.game-coach-actions .btn[hidden] { display: none; }
+.dlo-game.is-full .game-coach {
+  position: absolute; z-index: 3; top: 0; left: 0; right: 0; margin: 0; border-radius: 0; gap: 6px 14px; background: #fff1eb;
+  padding: max(6px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 6px max(12px, env(safe-area-inset-left));
+  box-shadow: inset 0 -3px 0 var(--orange);
+}
+.dlo-game.is-full .game-coach-text { font-size: .85rem; }
 
 /* ---------- Knot Lab ---------- */
 
@@ -706,6 +714,7 @@ body.no-select button, body.no-select a { touch-action: manipulation; }
 .lab-board td:first-child, .lab-board th:first-child { width: 2.5em; color: var(--muted); }
 .lab-board tr.is-me td { background: var(--orange-soft); font-weight: 500; color: var(--navy); }
 .lab-rules { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
+.lab-hint, .lab-rules, .lab-consent { max-width: 860px; }
 .lab-consent { margin: 28px 0 0; padding-top: 14px; border-top: 1px solid var(--gray); font-size: .85rem; color: var(--muted); }
 .lab-consent i { color: var(--blue); margin-right: 4px; }
 .lab-consent strong { color: var(--navy); }
@@ -787,6 +796,10 @@ body.no-select button, body.no-select a { touch-action: manipulation; }
   .rope-band svg { height: 90px; }
   .comanip { padding: 12px; }
   .lab-login label { flex: 1 1 140px; }
+  /* The Knot Lab game edge to edge on phones: every pixel for the table. */
+  .knot-lab-page .dlo-game:not(.is-full) { margin-left: -16px; margin-right: -16px; padding: 10px 0; border-left: 0; border-right: 0; border-radius: 0; }
+  .knot-lab-page .dlo-game:not(.is-full) > :not(.game-stage) { margin-left: 12px; margin-right: 12px; }
+  .knot-lab-page .dlo-game:not(.is-full) .game-stage { border-radius: 0; }
   .lab-login input, .lab-login input[data-lab-pin] { width: 100%; }
   .lab-login .btn { flex: 1 1 100%; justify-content: center; }
   .comanip-readout, .bik-readout { grid-template-columns: repeat(2, 1fr); }

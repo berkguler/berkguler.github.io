@@ -29,11 +29,18 @@
 
   // Everything that scales with the rope: rad is the radius in px, stiff the
   // bending stiffness (0: limp, MAX_STIFF: springy).
-  function ropeParams(rad, stiff) {
+  // Knots are dealt in the middle 640 x 400 of the table, or in an upright
+  // 400 x 640 on screens taller than wide (phones held upright).
+  var DEAL = [0, 0, W, H], DEAL_UPRIGHT = [W / 2 - H / 2, H / 2 - W / 2, W / 2 + H / 2, H / 2 + W / 2];
+
+  // box is the table [x0, y0, x1, y1]: the deal area, extended on both sides
+  // to the screen's shape.
+  function ropeParams(rad, stiff, box) {
     var cell = 2 * rad + 2;
+    box = box || DEAL;
     return {
-      rad: rad, seg: rad, bend: 1.45 * rad, stiff: stiff,
-      cell: cell, cols: Math.ceil(W / cell), rows: Math.ceil(H / cell),
+      rad: rad, seg: rad, bend: 1.45 * rad, stiff: stiff, box: box,
+      cell: cell, cols: Math.ceil((box[2] - box[0]) / cell), rows: Math.ceil((box[3] - box[1]) / cell),
       gapOpen: rad + 4.5, gapShut: rad,          // finger centres from the jaw centre
       zCarry: 4 * rad + 6,                       // carrying height
       funnel: Math.max(22, 2.6 * rad + 8)        // SA-CBF: clicks this close to the rope are guided onto it
@@ -166,7 +173,7 @@
     var head = this.head, next = this.next, p = this.p;
     head.fill(-1);
     for (var i = 0; i < this.n; i++) {
-      var c = clamp(Math.floor(this.x[i] / p.cell), 0, p.cols - 1) + p.cols * clamp(Math.floor(this.y[i] / p.cell), 0, p.rows - 1);
+      var c = clamp(Math.floor((this.x[i] - p.box[0]) / p.cell), 0, p.cols - 1) + p.cols * clamp(Math.floor((this.y[i] - p.box[1]) / p.cell), 0, p.rows - 1);
       next[i] = head[c];
       head[c] = i;
     }
@@ -232,7 +239,7 @@
     var x = this.x, y = this.y, z = this.z, head = this.head, next = this.next, p = this.p;
     var D = 2 * p.rad, D2 = D * D;
     for (var i = 0; i < this.n; i++) {
-      var cx = clamp(Math.floor(x[i] / p.cell), 0, p.cols - 1), cy = clamp(Math.floor(y[i] / p.cell), 0, p.rows - 1);
+      var cx = clamp(Math.floor((x[i] - p.box[0]) / p.cell), 0, p.cols - 1), cy = clamp(Math.floor((y[i] - p.box[1]) / p.cell), 0, p.rows - 1);
       for (var oy = -1; oy <= 1; oy++) {
         var ry = cy + oy;
         if (ry < 0 || ry >= p.rows) continue;
@@ -280,12 +287,24 @@
   };
 
   Sim.prototype.solveBounds = function () {
-    var r = this.p.rad;
+    var r = this.p.rad, b = this.p.box;
     for (var i = 0; i < this.n; i++) {
       if (this.z[i] < 0) this.z[i] = 0;
-      this.x[i] = clamp(this.x[i], r, W - r);
-      this.y[i] = clamp(this.y[i], r, H - r);
+      this.x[i] = clamp(this.x[i], b[0] + r, b[2] - r);
+      this.y[i] = clamp(this.y[i], b[1] + r, b[3] - r);
     }
+  };
+
+  // Put the rope on another table: a copy of the parameters, so the moves
+  // being tried out for a hint keep theirs.
+  Sim.prototype.setBox = function (box) {
+    var p = {}, k;
+    for (k in this.p) p[k] = this.p[k];
+    p.box = box;
+    p.cols = Math.ceil((box[2] - box[0]) / p.cell);
+    p.rows = Math.ceil((box[3] - box[1]) / p.cell);
+    this.p = p;
+    this.head = new Int32Array(p.cols * p.rows);
   };
 
   Sim.prototype.crossingCount = function () { return crossings(this.x, this.y, this.n).length; };
@@ -338,7 +357,7 @@
   // straight out, and pull small loops open.
   Sim.prototype.candidateMoves = function () {
     var x = this.x, y = this.y, n = this.n, p = this.p, out = [], cr = [];
-    var inside = function (q) { return [clamp(q[0], 20, W - 20), clamp(q[1], 20, H - 20)]; };
+    var box = p.box, inside = function (q) { return [clamp(q[0], box[0] + 20, box[2] - 20), clamp(q[1], box[1] + 20, box[3] - 20)]; };
     var add = function (k, q) { q = inside(q); out.push({ k: k, x: q[0], y: q[1] }); };
     for (var i = 0; i < n - 1; i++) {
       for (var j = i + 2; j < n - 1; j++) {
@@ -503,9 +522,9 @@
   // crossings and the knot's determinant, and still has both after settling.
   // Returns {sim, ...checks} or null when a check fails.
   function verifiedRope(R, id, p, mirror, flip, rot) {
-    var pts = knotPoints(R, id, p, mirror, flip, rot), r = p.rad;
+    var pts = knotPoints(R, id, p, mirror, flip, rot), r = p.rad, area = p.box;
     for (var i = 0; i < pts.length; i++) {
-      if (pts[i][0] < r + 2 || pts[i][0] > W - r - 2 || pts[i][1] < r + 2 || pts[i][1] > H - r - 2) return null;
+      if (pts[i][0] < area[0] + r + 2 || pts[i][0] > area[2] - r - 2 || pts[i][1] < area[1] + r + 2 || pts[i][1] > area[3] - r - 2) return null;
     }
     var sim = new Sim(pts, p, flip), want = drawnCrossings(id), det = KNOTS[id].det;
     var check = function () {
@@ -580,6 +599,14 @@
     this.hintRing = el('circle', { r: 14, fill: 'none', stroke: C.orange, 'stroke-width': 3 }, this.hintG);
     this.hintEnd = el('circle', { r: 12, fill: 'none', stroke: C.orange, 'stroke-width': 2.5, 'stroke-dasharray': '4 3' }, this.hintG);
     this.flash = el('text', { x: 320, y: 384, 'text-anchor': 'middle', 'font-family': 'Roboto, sans-serif', 'font-size': 15, 'font-weight': 700, fill: C.navy }, svg);
+    // Tutorial panel, just above the table.
+    var coach = this.coach = document.createElement('div');
+    coach.className = 'game-coach';
+    coach.hidden = true;
+    coach.innerHTML = '<p class="game-coach-text" aria-live="polite"></p><div class="game-coach-actions">' +
+      '<button type="button" class="btn btn--sm" data-coach-skip>Skip tutorial</button>' +
+      '<button type="button" class="btn btn--sm btn--solid" data-coach-next>Next</button></div>';
+    this.stage.parentNode.insertBefore(coach, this.stage);
     var root = this.root;
     this.out = {};
     ['time', 'knot', 'cross', 'grasps', 'misses', 'stiff', 'thick'].forEach(function (k) { this.out[k] = root.querySelector('[data-out="' + k + '"]'); }, this);
@@ -590,8 +617,8 @@
     function local(ev) {
       var pt = self.svg.createSVGPoint();
       pt.x = ev.clientX; pt.y = ev.clientY;
-      var p = pt.matrixTransform(self.svg.getScreenCTM().inverse());
-      return [clamp(p.x, 0, W), clamp(p.y, 0, H)];
+      var p = pt.matrixTransform(self.svg.getScreenCTM().inverse()), b = self.sim.p.box;
+      return [clamp(p.x, b[0], b[2]), clamp(p.y, b[1], b[3])];
     }
     // self.ptr keeps the last hand position (the carry target after a release);
     // self.hover says whether to draw it.
@@ -625,8 +652,8 @@
       var k = ev.key, d = ev.shiftKey ? 24 : 8;
       var step = { ArrowLeft: [-d, 0], ArrowRight: [d, 0], ArrowUp: [0, -d], ArrowDown: [0, d] }[k];
       if (step) {
-        var p = self.ptr || [W / 2, H / 2];
-        self.ptr = [clamp(p[0] + step[0], 0, W), clamp(p[1] + step[1], 0, H)];
+        var p = self.ptr || [W / 2, H / 2], b = self.sim.p.box;
+        self.ptr = [clamp(p[0] + step[0], b[0], b[2]), clamp(p[1] + step[1], b[1], b[3])];
         self.hover = true;
         self.wake();
         ev.preventDefault();
@@ -648,6 +675,9 @@
       if (b.hasAttribute('data-new')) self.newKnot();
       if (b.hasAttribute('data-hint')) self.showHint();
       if (b.hasAttribute('data-full')) self.toggleFull(!self.full);
+      if (b.hasAttribute('data-tutorial')) self.startTutorial();
+      if (b.hasAttribute('data-coach-next')) self.tutNext();
+      if (b.hasAttribute('data-coach-skip')) self.endTutorial();
       if (b.hasAttribute('data-assist')) {
         self.assist = b.getAttribute('data-assist') === 'cbf';
         self.root.querySelectorAll('[data-assist]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
@@ -655,29 +685,37 @@
       }
     });
     var knot = this.q('[data-knot]'), stiff = this.q('[data-stiff]'), thick = this.q('[data-thick]');
-    if (knot) knot.addEventListener('change', function () { self.knot = knot.value; self.newKnot(); });
+    // A setting changed during the tutorial ends it (and keeps the new setting).
+    if (knot) knot.addEventListener('change', function () { if (self.tut) self.closeTutorial(); self.knot = knot.value; self.newKnot(); });
     // Stiffness applies at once; a new thickness needs a new rope.
     if (stiff) stiff.addEventListener('input', function () {
       self.stiffness = stiff.value / 100;
+      if (self.tut) self.tut.saved.stiffness = self.stiffness;
       self.sim.p.stiff = self.stiffValue();
       self.showSettings();
       self.wake();
     });
     if (thick) {
       thick.addEventListener('input', function () { self.rad = +thick.value; self.showSettings(); });
-      thick.addEventListener('change', function () { self.rad = +thick.value; self.newKnot(); });
+      thick.addEventListener('change', function () { if (self.tut) self.closeTutorial(); self.rad = +thick.value; self.newKnot(); });
     }
+
+    this.root.addEventListener('knot:action', function (ev) { if (self.tut) self.tutAction(ev.detail); });
 
     // Leaving the browser's full screen (Esc, back gesture) leaves ours too.
     ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (t) {
       document.addEventListener(t, function () {
         if (self.fsApi && !(document.fullscreenElement || document.webkitFullscreenElement)) { self.fsApi = false; self.toggleFull(false); }
-        self.fit();
+        self.fitTable();
       });
     });
     document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && self.full) self.toggleFull(false); });
-    if ('ResizeObserver' in window) new ResizeObserver(function () { self.fit(); }).observe(stage);
-    else window.addEventListener('resize', function () { self.fit(); });
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function () { self.coachSpace(); self.fitTable(); });
+      ro.observe(stage);
+      ro.observe(this.coach);
+    }
+    window.addEventListener('resize', function () { self.fitTable(); });
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
@@ -709,28 +747,35 @@
     this.stiffness = Math.random();
   };
 
-  Game.prototype.newKnot = function () {
+  // opts.tutorial: the tutorial's practice knot, always drawn the same way.
+  Game.prototype.newKnot = function (opts) {
+    var practice = !!(opts && opts.tutorial);
+    if (this.tut && !practice) this.closeTutorial();
     var R = window.RopeDraw, made = null, tries = 0;
+    // On a screen taller than wide, deal upright (the drawing turned a quarter).
+    var want = this.wantBox(), upright = want[2] - want[0] < want[3] - want[1], area = upright ? DEAL_UPRIGHT : DEAL, turn = upright ? Math.PI / 2 : 0;
     // Shuffle (in the Knot Lab) and build until a rope passes every check.
     while (!made && tries < 25) {
-      if (this.lab && tries % 5 === 0) this.shuffle();
+      if (this.lab && !practice && tries % 5 === 0) this.shuffle();
       tries++;
-      var p = ropeParams(this.rad, this.stiffValue());
-      var mirror = Math.random() < 0.5, flip = Math.random() < 0.5;
-      var rot = this.lab ? Math.random() * 2 * Math.PI : 0;
+      var p = ropeParams(this.rad, this.stiffValue(), area);
+      var mirror = !practice && Math.random() < 0.5, flip = !practice && Math.random() < 0.5;
+      var rot = ((this.lab && !practice ? Math.random() * 2 * Math.PI : 0) + turn) % (2 * Math.PI);
       made = verifiedRope(R, this.knot, p, mirror, flip, rot);
     }
     if (!made) {   // never seen in testing; fall back to the plain overhand knot
       this.knot = '3_1';
-      p = ropeParams(this.rad, this.stiffValue());
-      mirror = flip = false; rot = 0;
-      made = { sim: new Sim(knotPoints(R, '3_1', p, false, false, 0), p, false), crossings: 3, det: 3, minSep: 1 };
+      p = ropeParams(this.rad, this.stiffValue(), area);
+      mirror = flip = false; rot = turn;
+      made = { sim: new Sim(knotPoints(R, '3_1', p, false, false, rot), p, false), crossings: 3, det: 3, minSep: 1 };
     }
     this.sim = made.sim;
     this.round = {
       knot: this.knot, name: KNOTS[this.knot].name, rad: this.rad, stiffness: this.stiffness, stiff: p.stiff,
-      mirror: mirror, flip: flip, rot: rot, crossings: made.crossings, det: made.det, minSep: made.minSep, tries: tries
+      mirror: mirror, flip: flip, rot: rot, crossings: made.crossings, det: made.det, minSep: made.minSep, tries: tries,
+      upright: upright, area: area.slice()
     };
+    if (practice) this.round.tutorial = true;   // not recorded by the Knot Lab
     var thick = this.q('[data-thick]'), stiffInput = this.q('[data-stiff]'), knotInput = this.q('[data-knot]');
     if (thick) thick.value = this.rad;
     if (stiffInput) stiffInput.value = Math.round(this.stiffness * 100);
@@ -740,6 +785,7 @@
     this.rope = new R.Rope(this.ropeSlot, { width: 2 * p.rad });
     this.funnels.setAttribute('stroke-width', 2 * p.funnel);
     this.g = { x: W - 34, y: H - 34, z: Z_HOVER, open: true, yaw: 0, hold: -1 };
+    this.fitTable(true);
     this.phase = 'idle';
     this.target = null;
     this.held = false;
@@ -752,6 +798,7 @@
     this.flashT = 0;
     this.solvedFor = 0;
     this.hinted = null;
+    this.guide = null;
     this.planning = null;
     this.nCross = this.sim.crossingCount();
     // Knot Lab keeps going until the knot is untied (up to the 15 minutes the server accepts).
@@ -768,10 +815,13 @@
 
   Game.prototype.flashText = function (text, color) {
     // Same on-screen size on a phone as on a desktop.
-    var w = this.svg.getBoundingClientRect().width || W;
-    var size = 15 * clamp(W / w, 1, 2.4);
+    var b = this.sim.p.box, w = this.svg.getBoundingClientRect().width || W, upp = (b[2] - b[0]) / w;
+    var size = 15 * clamp(upp, 1, 2.4);
+    // In full screen the buttons cover the bottom of the table, so go above them.
+    var foot = this.full ? (this.q('.comanip-footer').offsetHeight + 16) * upp : 8;
     this.flash.setAttribute('font-size', f1(size));
-    this.flash.setAttribute('y', f1(H - 8 - size * 0.3));
+    this.flash.setAttribute('x', f1((b[0] + b[2]) / 2));
+    this.flash.setAttribute('y', f1(b[3] - foot - size * 0.3));
     this.flash.textContent = text;
     this.flash.setAttribute('fill', color);
     this.flashT = 1.4;
@@ -811,18 +861,51 @@
       var exit = doc.exitFullscreen || doc.webkitExitFullscreen;
       try { var px = exit.call(doc); if (px && px.catch) px.catch(function () {}); } catch (e) { /* already out */ }
     }
-    this.fit();
+    this.coachSpace();
+    this.fitTable();
     if (on) this.stage.focus({ preventScroll: true });
     this.wake();
   };
 
-  // In full screen the table takes the largest 16:10 box the stage leaves.
-  Game.prototype.fit = function () {
-    var st = this.svg.style;
-    if (!this.full) { st.width = st.height = ''; return; }
-    var w = Math.min(this.stage.clientWidth, this.stage.clientHeight * W / H);
-    st.width = Math.floor(w) + 'px';
-    st.height = Math.floor(w * H / W) + 'px';
+  // The table for the space the game has: in full screen the whole window, on
+  // the page the column's width at a height that keeps the buttons in view on
+  // wide screens. The 640 x 400 table is extended on both sides to that shape.
+  Game.prototype.wantBox = function () {
+    var w = this.stage.clientWidth || W, a;
+    if (this.full) a = clamp(w / (this.stage.clientHeight || H), 0.45, 3.2);
+    else a = clamp(w / Math.max(240, window.innerHeight - (w < 600 ? 220 : 260)), 0.62, 2.4);
+    // The deal area for that shape (upright below 1:1), extended to it in
+    // steps of 20, so small changes (a phone's address bar) leave it alone.
+    var d = a < 1 ? DEAL_UPRIGHT : DEAL, k = (d[2] - d[0]) / (d[3] - d[1]);
+    var ex = a > k ? 20 * Math.round(((d[3] - d[1]) * a - (d[2] - d[0])) / 40) : 0;
+    var ey = a < k ? 20 * Math.round(((d[2] - d[0]) / a - (d[3] - d[1])) / 40) : 0;
+    return [d[0] - ex, d[1] - ey, d[2] + ex, d[3] + ey];
+  };
+
+  // Fit the table to the screen. A new round gets exactly that; during a
+  // round the table also keeps whatever the rope still covers.
+  Game.prototype.fitTable = function (fresh) {
+    var s = this.sim, g = this.g, b = this.wantBox();
+    if (!s) return;
+    if (!fresh) {
+      var m = 2 * s.p.rad + 4;
+      for (var i = 0; i < s.n; i++) {
+        b[0] = Math.min(b[0], Math.floor(s.x[i] - m)); b[1] = Math.min(b[1], Math.floor(s.y[i] - m));
+        b[2] = Math.max(b[2], Math.ceil(s.x[i] + m)); b[3] = Math.max(b[3], Math.ceil(s.y[i] + m));
+      }
+    }
+    var old = s.p.box;
+    if (!fresh && old[0] === b[0] && old[1] === b[1] && old[2] === b[2] && old[3] === b[3]) return;
+    s.setBox(b);
+    this.svg.setAttribute('viewBox', b[0] + ' ' + b[1] + ' ' + (b[2] - b[0]) + ' ' + (b[3] - b[1]));
+    // Parked until the first press: in the corner, or in full screen (where
+    // the buttons cover the corners) halfway down the right edge.
+    if (fresh) this.parked = true;
+    if (this.parked) { g.x = b[2] - 34; g.y = this.full ? (b[1] + b[3]) / 2 : b[3] - 34; }
+    else if (s.grab < 0) { g.x = clamp(g.x, b[0] + 34, b[2] - 34); g.y = clamp(g.y, b[1] + 34, b[3] - 34); }   // carrying, it is on the rope
+    if (this.ptr) this.ptr = [clamp(this.ptr[0], b[0], b[2]), clamp(this.ptr[1], b[1], b[3])];
+    if (!fresh) this.emit('action', { type: 'table', box: b.slice() });
+    this.wake();
   };
 
   // The hint tries candidate moves on copies of the rope, a few per frame so
@@ -853,6 +936,7 @@
         : best.score < now
           ? 'Hint: grab the rope at the dashed ring and drag it to the orange ring. That loosens the knot without adding crossings.'
           : 'Hint: no single move helps much here. Try the dashed ring to the orange ring, or spread the loops apart.');
+      if (self.tut) self.tutHinted();
       self.wake();
     })();
   };
@@ -860,7 +944,7 @@
   // Hand pressed: send the gripper to that point (with SA-CBF, to the rope
   // point nearest to it).
   Game.prototype.press = function () {
-    if (this.locked) { this.flashText(this.locked, C.navy); this.emit('locked'); this.wake(); return; }   // e.g. Knot Lab before signing in
+    if (this.locked && !this.tut) { this.flashText(this.locked, C.navy); this.emit('locked'); this.wake(); return; }   // e.g. Knot Lab before signing in
     this.held = true;
     this.wake();
     if (this.finished || (this.phase !== 'idle' && this.phase !== 'lift')) return;
@@ -874,6 +958,7 @@
       }
     }
     if (!this.running) this.running = true;
+    this.parked = false;
     this.hinted = null;
     this.planning = null;
     this.target = { node: node, x: this.ptr[0], y: this.ptr[1] };
@@ -935,7 +1020,7 @@
       this.close();
     } else if (this.phase === 'carry') {
       // Lift clear of the strands below first, then follow the hand.
-      var c = [clamp(this.ptr[0] + this.carryOff[0], p.rad, W - p.rad), clamp(this.ptr[1] + this.carryOff[1], p.rad, H - p.rad)];
+      var c = [clamp(this.ptr[0] + this.carryOff[0], p.box[0] + p.rad, p.box[2] - p.rad), clamp(this.ptr[1] + this.carryOff[1], p.box[1] + p.rad, p.box[3] - p.rad)];
       this.moveZ(p.zCarry, dt);
       var left = g.z < 3 * p.rad ? 1 : this.moveXY(c[0], c[1], dt);
       if (!this.held && left === 0) this.release();
@@ -1005,7 +1090,13 @@
     this.hinted = null;
     if (this.sim.grab >= 0) this.release();
     this.emit('finish', { ok: ok, t: this.t, grasps: this.grasps, misses: this.misses, hints: this.hints, round: this.round, timeLimit: this.timeLimit });
-    if (ok) {
+    if (ok && this.tut) {
+      this.tut.step = 'done';
+      this.guide = null;
+      this.coachSay(COACH.done + (this.lab ? ' Using it halves the points for that knot.' : '') +
+        (this.locked ? ' Sign in above the game to play for the leaderboard.' : ''), 'Start playing');
+      this.status('Practice knot untied in ' + this.t.toFixed(1) + ' s.');
+    } else if (ok) {
       var key = this.knot + (this.assist ? ' cbf' : '');
       this.runs.push({ t: this.t, key: key });
       var mine = this.runs.filter(function (r) { return r.key === key; });
@@ -1018,6 +1109,100 @@
       this.status(this.lab ? 'Time is up. Press Next knot for another one.' : 'Time is up. Press New knot to try again, or use the hint.');
     }
     this.flashText(ok ? 'Untied!' : 'Time is up', ok ? '#2f7d4f' : '#b4451f');
+  };
+
+  // ---------- tutorial ----------
+
+  // A practice round on an easy overhand knot. The panel above the table says
+  // what to do, and the hint planner's moves are shown one at a time (press
+  // and hold on the dashed ring, drag to the orange ring, let go) until the
+  // knot is untied. Practice rounds carry round.tutorial, so the Knot Lab
+  // does not record them, and they can be played before signing in.
+  var SEEN = 'dloTutorialSeen';
+  var COACH = {
+    goal: 'Untie the knot: it counts as untied when the rope no longer crosses itself. Crossings, above the table, shows how many are left.',
+    finding: 'Finding a good move for you…',
+    grasp: 'Press and hold on the rope inside the dashed ring. The gripper moves there, comes down and closes on the rope.',
+    miss: 'Missed. Press right on the rope inside the dashed ring, and keep holding.',
+    drag: 'Keep holding and drag to the orange ring, then let go to put the rope down.',
+    again: 'Well done! Next move: press and hold on the dashed ring, drag to the orange ring, let go.',
+    done: 'Untied! That is the game. Every round deals a new knot with its own thickness and stiffness. Stuck? Hint shows a move.'
+  };
+
+  Game.prototype.tutorialSeen = function () {
+    try { return !!window.localStorage.getItem(SEEN); } catch (e) { return true; }   // no storage: do not insist
+  };
+
+  Game.prototype.coachSay = function (text, next) {
+    var c = this.coach, b = c.querySelector('[data-coach-next]');
+    c.hidden = false;
+    this.root.classList.add('is-tutorial');
+    c.querySelector('.game-coach-text').textContent = text;
+    b.hidden = !next;
+    if (next) b.textContent = next;
+    this.coachSpace();
+  };
+
+  // In full screen the panel is a bar along the top and the table starts below it.
+  Game.prototype.coachSpace = function () {
+    var h = this.full && !this.coach.hidden ? this.coach.offsetHeight : 0;
+    this.root.style.setProperty('--coach-h', h + 'px');
+  };
+
+  Game.prototype.startTutorial = function () {
+    if (this.tut) this.closeTutorial();
+    var saved = { knot: this.knot, rad: this.rad, stiffness: this.stiffness };
+    this.knot = '3_1'; this.rad = 8; this.stiffness = 0.3;
+    this.newKnot({ tutorial: true });
+    this.tut = { step: 'goal', moves: 0, saved: saved };
+    this.coachSay(COACH.goal, 'Next');
+    this.status('Tutorial: a practice knot.');
+  };
+
+  // Leave the tutorial; the caller deals the next round.
+  Game.prototype.closeTutorial = function () {
+    var saved = this.tut.saved;
+    this.tut = null;
+    this.guide = null;
+    this.coach.hidden = true;
+    this.root.classList.remove('is-tutorial');
+    this.coachSpace();
+    this.knot = saved.knot; this.rad = saved.rad; this.stiffness = saved.stiffness;
+    try { window.localStorage.setItem(SEEN, '1'); } catch (e) { /* private mode */ }
+  };
+
+  Game.prototype.endTutorial = function () { if (this.tut) this.newKnot(); };
+
+  Game.prototype.tutNext = function () {
+    if (!this.tut) return;
+    if (this.tut.step === 'done') this.endTutorial(); else this.tutMove();
+  };
+
+  // Plan the next move once the gripper is up and the rope has settled.
+  Game.prototype.tutMove = function () {
+    var self = this, t = this.tut, waited = 0;
+    t.step = 'finding';
+    this.guide = null;
+    this.coachSay(COACH.finding);
+    (function wait() {
+      if (self.tut !== t || self.finished) return;
+      if (self.phase !== 'idle' || (self.sim.moved > 0.05 && waited < 25)) { waited++; setTimeout(wait, 120); return; }
+      self.showHint();
+    })();
+  };
+
+  Game.prototype.tutHinted = function () {
+    var t = this.tut;
+    this.guide = this.hinted;
+    t.step = 'grasp';
+    this.coachSay(t.moves ? COACH.again : COACH.grasp);
+  };
+
+  Game.prototype.tutAction = function (d) {
+    var t = this.tut;
+    if (d.type === 'miss' && t.step === 'grasp') this.coachSay(COACH.miss);
+    else if (d.type === 'grasp' && (t.step === 'grasp' || t.step === 'finding')) { t.step = 'drag'; this.coachSay(COACH.drag); }
+    else if (d.type === 'release' && t.step === 'drag') { t.moves++; this.tutMove(); }
   };
 
   // Run frames while the stage is on screen and something is happening.
@@ -1055,8 +1240,9 @@
     }
     this.intentRing.setAttribute('opacity', guided ? 1 : 0);
 
-    // Hint: grab at the dashed ring, drop at the solid ring.
-    var h = this.hinted;
+    // Hint: grab at the dashed ring, drop at the solid ring. In the tutorial
+    // the move stays on screen while it is carried out.
+    var h = this.hinted || this.guide;
     if (h) {
       var gx = s.x[h.k], gy = s.y[h.k], dx = h.x - gx, dy = h.y - gy, L = Math.hypot(dx, dy) || 1;
       this.hintEnd.setAttribute('cx', f1(gx)); this.hintEnd.setAttribute('cy', f1(gy));

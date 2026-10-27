@@ -35,8 +35,10 @@ def decode(data):
         raise ValueError("not a knot-lab recording")
     (hlen,) = struct.unpack_from("<I", raw, 4)
     header = json.loads(raw[8:8 + hlen].decode("utf-8"))
-    if header.get("format") != "knot-lab/1":
+    if header.get("format") not in ("knot-lab/1", "knot-lab/2"):
         raise ValueError("unknown format %r" % header.get("format"))
+    if header["format"] == "knot-lab/1":  # fixed 640 x 400 table, stored as [640, 400]
+        header["table"] = [0, 0] + header["table"]
     T, n, res = header["samples"], header["n"], header["res"]
     idx = np.asarray(header["ropeFrames"], dtype=np.int32)
     K = len(idx)
