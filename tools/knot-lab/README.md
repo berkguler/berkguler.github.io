@@ -165,7 +165,10 @@ out. The counts are there for other labellings. Three more kinds are counted but
 `kink` (an R1 or R2 from the rope bending sharply over itself: the loop was never longer than
 4 rope thicknesses), `pass` (strands went through each other: a crossing whose top strand
 changed, or two crossings side by side with different strands on top that appeared or vanished
-together) and `unclassified` (fits no move).
+together, while the knot changed without an End move) and `unclassified` (fits no move). The
+signs of a pass without the knot changing are mostly a fast pull fooling the tracking (a crossing
+taken for its neighbour), so those count as `unclassified`, or not at all when two crossings only
+traded places.
 
 [`test_label_moves.py`](test_label_moves.py) checks it on hand-made rope motions with known moves.
 On 60 simulated runs (knots untied by a planner, mixed with fast random drags; 433 actions):
@@ -174,14 +177,14 @@ On 60 simulated runs (knots untied by a planner, mixed with fast random drags; 4
   `End` move between the same two rope frames, 23 times with a `pass`, once with an `unclassified`
   change and once with none of them (a pass-through one frame before the labeller saw it);
 - for every action, the crossings before and after add up with the moves it kept;
-- about 1% of the moves were `unclassified`;
+- about 2% of the moves were `unclassified`;
 - with only every 2nd rope frame kept (as for long runs, see below), 96% of the actions got the
   same label as at the full rate; with every 4th, 91%.
 
-`pass` mostly came with the rope moving very fast (about twice as far per frame as during the other
-moves), for example snapping back after a hard pull: there the simulation can still let strands
-through each other (the pass-through tests under Simulation below look for crossings that swap in
-place, which these are not), so drop or check runs with `pass` before training on them.
+A `pass` is a change of the knot that no End move explains, almost always strands really pushed
+through each other in the simulation (see the end of Simulation below for how often that happens),
+so drop or check runs with `pass` before training on them. The first version of the labeller did
+not check the knot and reported 55 passes in the same runs instead of 27.
 
 ## Simulation
 
@@ -213,9 +216,12 @@ per frame with 6 solver passes each. In every pass:
 
 With the tether and the guard, pulling knots tight in tests (all knots, thicknesses and stiffnesses,
 pulled by an end or the middle, and random fast drags) gives no crossings that swap over and under
-in place, and links stretch at most about 2× in the tightest knots. When the rope moves very fast
-(snapping back after a hard pull), strands can still get through each other; the move labels
-above mark this as `pass`.
+in place, and links stretch at most about 2× in the tightest knots. A hard pull on a held strand
+through a tight knot can still, rarely, leave one strand pushed through another: the constraints
+work against each other there, and no single one is to blame. In simulated play like the game's
+(the gripper's speeds and lifts, untying moves mixed with fast random drags) that happened about
+once every 2,200 frames (37 s of play), almost always while the gripper held the rope; checked after
+every substep, as the knot's determinant changing with no crossing at the rope's ends changing. The move labels above mark it as `pass`.
 
 The gripper is not a rigid body in the simulation: it moves at most 330 units/s sideways and
 240 units/s up and down, closes on the rope node between its jaws, and the held node then follows
