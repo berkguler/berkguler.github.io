@@ -130,6 +130,59 @@ event with the new `box`. The simulation keeps the rope inside the table at all 
 
 Training on the data (for example with ACT) is not part of this folder.
 
+## Labelling the moves
+
+[`label_moves.py`](label_moves.py) sorts every action of every run (from one grasp to the next,
+including the rope settling after the release) into one of four kinds of move, named after
+Reidemeister's moves on the rope seen from above (its diagram):
+
+| label | what the action did to the diagram |
+|---|---|
+| `End` | an end of the rope slid onto or off a strand: one crossing at the end. The only one of these moves that can change the knot |
+| `R2` | a strand slid onto or off another one: two neighbouring crossings, the same strand on top at both |
+| `R1` | a twist loop opened or closed: one crossing whose loop holds no other crossing |
+| `R3` | a strand slid across a crossing: no crossing appeared or vanished, but their order along the rope changed |
+| `none` | the diagram is the same as before (the rope only moved, or the action undid what it did) |
+
+```sh
+python3 tools/knot-lab/label_moves.py data/knot-lab     # the folder export_episodes.py wrote
+```
+
+It writes `data/knot-lab/moves/actions.csv`, one row per action: the label, the knot, assistance,
+simulation version, times (grasp, release, next grasp), crossings before and after, and how many
+moves of each kind the action kept (`+` adds crossings, `-` removes them) and how many it undid. For each run,
+`moves/episode_<id>_moves.json` lists every move with its time and crossings (positions along the
+rope in nodes, and which strand was on top).
+
+How it works: it follows the diagram from one rope frame to the next, keeps track of each crossing,
+and names every crossing that appears or vanishes, and every change in their order, by the move it
+fits. Between two frames a fast pull can make several moves, so it goes through the rope in
+between (positions moved in straight lines, halved again until one move is left), but takes which
+strand is on top only from the recorded frames. An action can make several moves; its label is the
+most significant one it kept (`End` before `R2` before `R1` before `R3`), and the moves it undid
+itself (a strand pushed onto another and pulled back off, slid across a crossing and back) cancel
+out. The counts are there for other labellings. Three more kinds are counted but never make a label:
+`kink` (an R1 or R2 from the rope bending sharply over itself: the loop was never longer than
+4 rope thicknesses), `pass` (strands went through each other: a crossing whose top strand
+changed, or two crossings side by side with different strands on top that appeared or vanished
+together) and `unclassified` (fits no move).
+
+[`test_label_moves.py`](test_label_moves.py) checks it on hand-made rope motions with known moves.
+On 60 simulated runs (knots untied by a planner, mixed with fast random drags; 433 actions):
+
+- the knot's determinant, which R1, R2 and R3 cannot change, changed 118 times: 93 times with an
+  `End` move between the same two rope frames, 23 times with a `pass`, once with an `unclassified`
+  change and once with none of them (a pass-through one frame before the labeller saw it);
+- for every action, the crossings before and after add up with the moves it kept;
+- about 1% of the moves were `unclassified`;
+- with only every 2nd rope frame kept (as for long runs, see below), 96% of the actions got the
+  same label as at the full rate; with every 4th, 91%.
+
+`pass` mostly came with the rope moving very fast (about twice as far per frame as during the other
+moves), for example snapping back after a hard pull: there the simulation can still let strands
+through each other (the pass-through tests under Simulation below look for crossings that swap in
+place, which these are not), so drop or check runs with `pass` before training on them.
+
 ## Simulation
 
 The rope (in `assets/js/assistdlo-game.js`) is simulated with position-based dynamics (PBD) in 3D:
@@ -159,8 +212,10 @@ per frame with 6 solver passes each. In every pass:
   table; with it, an untouched rope comes to rest at once, and real pulls are far stronger.
 
 With the tether and the guard, pulling knots tight in tests (all knots, thicknesses and stiffnesses,
-pulled by an end or the middle, and random fast drags) gives no strands passing through each other,
-and links stretch at most about 2× in the tightest knots.
+pulled by an end or the middle, and random fast drags) gives no crossings that swap over and under
+in place, and links stretch at most about 2× in the tightest knots. When the rope moves very fast
+(snapping back after a hard pull), strands can still get through each other; the move labels
+above mark this as `pass`.
 
 The gripper is not a rigid body in the simulation: it moves at most 330 units/s sideways and
 240 units/s up and down, closes on the rope node between its jaws, and the held node then follows
