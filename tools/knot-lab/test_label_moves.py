@@ -9,7 +9,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from label_moves import label_episode  # noqa: E402
+from label_moves import crossings, determinant, label_episode  # noqa: E402
 
 SEG = 7.0   # node spacing (table units), like a rope of thickness 14
 
@@ -88,6 +88,20 @@ def tail(e):
                      ((200, 0), (e, 0), 40)])
 
 
+def trefoil(flip=False):
+    """An open trefoil (overhand knot); with flip, its first crossing has the other strand on top."""
+    th = np.linspace(0.15, 2 * np.pi - 0.15, 160)
+    P = np.zeros((len(th), 3))
+    P[:, 0] = 320 + 50 * (np.sin(th) + 2 * np.sin(2 * th))
+    P[:, 1] = 200 + 50 * (np.cos(th) - 2 * np.cos(2 * th))
+    P[:, 2] = 20 - 14 * np.sin(3 * th)
+    if flip:
+        c = crossings(P)[0]
+        top, low = (int(c[0]), int(c[1])) if c[2] > 0 else (int(c[1]), int(c[0]))
+        P[top - 3:top + 5, 2] = P[low, 2] - 15
+    return P
+
+
 def check(name, cond, info=""):
     print(("ok   " if cond else "FAIL ") + name + (" " + str(info) if info else ""))
     return bool(cond)
@@ -129,14 +143,18 @@ def main():
     good &= check("fast and thinned: R1- still found", a[0]["counts"] == {"R1-": 1}, a[0]["counts"])
 
     a = run([[bump(150, True)] * 3 + [bump(h, True) for h in lin(150, 0, 30)]])
-    good &= check("hooked strands pulled apart through each other are reported as pass", a[0]["counts"] == {"pass": 1} and a[0]["label"] == "none", a[0]["counts"])
+    good &= check("hooked strands pulled apart through each other, knot unchanged: unclassified", a[0]["counts"] == {"unclassified-": 1} and a[0]["label"] == "none", a[0]["counts"])
 
     still = run([[bump(150)] * 10])
     good &= check("rope that does not move: none", still[0]["label"] == "none" and not still[0]["moves"], still[0]["counts"])
     flip = bump(150)
     flip[57:, 2] -= 20     # strand 2 now under strand 1: both crossings swap in place
     a = run([[bump(150)] * 5 + [flip] * 5])
-    good &= check("strands passing through each other are reported as pass", a[0]["counts"] == {"pass": 2} and a[0]["label"] == "none", a[0]["counts"])
+    good &= check("crossings swapped in place, knot unchanged: no move (cannot be told from a mix-up)", a[0]["counts"] == {} and a[0]["label"] == "none", a[0]["counts"])
+    good &= check("trefoil: determinant 3, 1 with a crossing flipped", determinant(trefoil()) == 3 and determinant(trefoil(True)) == 1,
+                  (determinant(trefoil()), determinant(trefoil(True))))
+    a = run([[trefoil()] * 5 + [trefoil(True)] * 5])
+    good &= check("a crossing of a knot swapped in place (the knot changes): pass", a[0]["counts"] == {"pass": 1} and a[0]["label"] == "none", a[0]["counts"])
 
     print("all passed" if good else "SOME FAILED")
     return 0 if good else 1

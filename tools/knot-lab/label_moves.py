@@ -21,7 +21,8 @@ across a crossing) cancel out. Every action gets one label, the most significant
 Three more kinds are counted but do not make a label: "kink" (an R1 or R2 made by the rope bending
 sharply over itself, never a loop longer than KINK), "pass" (strands went through each other: a
 crossing whose top strand changed, or two crossings side by side with different strands on top
-that appeared or vanished together) and "unclassified" (a change that fits none of the moves).
+that appeared or vanished together, while the knot changed without an End move) and
+"unclassified" (a change that fits none of the moves).
 
     python3 label_moves.py data/knot-lab                  # the folder export_episodes.py wrote
     python3 label_moves.py data/knot-lab --out moves      # default: data/knot-lab/moves
@@ -74,6 +75,49 @@ def crossings(P):
     over = np.where(za >= zb, 1.0, -1.0)
     out = np.stack([a, b, over, x, y], axis=1) if len(a) else np.zeros((0, 5))
     return out[np.argsort(out[:, 0])] if len(out) else out
+
+
+def determinant(P):
+    """The knot determinant of the rope P closed by a straight arc from its last node to its first,
+    above everything else (as the game computes it). Only an End move or strands passing through
+    each other can change it."""
+    n = len(P)
+    m = n - 1
+    if m not in _pairs:
+        _pairs[m] = np.triu_indices(m, k=2)
+    I, J = _pairs[m]
+    A, D = P[:-1], P[1:] - P[:-1]
+    d = D[I, 0] * D[J, 1] - D[I, 1] * D[J, 0]
+    qx, qy = A[J, 0] - A[I, 0], A[J, 1] - A[I, 1]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        t = (qx * D[J, 1] - qy * D[J, 0]) / d
+        u = (qx * D[I, 1] - qy * D[I, 0]) / d
+    ok = (np.abs(d) > 1e-12) & (t > 0) & (t < 1) & (u > 0) & (u < 1)
+    i, j, t, u = I[ok], J[ok], t[ok], u[ok]
+    up = P[i, 2] + D[i, 2] * t > P[j, 2] + D[j, 2] * u
+    cr = [(a, b) if o else (b, a) for a, b, o in zip(i + t, j + u, up)]   # (over, under)
+    ax, ay, bx, by = P[-1, 0], P[-1, 1], P[0, 0], P[0, 1]
+    for k in range(1, n - 2):          # the closing arc ("segment" n - 1) against the rope
+        rx, ry, sx, sy = P[k + 1, 0] - P[k, 0], P[k + 1, 1] - P[k, 1], bx - ax, by - ay
+        den = rx * sy - ry * sx
+        if abs(den) < 1e-9:
+            continue
+        tk = ((ax - P[k, 0]) * sy - (ay - P[k, 1]) * sx) / den
+        uk = ((ax - P[k, 0]) * ry - (ay - P[k, 1]) * rx) / den
+        if 0 < tk < 1 and 0 < uk < 1:
+            cr.append((n - 1 + uk, k + tk))
+    c = len(cr)
+    if c < 2:
+        return 1
+    unders = sorted(under for _, under in cr)
+    M = np.zeros((c, c))
+    for r, (over, under) in enumerate(cr):
+        arcs = [a for a in range(c) if over > unders[a]]
+        out = unders.index(under)
+        M[r, arcs[-1] if arcs else c - 1] += 2
+        M[r, (out + c - 1) % c] -= 1
+        M[r, out] -= 1
+    return int(round(abs(np.linalg.det(M[:-1, :-1]))))
 
 
 def match(prev, cur, tol):
@@ -253,6 +297,16 @@ def label_episode(npz, meta):
                     break
         for r in flipped:             # the top strand changed: strands passed through each other
             moves.append({"t": tk, "type": "pass", "sign": "0", "ids": [ids[r]], "crossings": as_list(C, [r])})
+        # A pass changes the knot. If it did not change, or an End move did, a fast pull fooled the
+        # tracking: a crossing taken for another one that only looks like a top strand changing.
+        mine = moves[first:]
+        if any(m["type"] == "pass" for m in mine):
+            if (any(m["type"] == "End" for m in mine)
+                    or determinant(last) == determinant(rope[k])):
+                for m in mine:
+                    if m["type"] == "pass":
+                        m["type"] = "unclassified" if m["sign"] != "0" else "gone"
+                moves[first:] = [m for m in mine if m["type"] != "gone"]
         C[:, 2] = top
         last = rope[k]
         frames.append((tk, state["C"], state["ids"]))
