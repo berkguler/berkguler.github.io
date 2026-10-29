@@ -20,7 +20,7 @@
   'use strict';
 
   var W = 640, H = 400;
-  var SIM_VERSION = 'pbd-4';             // recorded with every run: pbd-4 = static friction (see README)
+  var SIM_VERSION = 'pbd-5';             // recorded with every run: pbd-5 = slips instead of passing through (see README)
   var GRAV = 1800, SUB = 3, ITER = 6;    // px/s², substeps per frame, solver iterations
   var W_TABLE = 0.2;                     // rope resting on the table is harder to move (friction)
   var FINGER = 4;                        // finger pad radius (px)
@@ -108,6 +108,13 @@
         cr.push(zi > zj ? { over: i + h[0], under: j + h[1] } : { over: j + h[1], under: i + h[0] });
       }
     }
+    return determinantOf(cr, x, y, n);
+  }
+
+  // The same for a list of the rope's own crossings {over, under} (positions
+  // along the rope), found elsewhere.
+  function determinantOf(cr, x, y, n) {
+    cr = cr.slice();
     // The closing arc is "segment" n - 1, from the last node back to the first.
     for (var k = 1; k < n - 2; k++) {
       var c = hit(x[k], y[k], x[k + 1], y[k + 1], x[n - 1], y[n - 1], x[0], y[0]);
@@ -166,6 +173,7 @@
     }
     this.px.set(this.x); this.py.set(this.y); this.pz.set(this.z);
     this.grab = -1;
+    this.undos = 0; this.calm = 0; this.ease = 0;
     this.head = new Int32Array(p.cols * p.rows);
     this.next = new Int32Array(n);
     for (var s = 0; s < 40; s++) this.step(1 / 60, null);
@@ -187,6 +195,7 @@
     var h = dt / SUB, g = GRAV * h * h;
     this.moved = 0;
     for (var s = 0; s < SUB; s++) {
+      this.snapshot();
       for (var i = 0; i < n; i++) {
         var vx = x[i] - px[i], vy = y[i] - py[i], vz = z[i] - pz[i];
         var keep = z[i] < 0.6 ? 0.5 : 0.99;   // table friction, air drag
@@ -207,7 +216,67 @@
         if (it === ITER - 1) this.solveCrossings();   // once per substep: motion within one is far too small to swap strands
         this.solveBounds();
       }
+      this.easeOut();
       this.stick();
+      this.keepKnot();
+    }
+  };
+
+  // The solver's constraints can work against each other: a pull through a
+  // tight knot, or a stretched rope springing back once let go, now and then
+  // pushes one strand through another. Catch it: after every substep the knot
+  // (its determinant, from the crossing guard's crossings) must be the same as
+  // after the one before, unless a crossing at one of the rope's ends came or
+  // went (an end slipped past a strand). If not, go back UNDO substeps (two
+  // frames, to before the strands were pressed into each other) and start
+  // from rest; while the gripper holds the rope, it slips out, as a real rope
+  // pulled too hard through a tight spot would (the game shows it and records
+  // a 'slip'). The state it goes back to is still stretched tight: let go, the
+  // links would snap shut at once and push the strands through again, so for
+  // EASE substeps no node moves more than a quarter radius per substep and the
+  // stretch comes out gradually. After a few undos in a row it lets the change
+  // stand rather than freeze the rope.
+  var UNDO = 6, UNDO_MAX = 5, EASE = 30;
+  Sim.prototype.snapshot = function () {
+    var n = this.n, r = this.ring || (this.ring = { at: 0, count: 0, x: [], y: [], z: [] });
+    if (!r.x[r.at] || r.x[r.at].length !== n) { r.x[r.at] = new Float64Array(n); r.y[r.at] = new Float64Array(n); r.z[r.at] = new Float64Array(n); }
+    r.x[r.at].set(this.x); r.y[r.at].set(this.y); r.z[r.at].set(this.z);
+    r.at = (r.at + 1) % UNDO;
+    r.count = Math.min(UNDO, r.count + 1);
+  };
+  Sim.prototype.keepKnot = function () {
+    if (!this.crossList) return;
+    var n = this.n, ends = 0, cr = this.crossList, h = this.kept;
+    for (var c = 0; c < cr.length; c++) {
+      var a = Math.min(cr[c].over, cr[c].under), b = Math.max(cr[c].over, cr[c].under);
+      if (a < 3 || b > n - 4) ends++;   // on the first or last three segments
+    }
+    var d = determinantOf(cr, this.x, this.y, n);
+    if (h && d !== h.det && ends === h.ends && this.undos < UNDO_MAX) {
+      var r = this.ring, o = (r.at - r.count + UNDO) % UNDO;   // the oldest snapshot
+      this.x.set(r.x[o]); this.y.set(r.y[o]); this.z.set(r.z[o]);
+      this.px.set(r.x[o]); this.py.set(r.y[o]); this.pz.set(r.z[o]);   // and at rest
+      r.count = 0;
+      this.undos++;
+      this.calm = 0;
+      this.ease = EASE;
+      if (this.grab >= 0) { this.grab = -1; this.slipped = true; }
+      return;
+    }
+    if (++this.calm > 30) this.undos = 0;
+    this.kept = { det: d, ends: ends };
+  };
+
+  // After an undo (above): nodes move at most a quarter radius per substep.
+  Sim.prototype.easeOut = function () {
+    if (!this.ease) return;
+    this.ease--;
+    var x = this.x, y = this.y, z = this.z, px = this.px, py = this.py, pz = this.pz, lim = 0.25 * this.p.rad;
+    for (var i = 0; i < this.n; i++) {
+      if (i === this.grab) continue;
+      var dx = x[i] - px[i], dy = y[i] - py[i], dz = z[i] - pz[i], d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (d <= lim) continue;
+      x[i] = px[i] + dx * lim / d; y[i] = py[i] + dy * lim / d; z[i] = pz[i] + dz * lim / d;
     }
   };
 
@@ -320,7 +389,7 @@
   Sim.prototype.solveCrossings = function () {
     var x = this.x, y = this.y, z = this.z, px = this.px, py = this.py, pz = this.pz;
     var head = this.head, next = this.next, p = this.p, n = this.n, D = 1.8 * p.rad, i, L = [], Lmax = 0;
-    var seen = this.seen || (this.seen = new Int32Array(n));
+    var seen = this.seen || (this.seen = new Int32Array(n)), list = this.crossList = [];
     seen.fill(-1);
     for (i = 0; i < n - 1; i++) { L[i] = Math.hypot(x[i + 1] - x[i], y[i + 1] - y[i]); Lmax = Math.max(Lmax, L[i]); }
     for (i = 0; i < n - 1; i++) {
@@ -340,7 +409,7 @@
               if (!h) continue;
               var s = h[0], t = h[1];
               var dz = z[i] + (z[i + 1] - z[i]) * s - z[j] - (z[j + 1] - z[j]) * t;
-              if (Math.abs(dz) >= D) continue;
+              if (Math.abs(dz) >= D) { list.push(dz > 0 ? { over: i + s, under: j + t } : { over: j + t, under: i + s }); continue; }
               // Which strand is on top: as now, or as a moment ago, or (both on
               // the table) the one moving more rides over.
               var up = dz > 1e-3 ? 1 : dz < -1e-3 ? -1 : 0;
@@ -352,6 +421,7 @@
                 var vi = Math.abs(x[i] - px[i]) + Math.abs(y[i] - py[i]), vj = Math.abs(x[j] - px[j]) + Math.abs(y[j] - py[j]);
                 up = vi >= vj ? 1 : -1;
               }
+              list.push(up > 0 ? { over: i + s, under: j + t } : { over: j + t, under: i + s });
               // Lift the upper segment, press the lower one down unless it lies
               // on the table; split by inverse mass at the crossing point.
               var a = up > 0 ? i : j, b = up > 0 ? j : i, sa = up > 0 ? s : t, sb = up > 0 ? t : s;
@@ -1004,6 +1074,10 @@
     if (this.phase === 'carry') g.hold = s.grab;
     else if (this.phase !== 'lift') g.hold = -1;
     s.step(dt, g);
+    if (s.slipped) {
+      s.slipped = false;
+      if (this.phase === 'carry') this.slip();
+    }
 
     this.nCross = s.crossingCount();
     this.tied = this.nCross > 0;
@@ -1047,6 +1121,14 @@
     g.x = s.x[best]; g.y = s.y[best];
     this.carryOff = [g.x - this.ptr[0], g.y - this.ptr[1]];
     this.phase = 'carry';
+  };
+
+  // The simulation let go of the rope (see Sim.keepKnot).
+  Game.prototype.slip = function () {
+    this.emit('action', { type: 'slip', x: this.g.x, y: this.g.y });
+    this.flashText('Too tight: the rope slipped out of the gripper', '#b4451f');
+    this.g.open = true;
+    this.phase = 'lift';
   };
 
   Game.prototype.release = function () {
