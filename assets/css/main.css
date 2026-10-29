@@ -679,6 +679,16 @@ body.no-select button, body.no-select a { touch-action: manipulation; }
 }
 .lab-login input[data-lab-pin] { width: 110px; letter-spacing: .3em; font-family: var(--mono); }
 .lab-login input:focus-visible { outline: 3px solid var(--orange); outline-offset: 1px; border-color: var(--navy); }
+/* PIN tooltip: shows while the PIN field is hovered or focused (so also on a tap on phones) */
+.lab-pin { position: relative; }
+.lab-tip {
+  position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 5; width: max-content; max-width: 230px;
+  padding: 6px 10px; border-radius: 6px; background: var(--navy); color: #fff; font-size: .8rem; line-height: 1.35;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .18); opacity: 0; visibility: hidden; transform: translateY(4px);
+  transition: opacity .15s, transform .15s, visibility .15s; pointer-events: none;
+}
+.lab-tip::after { content: ""; position: absolute; left: 18px; top: 100%; border: 6px solid transparent; border-top-color: var(--navy); }
+.lab-pin:hover .lab-tip, .lab-pin:focus-within .lab-tip { opacity: 1; visibility: visible; transform: none; }
 .lab-login .btn { padding: 8px 14px; }
 .lab-hint { flex-basis: 100%; margin: 0; font-size: .82rem; color: var(--muted); }
 .lab-who { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--muted); }
@@ -780,6 +790,8 @@ body.no-select button, body.no-select a { touch-action: manipulation; }
   .rope-band svg { height: 90px; }
   .comanip { padding: 12px; }
   .lab-login label { flex: 1 1 140px; }
+  .lab-tip { left: auto; right: 0; }   /* the PIN field is on the right: keep the tooltip on screen */
+  .lab-tip::after { left: auto; right: 18px; }
   /* The Knot Lab game edge to edge on phones: every pixel for the table. */
   .knot-lab-page .dlo-game:not(.is-full) { margin-left: -16px; margin-right: -16px; padding: 10px 0; border-left: 0; border-right: 0; border-radius: 0; }
   .knot-lab-page .dlo-game:not(.is-full) > :not(.game-stage) { margin-left: 12px; margin-right: 12px; }

@@ -3,6 +3,7 @@ layout: default
 title: Knot Lab
 permalink: /knot/
 body_class: no-select
+analytics: false   # no Google Analytics on this page: it says exactly what it records
 description: Untie shuffled knots in a rope simulation, climb the leaderboard, and help collect data for research on robot rope manipulation.
 ---
 <section class="section knot-lab-page">
@@ -24,9 +25,10 @@ description: Untie shuffled knots in a rope simulation, climb the leaderboard, a
             <span class="ctl-label">Username</span>
             <input type="text" name="username" data-lab-user required minlength="3" maxlength="20" pattern="[A-Za-z0-9_\-]{3,20}" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="e.g. rope_master" />
           </label>
-          <label>
+          <label class="lab-pin">
             <span class="ctl-label">4-digit PIN</span>
-            <input type="password" name="pin" data-lab-pin required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="current-password" placeholder="••••" />
+            <input type="password" name="pin" data-lab-pin required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="current-password" placeholder="••••" aria-describedby="lab-pin-tip" />
+            <span class="lab-tip" id="lab-pin-tip" role="tooltip">Pick a new 4-digit PIN; don't use one you use elsewhere.</span>
           </label>
           <button type="submit" class="btn btn--solid"><i class="fa-solid fa-play" aria-hidden="true"></i>Start playing</button>
           <p class="lab-hint">New here? Pick any free name and a PIN; that claims the name. No email needed.</p>

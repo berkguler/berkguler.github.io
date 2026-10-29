@@ -44,6 +44,9 @@ playable but nothing is saved.
    is only for the export script below.
 4. Push. The page picks the settings up at the next GitHub Pages build.
 
+The game page does not load Google Analytics (`analytics: false` in `knot.html`; the rest of the site
+does), so the page's "What is recorded" note is complete. Keep it that way, or update the note.
+
 `knot_lab.music_youtube_ids` in `_config.yml` sets the background music: a list of YouTube video
 ids (the part after `youtu.be/`), played in a small player under the game, or an empty list for no
 music. Each visit picks one and starts at a random point; the shuffle button under the game moves
