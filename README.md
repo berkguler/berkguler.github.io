@@ -99,3 +99,9 @@ The physics in each script is exported for Node (`module.exports`), so it can be
 bundle install
 bundle exec jekyll serve
 ```
+
+## License
+
+All rights reserved: the site, its demos and the Knot Lab game may not be copied, reused or
+hosted elsewhere without permission. See [LICENSE.md](LICENSE.md), which also lists the
+third-party parts that keep their own terms.
