@@ -112,7 +112,8 @@ as dealt, determinant, and `minSep`, the closest approach of two strands at the 
 diameters), the
 simulation parameters, the table, the event list (press, grasp, miss, release, up, with
 time, position and rope node; `blocked` when SA-CBF kept the gripper up after a click away from
-the rope; `table` when the table changed size), the result (seconds, grasps,
+the rope; `table` when the table changed size; `slip` when the rope slipped out of the gripper,
+see Simulation), the result (seconds, grasps,
 misses) and the row's username, time and points. Runs recorded before hints were removed may
 also have `hint` events and a `hints` count.
 
@@ -215,16 +216,36 @@ per frame with 6 solver passes each. In every pass:
 - **static friction** (end of each substep): a node lying on the table or on another strand that
   moved less than 0.04 units in the substep is put back where it was. Without it, small steady
   pushes (bending, strands settling on each other) made ropes nobody touched creep across the
-  table; with it, an untouched rope comes to rest at once, and real pulls are far stronger.
+  table; with it, an untouched rope comes to rest at once, and real pulls are far stronger;
+- **knot check** (end of each substep): the knot, as its determinant from the crossing guard's
+  crossings, must be the one after the substep before, unless a crossing on the rope's first or
+  last three segments came or went (an end moving past a strand). If it changed anyway, the
+  constraints have pushed one strand through another (they can work against each other when a
+  pull meets a tight knot, or when a stretched rope springs back): the simulation goes back two
+  frames and starts from rest, with no node moving more than a quarter radius per substep for the
+  next 10 frames so the stretch comes out gradually. If the gripper was holding the rope, it lets
+  go: the rope slipped out, as a real one pulled too hard through a tight spot would, and the game
+  says so and records a `slip` event. After five undos in a row it lets the change stand rather
+  than freeze the rope.
 
 With the tether and the guard, pulling knots tight in tests (all knots, thicknesses and stiffnesses,
 pulled by an end or the middle, and random fast drags) gives no crossings that swap over and under
-in place, and links stretch at most about 2× in the tightest knots. A hard pull on a held strand
-through a tight knot can still, rarely, leave one strand pushed through another: the constraints
-work against each other there, and no single one is to blame. In simulated play like the game's
-(the gripper's speeds and lifts, untying moves mixed with fast random drags) that happened about
-once every 2,200 frames (37 s of play), almost always while the gripper held the rope; checked after
-every substep, as the knot's determinant changing with no crossing at the rope's ends changing. The move labels above mark it as `pass`.
+in place, and links stretch at most about 2× in the tightest knots. Strands passing through each
+other were measured in simulated play like the game's (the gripper's speeds and lifts, untying
+moves mixed with fast random drags; 32 games), checked after every substep as the knot's
+determinant changing with no crossing at the rope's ends changing:
+
+| `sim` | passes through | in frames | per 1,000 frames | slips |
+|---|---|---|---|---|
+| `pbd-4` | 19 | 42,800 | 0.44 | none |
+| `pbd-5` (knot check) | 6 | 45,200 | 0.13 | 42, about one per 18 s of play |
+
+The ones left are almost all right after a slip, when the rope let go springs back through itself
+more than five times in a row. Tried and dropped, as they did not help clearly: more solver
+passes or substeps, self-collision twice per pass or 10% thicker, links twice per pass, capsule
+(segment) collision, a speed limit, a capped tether, finger pads off while holding, and a crossing
+guard that keeps the order from the start of the substep. The move labels above mark what is left
+as `pass`.
 
 The gripper is not a rigid body in the simulation: it moves at most 330 units/s sideways and
 240 units/s up and down, closes on the rope node between its jaws, and the held node then follows
@@ -236,7 +257,8 @@ The physics has changed several times; mix runs from different versions only on 
 
 | `sim` | in use | what changed |
 |---|---|---|
-| `pbd-4` | from the static-friction release | static friction (above): untouched ropes no longer creep |
+| `pbd-5` | from the knot-check release | knot check (above): instead of passing through, the rope slips out of the gripper (`slip` event) or goes back two frames; about a third as many passes through |
+| `pbd-4` | 2026-10-27, about 21:40 UTC, to `pbd-5` | static friction (above): untouched ropes no longer creep |
 | `pbd-3` | 2026-10-27, about 20:25 UTC, to `pbd-4` | multi-scale bending (above), stiffness `k = 0.03·s^1.75`; untouched ropes crept (stiff ones by up to about 40 units in 10 s) |
 | (none) | 2026-10-27, about 19:40 to the `pbd-3` release (UTC) | tether and crossing guard: no pass-through; bending only between nodes i and i+2, `k = 0.06·s²` |
 | (none) | before 2026-10-27 about 19:40 UTC | first version: pulled tight, the rope could stretch and strands could pass through each other |
