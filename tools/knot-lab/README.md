@@ -152,11 +152,29 @@ Reidemeister's moves on the rope seen from above (its diagram):
 python3 tools/knot-lab/label_moves.py data/knot-lab     # the folder export_episodes.py wrote
 ```
 
-It writes `data/knot-lab/moves/actions.csv`, one row per action: the label, the knot, assistance,
+It labels as many runs at once as the computer has CPUs (`--jobs` to change that); a run takes one
+to a few seconds on one CPU.
+
+It writes `data/knot-lab/moves/actions.csv`, one row per action: whether its run is `ok` (below),
+the label, the knot, assistance,
 simulation version, times (grasp, release, next grasp), crossings before and after, and how many
 moves of each kind the action kept (`+` adds crossings, `-` removes them) and how many it undid. For each run,
 `moves/episode_<id>_moves.json` lists every move with its time and crossings (positions along the
 rope in nodes, and which strand was on top).
+
+`moves/episodes.csv` has one row per run, with `ok` = 1 if the run can be used as a demonstration
+and 0 if the simulation went wrong in it, and why (`problems`):
+
+- the knot changed without an End move (`knot_changes`, the number of rope frames where its
+  determinant changed with no End move between them and the frame before): strands passed
+  through each other, whether the labeller called that a `pass` or not;
+- the run did not start as the knot that was dealt (`det_start` is not `det_dealt`), or did not end
+  untied (`crossings_end`).
+
+`ok` does not depend on the simulation version: a run from an older version in which nothing passed
+through is as good a demonstration as a new one. The row also has the run's `pass` and
+`unclassified` moves and `stretch`, the longest link in the run in rope radii (1 at rest), for
+other cuts. The summary at the end gives the number of `ok` runs per simulation version.
 
 How it works: it follows the diagram from one rope frame to the next, keeps track of each crossing,
 and names every crossing that appears or vanishes, and every change in their order, by the move it
@@ -187,7 +205,9 @@ On 60 simulated runs (knots untied by a planner, mixed with fast random drags; 4
 
 A `pass` is a change of the knot that no End move explains, almost always strands really pushed
 through each other in the simulation (see the end of Simulation below for how often that happens),
-so drop or check runs with `pass` before training on them. The first version of the labeller did
+so train only on runs with `ok` = 1, which also leaves out the few pass-throughs the labeller did
+not see as a `pass`. In the 60 runs above, 25 changes of the knot came without an End move, in
+20 runs, and the other 40 runs had none. The first version of the labeller did
 not check the knot and reported 55 passes in the same runs instead of 27.
 
 ## Simulation

@@ -153,6 +153,13 @@ def main():
     good &= check("crossings swapped in place, knot unchanged: no move (cannot be told from a mix-up)", a[0]["counts"] == {} and a[0]["label"] == "none", a[0]["counts"])
     good &= check("trefoil: determinant 3, 1 with a crossing flipped", determinant(trefoil()) == 3 and determinant(trefoil(True)) == 1,
                   (determinant(trefoil()), determinant(trefoil(True))))
+    on = trefoil()          # a node exactly on the other strand, as rounded positions can put it
+    a_, b_, _, x, y = crossings(on)[0]
+    i, j = int(a_), int(b_)
+    on[i + 1, 2] = on[i, 2] + (on[i + 1, 2] - on[i, 2]) * (a_ - i)
+    on[j:j + 2, 1] = round(y)
+    on[i + 1, :2] = x, round(y)
+    good &= check("trefoil with a crossing exactly on a node: determinant still 3", determinant(on) == 3, determinant(on))
     a = run([[trefoil()] * 5 + [trefoil(True)] * 5])
     good &= check("a crossing of a knot swapped in place (the knot changes): pass", a[0]["counts"] == {"pass": 1} and a[0]["label"] == "none", a[0]["counts"])
 
