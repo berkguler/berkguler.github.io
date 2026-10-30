@@ -27,13 +27,17 @@ that appeared or vanished together, while the knot changed without an End move) 
     python3 label_moves.py data/knot-lab                  # the folder export_episodes.py wrote
     python3 label_moves.py data/knot-lab --out moves      # default: data/knot-lab/moves
 
-Writes moves/episode_<id>_moves.json (every action with its moves) and moves/actions.csv (one row
-per action), and prints a summary.
+Writes moves/episode_<id>_moves.json (every action with its moves), moves/actions.csv (one row
+per action) and moves/episodes.csv (one row per run), and prints a summary. A run is marked not ok
+when the simulation let strands pass through each other: the knot (its determinant) changed
+without an End move. Train only on ok runs.
 """
 import argparse
 import csv
+import functools
 import glob
 import json
+import multiprocessing
 import os
 import sys
 
@@ -80,7 +84,8 @@ def crossings(P):
 def determinant(P):
     """The knot determinant of the rope P closed by a straight arc from its last node to its first,
     above everything else (as the game computes it). Only an End move or strands passing through
-    each other can change it."""
+    each other can change it. A crossing exactly on a node (the recorded positions are rounded to
+    1/20 unit, so that happens) counts on the segment that starts there, as in crossings()."""
     n = len(P)
     m = n - 1
     if m not in _pairs:
@@ -92,7 +97,7 @@ def determinant(P):
     with np.errstate(divide="ignore", invalid="ignore"):
         t = (qx * D[J, 1] - qy * D[J, 0]) / d
         u = (qx * D[I, 1] - qy * D[I, 0]) / d
-    ok = (np.abs(d) > 1e-12) & (t > 0) & (t < 1) & (u > 0) & (u < 1)
+    ok = (np.abs(d) > 1e-12) & (t >= 0) & (t < 1) & (u >= 0) & (u < 1)
     i, j, t, u = I[ok], J[ok], t[ok], u[ok]
     up = P[i, 2] + D[i, 2] * t > P[j, 2] + D[j, 2] * u
     cr = [(a, b) if o else (b, a) for a, b, o in zip(i + t, j + u, up)]   # (over, under)
@@ -104,7 +109,7 @@ def determinant(P):
             continue
         tk = ((ax - P[k, 0]) * sy - (ay - P[k, 1]) * sx) / den
         uk = ((ax - P[k, 0]) * ry - (ay - P[k, 1]) * rx) / den
-        if 0 < tk < 1 and 0 < uk < 1:
+        if 0 <= tk < 1 and 0 <= uk < 1:
             cr.append((n - 1 + uk, k + tk))
     c = len(cr)
     if c < 2:
@@ -248,7 +253,8 @@ def label_episode(npz, meta):
     # several moves; going through the ropes in between, moved in straight lines, sorts them out.
     # Which strand is on top is only taken from the rope frames themselves: in between, heights
     # moved in straight lines can put a strand that lies across another one below it.
-    last = rope[0]
+    last, det = rope[0], determinant(rope[0])
+    det_start, changed = det, []       # changed: times the knot changed without an End move
     frames = [(float(rope_t[0]), state["C"], state["ids"])]   # the diagram after every frame that moved
     for k in range(1, K):
         if np.abs(rope[k] - last).max() < 0.05:   # the rope did not move: same diagram
@@ -299,16 +305,17 @@ def label_episode(npz, meta):
             moves.append({"t": tk, "type": "pass", "sign": "0", "ids": [ids[r]], "crossings": as_list(C, [r])})
         # A pass changes the knot. If it did not change, or an End move did, a fast pull fooled the
         # tracking: a crossing taken for another one that only looks like a top strand changing.
-        mine = moves[first:]
-        if any(m["type"] == "pass" for m in mine):
-            if (any(m["type"] == "End" for m in mine)
-                    or determinant(last) == determinant(rope[k])):
-                for m in mine:
-                    if m["type"] == "pass":
-                        m["type"] = "unclassified" if m["sign"] != "0" else "gone"
-                moves[first:] = [m for m in mine if m["type"] != "gone"]
+        mine, det_k = moves[first:], determinant(rope[k])
+        end = any(m["type"] == "End" for m in mine)
+        if any(m["type"] == "pass" for m in mine) and (end or det_k == det):
+            for m in mine:
+                if m["type"] == "pass":
+                    m["type"] = "unclassified" if m["sign"] != "0" else "gone"
+            moves[first:] = [m for m in mine if m["type"] != "gone"]
+        if det_k != det and not end:   # strands passed through each other, labelled pass or not
+            changed.append(round(tk, 3))
         C[:, 2] = top
-        last = rope[k]
+        last, det = rope[k], det_k
         frames.append((tk, state["C"], state["ids"]))
 
     for m in moves:
@@ -357,13 +364,60 @@ def label_episode(npz, meta):
                        **({"undone": True} if m.get("undone") else {})} for m in mine],
         })
     before_first = [m for m in moves if not starts or m["t"] < float(t[starts[0]])]
-    return actions, moves, before_first
+    knot = {"det_start": det_start, "det_end": det, "changed": changed, "crossings_end": len(state["C"])}
+    return actions, moves, before_first, knot
+
+
+def problems(meta, knot):
+    """Why a run cannot be trusted as a demonstration (empty if it can): the simulation let strands
+    pass through each other, so the knot changed without an End move, or the run did not start as
+    the knot that was dealt or end untied."""
+    out = []
+    dealt = (meta.get("round") or {}).get("det")
+    if dealt and knot["det_start"] != dealt:
+        out.append("started as a knot of determinant %d, not the dealt %d" % (knot["det_start"], dealt))
+    if knot["changed"]:
+        out.append("knot changed without an End move %d time(s), first at %.1f s" % (len(knot["changed"]), knot["changed"][0]))
+    if knot["crossings_end"] or knot["det_end"] != 1:
+        out.append("not untied at the end (%d crossings)" % knot["crossings_end"])
+    return out
+
+
+def label_file(f, out):
+    """Label one run written by export_episodes.py and write its moves file; return its row for
+    episodes.csv and its rows for actions.csv."""
+    rid = int(os.path.basename(f)[8:-4])
+    with open(f[:-4] + ".json", encoding="utf-8") as fh:
+        meta = json.load(fh)
+    npz = np.load(f)
+    actions, moves, early, knot = label_episode(npz, meta)
+    bad = problems(meta, knot)
+    r, sim = meta.get("round") or {}, meta.get("sim") or ""
+    rad = r.get("rad") or (meta.get("params") or {}).get("rad") or 7
+    with open(os.path.join(out, "episode_%d_moves.json" % rid), "w", encoding="utf-8") as fh:
+        json.dump({"id": rid, "knot": r.get("knot"), "assist": r.get("assist", "off"), "sim": meta.get("sim"),
+                   "ok": not bad, "problems": bad, "knot_changed_at": knot["changed"],
+                   "actions": actions, "moves_before_first_grasp": len(early)}, fh, indent=1)
+    run = {"episode": rid, "ok": int(not bad), "knot": r.get("knot"), "assist": r.get("assist", "off"), "sim": sim,
+           "seconds": meta.get("seconds"), "actions": len(actions),
+           "det_dealt": r.get("det", ""), "det_start": knot["det_start"], "crossings_end": knot["crossings_end"],
+           "knot_changes": len(knot["changed"]), "pass": sum(m["type"] == "pass" for m in moves),
+           "unclassified": sum(m["type"] == "unclassified" for m in moves),
+           "stretch": round(float(np.linalg.norm(np.diff(npz["rope"], axis=1), axis=2).max()) / rad, 2),
+           "problems": "; ".join(bad)}
+    rows = [{"episode": rid, "action": a["index"], "ok": int(not bad), "label": a["label"], "knot": r.get("knot"),
+             "assist": r.get("assist", "off"), "sim": sim,
+             "t_grasp": a["t_grasp"], "t_release": a["t_release"], "t_end": a["t_end"],
+             "crossings_before": a["crossings_before"], "crossings_after": a["crossings_after"],
+             **{k: a["counts"].get(k, 0) for k in COUNTS}, "undone": a["undone"]} for a in actions]
+    return run, rows
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("folder", help="folder written by export_episodes.py")
     ap.add_argument("--out", help="where to write (default: <folder>/moves)")
+    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 1, help="runs labelled at once (default: one per CPU)")
     args = ap.parse_args()
     out = args.out or os.path.join(args.folder, "moves")
     os.makedirs(out, exist_ok=True)
@@ -371,33 +425,32 @@ def main():
     if not files:
         sys.exit("no episode_*.npz in " + args.folder)
 
-    rows, totals, labels = [], {}, {}
-    for f in files:
-        rid = int(os.path.basename(f)[8:-4])
-        with open(f[:-4] + ".json", encoding="utf-8") as fh:
-            meta = json.load(fh)
-        actions, moves, early = label_episode(np.load(f), meta)
-        r = meta.get("round") or {}
-        with open(os.path.join(out, "episode_%d_moves.json" % rid), "w", encoding="utf-8") as fh:
-            json.dump({"id": rid, "knot": r.get("knot"), "assist": r.get("assist", "off"), "sim": meta.get("sim"),
-                       "actions": actions, "moves_before_first_grasp": len(early)}, fh, indent=1)
-        for a in actions:
-            labels[a["label"]] = labels.get(a["label"], 0) + 1
-            for key, v in a["counts"].items():
-                totals[key] = totals.get(key, 0) + v
-            rows.append({"episode": rid, "action": a["index"], "label": a["label"], "knot": r.get("knot"),
-                         "assist": r.get("assist", "off"), "sim": meta.get("sim") or "",
-                         "t_grasp": a["t_grasp"], "t_release": a["t_release"], "t_end": a["t_end"],
-                         "crossings_before": a["crossings_before"], "crossings_after": a["crossings_after"],
-                         **{k: a["counts"].get(k, 0) for k in COUNTS}, "undone": a["undone"]})
+    runs, rows = [], []
+    with multiprocessing.Pool(min(args.jobs, len(files))) as pool:
+        for k, (run, acts) in enumerate(pool.imap(functools.partial(label_file, out=out), files)):
+            runs.append(run)
+            rows += acts
+            if (k + 1) % 50 == 0:
+                print("%d of %d runs labelled" % (k + 1, len(files)), file=sys.stderr)
 
     with open(os.path.join(out, "actions.csv"), "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()) if rows else ["episode"])
         w.writeheader()
         w.writerows(rows)
+    with open(os.path.join(out, "episodes.csv"), "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(runs[0].keys()))
+        w.writeheader()
+        w.writerows(runs)
+    by_sim = {}
+    for run in runs:
+        n_ok = by_sim.setdefault(run["sim"], [0, 0])
+        n_ok[0] += 1
+        n_ok[1] += run["ok"]
     print("%d episodes, %d actions -> %s" % (len(files), len(rows), out))
-    print("actions by label: " + ", ".join("%s %d" % (k, labels.get(k, 0)) for k in TYPES + ("none",)))
-    print("moves kept: " + ", ".join("%s %d" % (k, totals[k]) for k in COUNTS if totals.get(k)))
+    print("actions by label: " + ", ".join("%s %d" % (k, sum(a["label"] == k for a in rows)) for k in TYPES + ("none",)))
+    print("moves kept: " + ", ".join("%s %d" % (k, sum(a[k] for a in rows)) for k in COUNTS if any(a[k] for a in rows)))
+    print("runs ok, by simulation version: " + ", ".join(
+        "%s %d of %d" % (k or "(none)", v[1], v[0]) for k, v in sorted(by_sim.items())))
 
 
 if __name__ == "__main__":
